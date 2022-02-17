@@ -3753,10 +3753,28 @@ input, select, textarea {
   					right: 20px;
   					background-color: white;
   					color: white;
-					padding-top: 10px;
-  					padding-left: 30px;
-  					padding-right: 30px;
-					transition: 1.25s;
+					padding-top: 20px;
+					padding-bottom: 20px;
+  					padding-left: 20px;
+  					padding-right: 20px;
+					transition: 0.5s ease-in-out;
+					-webkit-transition: all 0.5s ease-in-out;
+				  }
+
+				  #main div.photo-centered h2{
+					text-transform: none;
+					-webkit-text-size-adjust: auto;
+					max-height: 90%;
+					margin-bottom: 0px;
+					font-size: 2.5vw;
+				  }
+
+				  #main div.photo-centered h4{
+					text-transform: none;
+					-webkit-text-size-adjust: auto;
+					max-height: 90%;
+					margin-bottom: 0px;
+					font-size: 1.5vw;
 				  }
 
 				#main .photo-centered:hover {
@@ -3769,9 +3787,9 @@ input, select, textarea {
   					right: 20px;
   					background-color: white;
   					color: white;
-					/* padding-top: 10px; */
   					padding-left: 30px;
   					padding-right: 30px;
+					transition: 1s;
 				  }
 
 			@media screen and (max-width: 980px) {
@@ -3828,12 +3846,28 @@ input, select, textarea {
 				padding: 2rem 2rem 0.1rem 2rem ;
 			}
 
+			#main > .photo{
+				width: 50%;
+			}
+
+			#main > div.photo-centered { 
+				width: 50%;
+			}
+
 		}
 
 		@media screen and (max-width: 480px) {
 
 			#main {
 				width: 100%;
+			}
+
+			#main > .photo{
+				width: 50%;
+			}
+
+			#main > div.photo-centered { 
+				width: 50%;
 			}
 
 		}
@@ -4484,7 +4518,7 @@ input, select, textarea {
 	#copyright {
 		color: #ffffff;
 		position: relative;
-		color: rgba(255, 255, 255, 0.25);
+		color: rgba(255, 255, 255, 0.65);
 		cursor: default;
 		font-family: "Source Sans Pro", Helvetica, sans-serif;
 		font-size: 0.8rem;
@@ -4804,7 +4838,7 @@ input, select, textarea {
 	-webkit-flex-wrap: wrap;
 	-ms-flex-wrap: wrap;
 	flex-wrap: wrap;
-	postiion: relative;
+	position: relative;
 	margin: -2.5em 0 0 -2.5em;
 }
 
@@ -4937,6 +4971,10 @@ input, select, textarea {
 					margin-bottom: 0;
 				}
 
+		.tiles h4{
+			color:aliceblue;
+			text-transform: none;
+		}
 		.tiles article.style1 > .image:before {
 			background-color: #f2849e;
 		}
@@ -5044,7 +5082,7 @@ input, select, textarea {
 				}
 
 	}
-
+	
 	@media screen and (max-width: 480px) {
 
 		.tiles {
@@ -5056,4 +5094,153 @@ input, select, textarea {
 				margin: 1.25em 0 0 0;
 			}
 
+	}
+
+
+/* Header-Img */
+
+.headerImg {
+	display: -moz-flex;
+	display: -webkit-flex;
+	display: -ms-flex;
+	display: flex;
+	-moz-flex-wrap: wrap;
+	-webkit-flex-wrap: wrap;
+	-ms-flex-wrap: wrap;
+	flex-wrap: wrap;
+	position: relative;
+	margin: -2.5em 0 0 -2.5em;
+}
+
+	.headerImg article {
+		-moz-transition: -moz-transform 0.5s ease, opacity 0.5s ease;
+		-webkit-transition: -webkit-transform 0.5s ease, opacity 0.5s ease;
+		-ms-transition: -ms-transform 0.5s ease, opacity 0.5s ease;
+		transition: transform 0.5s ease, opacity 0.5s ease;
+		position: relative;
+		width: 100%;
+		margin: 2.5em 0 0 2.5em;
+	}
+
+		.headerImg article > .image {
+			-moz-transition: -moz-transform 0.5s ease;
+			-webkit-transition: -webkit-transform 0.5s ease;
+			-ms-transition: -ms-transform 0.5s ease;
+			transition: transform 0.5s ease;
+			position: relative;
+			display: block;
+			width: 100%;
+			border-radius: 4px;
+			overflow: hidden;
+		}
+
+			.headerImg article > .image img {
+				display: block;
+				width: 100%;
+			}
+
+			.headerImg article > .image:before {
+				pointer-events: none;
+				-moz-transition: background-color 0.5s ease, opacity 0.5s ease;
+				-webkit-transition: background-color 0.5s ease, opacity 0.5s ease;
+				-ms-transition: background-color 0.5s ease, opacity 0.5s ease;
+				transition: background-color 0.5s ease, opacity 0.5s ease;
+				content: '';
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				opacity: 1.0;
+				z-index: 1;
+				opacity: 0.8;
+				background-color: white;
+				-moz-transform: scale(0.7);
+				-webkit-transform: scale(0.7);
+				-ms-transform: scale(0.7);
+				transform: scale(0.7);
+			}
+
+			.headerImg article > .image:after {
+				pointer-events: none;
+				-moz-transition: opacity 0.5s ease;
+				-webkit-transition: opacity 0.5s ease;
+				-ms-transition: opacity 0.5s ease;
+				transition: opacity 0.5s ease;
+				content: '';
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+
+		.headerImg article > a {
+			display: -moz-flex;
+			display: -webkit-flex;
+			display: -ms-flex;
+			display: flex;
+			-moz-flex-direction: column;
+			-webkit-flex-direction: column;
+			-ms-flex-direction: column;
+			flex-direction: column;
+			-moz-align-items: center;
+			-webkit-align-items: center;
+			-ms-align-items: center;
+			align-items: center;
+			-moz-justify-content: center;
+			-webkit-justify-content: center;
+			-ms-justify-content: center;
+			justify-content: center;
+			-moz-transition: background-color 0.5s ease, -moz-transform 0.5s ease;
+			-webkit-transition: background-color 0.5s ease, -webkit-transform 0.5s ease;
+			-ms-transition: background-color 0.5s ease, -ms-transform 0.5s ease;
+			transition: background-color 0.5s ease, transform 0.5s ease;
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			padding: 1em;
+			border-radius: 4px;
+			border-bottom: 0;
+			color: #ffffff;
+			text-align: center;
+			text-decoration: none;
+			z-index: 3;
+		}
+
+			.headerImg article > a > :last-child {
+				margin: 0;
+			}
+
+			.headerImg article > a:hover {
+				color: #ffffff !important;
+			}
+
+			.headerImg article > a h2 {
+				margin: 0;
+			}
+
+			body:not(.is-touch) .headerImg article:hover > .image:before {
+				background-color: #333333;
+				opacity: 0.35;
+			}
+
+			body:not(.is-touch) .headerImg article:hover > .image:after {
+				opacity: 0;
+			}
+
+	* + .headerImg {
+		margin-top: 2em;
+	}
+
+	body.is-preload .headerImg article {
+		-moz-transform: scale(0.9);
+		-webkit-transform: scale(0.9);
+		-ms-transform: scale(0.9);
+		transform: scale(0.9);
+		opacity: 0;
 	}
