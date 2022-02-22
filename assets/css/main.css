@@ -2954,23 +2954,13 @@ input, select, textarea {
 		}
 
 		@media screen and (max-width: 980px) {
-
-			.pagination a, .pagination span {
-				font-size: 0.9rem;
-			}
-
-		}
+			.pagination a, .pagination span {font-size: 0.9rem;}}
 
 		@media screen and (max-width: 480px) {
-
-			.pagination .page, .pagination .extra {
-				display: none;
-			}
-
-		}
+			.pagination .page, .pagination .extra {display: none;}}
 
 	.pagination a, .pagination span {
-		border-color: #eeeeee;
+		border-color: #ccc;
 	}
 
 	.pagination a {
@@ -2989,11 +2979,11 @@ input, select, textarea {
 			}
 
 		.pagination a.active {
-			background-color: #eeeeee;
+			background-color: #ccc;
 		}
 
 	.pagination span {
-		color: #eeeeee;
+		color: #ccc;
 	}
 
 /* Wrapper */
@@ -3545,10 +3535,10 @@ input, select, textarea {
 		color: rgba(255, 255, 255, 0.9);
 		border-color: rgba(255, 255, 255, 0.9);
 	}
-	.dark-mode #main h1{color: rgba(204, 204, 204, 0.9)}
-	.dark-mode #main h2{color: #ddd;}
+	.dark-mode #main h1{color: rgba(204, 204, 204, 0.95)}
+	.dark-mode #main h2{color: #eee;}
 	.dark-mode #main h3{color: #ccc;}
-	.dark-mode #main h4{color: #bbb;}
+	.dark-mode #main h4{color: #999;}
 	.dark-mode #main h5{color: #aaa;}
 	.dark-mode #main h6{color: #aaa;}
 	.dark-mode #main a{color: #ccc;}
@@ -3560,11 +3550,11 @@ input, select, textarea {
 	.dark-mode #main .tiles article h2{
 		color:#333333;
 		text-shadow: none;}
-	}
 	.dark-mode #main .tiles article h4{color:#fff;}
 	.dark-mode #main div.photo-centered {background-color:#111111;}
 	.dark-mode #main img {filter: brightness(.9) contrast(1.2);}
-	.dark-mode #main > .posts > article {border-color: #555555;}
+	.dark-mode #main > .posts > article {border-color: #1e2d38;}
+	.dark-mode #main > * {border-top: solid 2px #1e2d38;}
 
 	.dark-mode #navPanel{background-color:#0d141a;}
 	.dark-mode #navPanel{color:#ccc;}
@@ -3573,9 +3563,11 @@ input, select, textarea {
 	.dark-mode #navPanel .links li a{color: #ccc;}
 	.dark-mode #navPanel .icons li a{color: #ccc;}
 
-	.dark-mode #nav{color: #ccc}
+	.dark-mode #nav{background: rgba(25, 25, 25, 0.45);}
+	.dark-mode #nav{color: #ddd}
+	.dark-mode #nav ul.links li a{color: #ddd}
 	.dark-mode #nav ul.links li.active{background-color: #152028}
-	.dark-mode #nav ul.links li.active a{color: #ccc}
+	.dark-mode #nav ul.links li.active a{color: #eee}
 
 	.dark-mode .button {
 		background-color: transparent;
@@ -3591,6 +3583,14 @@ input, select, textarea {
 	.dark-mode #footer p{color: #ddd;}
 	.dark-mode #footer .links li a{color: #ccc;}
 	.dark-mode #footer .icons li a{color: #ccc;}
+	.dark-mode .pagination span {color:#ccc;}
+	.dark-mode .pagination a {color: #aaa !important;}
+	.dark-mode .pagination a.active {color: #333 !important;}
+	.dark-mode .pagination a:hover {
+		color: #18bfef !important;
+		border-color: #18bfef;
+		z-index: 1;
+	}
 
 
 
@@ -3607,8 +3607,8 @@ input, select, textarea {
 		/* #main h1 , #main h2, #main h3, #main h4, #main h5{color: #333333;} */
 		#main h1{color:#333333;}
 		#main h2{color:#111111;}
-		#main h3{color:#ddd;}
-		#main h4{color:#ddd;}
+		#main h3{color:#444444;}
+		#main h4{color:#444444;}
 		#main h5{color:#ccc;}
 		#main h6{color:#ccc;}
 		#main blockquote{color: #222222;}

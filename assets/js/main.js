@@ -283,6 +283,7 @@ const enableDarkMode = () => {
   document.body.classList.add('dark-mode');
   // 2. Update darkMode in localStorage
   localStorage.setItem('darkMode', 'enabled');
+//   darkModeToggle.classList.toggle("fa-sun");
 }
 
 const disableDarkMode = () => {
@@ -290,12 +291,14 @@ const disableDarkMode = () => {
   document.body.classList.remove('dark-mode');
   // 2. Update darkMode in localStorage 
   localStorage.setItem('darkMode', null);
+//   darkModeToggle.classList.toggle("fa-moon");
 }
  
 // If the user already visited and enabled darkMode
 // start things off with it on
 if (darkMode === 'enabled') {
-  enableDarkMode();
+  	enableDarkMode();
+	darkModeToggle.classList.toggle("fa-sun");
 }
 
 // When someone clicks the button
@@ -305,9 +308,14 @@ darkModeToggle.addEventListener('click', () => {
   
   // if it not current enabled, enable it
   if (darkMode !== 'enabled') {
-    enableDarkMode();
+	enableDarkMode();
   // if it has been enabled, turn it off  
   } else {  
-    disableDarkMode(); 
+	disableDarkMode();
   }
 });
+
+function myFunction(x) {
+	x.classList.toggle("fa-sun");
+	console.log("pressed")
+}
