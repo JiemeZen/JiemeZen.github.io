@@ -3552,7 +3552,7 @@ input, select, textarea {
 		text-shadow: none;}
 	.dark-mode #main .tiles article h4{color:#fff;}
 	.dark-mode #main div.photo-centered {background-color:#111111;}
-	.dark-mode #main img {filter: brightness(.9) contrast(1.2);}
+	.dark-mode #main img {filter: brightness(.85) contrast(1.05);}
 	.dark-mode #main > .posts > article {border-color: #1e2d38;}
 	.dark-mode #main > * {border-top: solid 2px #1e2d38;}
 
@@ -3576,7 +3576,7 @@ input, select, textarea {
 	}
 	.dark-mode .button:hover {
 		box-shadow: inset 0 0 0 2px #18bfef;
-		color: #18bfef !important;
+		color: #111 !important;
 	}
 	.dark-mode #footer {background-color: #0d141a;}
 	.dark-mode #footer h3{color: #ccc;}
@@ -3750,11 +3750,11 @@ input, select, textarea {
 					width: 100%;
 					-webkit-text-size-adjust: auto;
 					font-family: "Source Sans Pro", Helvetica, sans-serif;
-					font-weight: 900;
+					font-weight: 1000;
 					line-height: 1.5;
 					letter-spacing: 0.075em;
 					text-transform: uppercase;
-					margin: 0 0 0 0;
+					margin-bottom: 15px;
 				}
 				#main div.photo-centered {
 					position: absolute;
