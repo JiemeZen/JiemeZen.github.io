@@ -5,6 +5,7 @@
 	Jimmy Zeng, 31 Jan 2022
 	Jimmy Zeng, 10 Feb 2022 - Timeline
 	Jimmy Zeng, 22 Feb 2022 - DarkMode
+	Jimmy Zeng, 02 Mar 2022 - Timeline Achievement Components
 */
 
 html, body, div, span, applet, object,
@@ -3910,45 +3911,6 @@ input, select, textarea {
 			margin: 50px;
 			transition: 1s ease-in-out;
 		}
-			/* .skills ul {
-				list-style: none;
-			}
-
-			.skills ul li {
-				padding: 25px;
-				background-color: rgba(60, 60, 60, 0.575);
-				box-shadow: 0 0.125rem 0.75rem 0 rgba(30, 37, 45, 0.25);
-				color: white;
-				border-radius: 10px;
-				margin-bottom: 20px;
-				margin-right: 20px;
-				transition: 1s ease-in-out;
-			}
-				.skills ul li:hover {
-					padding-left: 200px;
-					padding-right: 200px;
-					box-shadow: 0 0.125rem 0.75rem 0 rgba(30, 37, 45, 0.85);
-					transition: 1s ease-in-out;
-				}
-
-			.skills ul li:last-child {
-				margin-bottom: 0;
-			}
-			
-			.skills .skill-content h2 {
-				font-weight: 500;
-				font-size: 25px;
-				line-height: 30px;
-				margin-bottom: 10px;
-				color:#222222;
-			}
-
-			.skills .skill-content p {
-				font-size: 16px;
-				line-height: 30px;
-				font-weight: 300;
-				margin-bottom: 1.5em;
-			} */
 
 			/* Individual skill components */
 			.skills .skill ul{
@@ -3986,7 +3948,7 @@ input, select, textarea {
 			margin: 0 auto;
 			position: relative;
 			opacity: 1;
-			transition: 2s;
+			transition: 1.5s;
 			-webkit-transition: all 0.5s ease-in-out;
 		}
 		
@@ -4046,12 +4008,12 @@ input, select, textarea {
 				display: inline-block;
 				border-radius: 10px;
 				font-size: 16px;
+				line-height: 32px;
 				padding: 0 0.8em 0 0.8em;
 				margin: 5px;
-				background: #d4d4d47c;
+				background: #18bfef;
 				color:#000;
 				font-weight: bold;
-				word-wrap: break-word;
 				transition: .5s ease-in-out;
 			}
 				#main > .timeline .timeline-content .tl-text ul a {
@@ -4059,7 +4021,6 @@ input, select, textarea {
 					text-decoration: none;
 				}
 				#main > .timeline .timeline-content .tl-text ul a li:hover {
-					/* background: #00CED1; */
 					opacity: 0.7;
 				}
 				#main > .timeline .timeline-content .tl-text ul li:hover{
@@ -4129,10 +4090,6 @@ input, select, textarea {
 					transform: translate(-50%, -50%);
 					left: -30px;
 				}
-				#main > .timeline-content .date {
-					position: absolute;
-					top: -30px;
-				}
 				#main > .timeline ul li:hover::before {
 					background-color: aqua;
 					height: 40px;
@@ -4141,7 +4098,74 @@ input, select, textarea {
 				}
 			}
 			
-			@media screen and (min-width: 1120px) and (max-width: 1680px) {
+			@media screen and (min-width: 1120px) and (max-width: 1280px) {
+				#main > .timeline:before {
+					content: "";
+					position: absolute;
+					top: 0;
+					left: 50%;
+					transform: translateX(-150%);
+					width: 2px;
+					height: 100%;
+					justify-content: center;
+					background-color: rgba(60, 60, 60, 0.575);
+				}
+				#main > .timeline ul li {
+					width: 48%;
+					max-width: 48%;
+					position: relative;
+					transition: 1s;
+				}
+				#main > .timeline ul li:hover {
+					transform: translateX(400%);
+					padding-top: 40px;
+					padding-bottom: 40px;
+					position: relative;
+					margin-bottom: 50px;
+					border-radius: 20px 0px 0px 20px;
+					box-shadow: 0 0.25rem 0.75rem 0 rgba(30, 30, 30, 0.65);
+					transition: 1s;
+				}
+				
+				#main > .timeline ul li:nth-child(odd) {
+					float: left;
+					clear: right;
+					transform: translateX(-5%);
+					border-radius: 20px 0px 20px 20px;
+				}
+				#main > .timeline ul li:nth-child(even) {
+					float: right;
+					clear: left;
+					transform: translateX(5%);
+					border-radius: 0px 20px 20px 20px;
+				}
+				#main > .timeline ul li::before {
+					content: "";
+					position: absolute;
+					height: 20px;
+					width: 20px;
+					border-radius: 50%;
+					background-color: gray;
+					top: 0px;
+					transition: 1.2s;
+				}
+				#main > .timeline ul li:nth-child(odd)::before {
+					transform: translate(50%, -50%);
+					right: -30px;
+				}
+				#main > .timeline ul li:nth-child(even)::before {
+					transform: translate(-50%, -50%);
+					left: -30px;
+				}
+				#main > .timeline ul li:hover::before {
+					background-color: aqua;
+					height: 40px;
+					width: 40px;
+					transition: 1.2s;
+				}
+			}
+
+			@media screen and (min-width: 1280px) and (max-width: 1680px) {
 				#main > .timeline:before {
 					content: "";
 					position: absolute;
@@ -4199,10 +4223,6 @@ input, select, textarea {
 				#main > .timeline ul li:nth-child(even)::before {
 					transform: translate(-50%, -50%);
 					left: -30px;
-				}
-				#main > .timeline-content .date {
-					position: absolute;
-					top: -30px;
 				}
 				#main > .timeline ul li:hover::before {
 					background-color: aqua;
@@ -4269,10 +4289,6 @@ input, select, textarea {
 				#main > .timeline ul li:nth-child(even)::before {
 					transform: translate(-50%, -50%);
 					left: -30px;
-				}
-				#main > .timeline-content .date {
-					position: absolute;
-					top: -30px;
 				}
 			}
 
