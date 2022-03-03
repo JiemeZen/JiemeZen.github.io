@@ -128,7 +128,7 @@ input, select, textarea {
 
 		}
 
-		@media screen and (max-width: 1280px) {
+		@media screen and (max-width: 1280px) {ftim
 
 			html {
 				font-size: 11pt;
@@ -3053,6 +3053,36 @@ input, select, textarea {
 
 		}
 
+/* Typewriter Intro */
+	.typewriter p {
+		/* font-family: monospace; Web-safe typewriter-like font */
+		overflow: hidden;/* Ensures the content is not revealed until the animation */
+		border-right: .17em solid pink;/* The typewriter cursor */
+		white-space: nowrap;/* Keeps the content on a single line */
+		margin: 0 auto;/* Gives that scrolling effect as the typing happens */
+		letter-spacing: .17em;/* Adjust as needed */
+		animation: typing 3.5s steps(30, end), blinking-cursor .5s step-end infinite;
+	}
+	/* The typing effect */
+	@keyframes typing {
+		from {
+			width: 0
+		}
+		to {
+			width: 100%
+		}
+	}
+	/* The typewriter cursor effect */
+	@keyframes blinking-cursor {
+		from,
+		to {
+			border-color: transparent
+		}
+		50% {
+			border-color: #18bfef;
+		}
+	}
+
 /* Intro */
 
 	#intro {
@@ -3744,12 +3774,13 @@ input, select, textarea {
 					padding-bottom:56.25%;
 					position:relative; 
 					display:block; 
-					width: 100%"
+					width: 100%;
+					margin-top: 2.5rem;
 				}
 
 				#main .embedVideo {
 					position:absolute; 
-					top: 0; 
+					top: 0;
 					left: 0;
 				}
 
@@ -3980,21 +4011,21 @@ input, select, textarea {
 			
 			#main > .timeline .timeline-content h2 {
 				font-weight: 500;
-				font-size: 25px;
+				font-size: 22px;
 				line-height: 30px;
 				margin-bottom: 10px;
 				color:#222222;
 			}
 
 			#main > .timeline .timeline-content p {
-				font-size: 16px;
+				font-size: 14px;
 				line-height: 30px;
 				font-weight: 300;
 				margin-bottom: 1.5em;
 			}
 			
 			#main > .timeline .timeline-content .date {
-				font-size: 18px;
+				font-size: 15px;
 				margin-bottom: 20px;
 			}
 
@@ -4007,7 +4038,7 @@ input, select, textarea {
 				all: unset;
 				display: inline-block;
 				border-radius: 10px;
-				font-size: 16px;
+				font-size: 14px;
 				line-height: 32px;
 				padding: 0 0.8em 0 0.8em;
 				margin: 5px;
@@ -4059,7 +4090,6 @@ input, select, textarea {
 					box-shadow: 0 0.25rem 0.75rem 0 rgba(30, 30, 30, 0.65);
 					transition: 1s;
 				}
-				
 				#main > .timeline ul li:nth-child(odd) {
 					float: left;
 					clear: right;
@@ -4095,6 +4125,18 @@ input, select, textarea {
 					height: 40px;
 					width: 40px;
 					transition: 1.2s;
+				}
+				#main > .timeline .timeline-content h2 {
+					font-size: 24px;
+				}
+				#main > .timeline .timeline-content p {
+					font-size: 15px;
+				}
+				#main > .timeline .timeline-content .date {
+					font-size: 16px;
+				}
+				#main > .timeline .timeline-content .tl-text ul li {
+					font-size: 14px;
 				}
 			}
 			
@@ -4163,6 +4205,18 @@ input, select, textarea {
 					width: 40px;
 					transition: 1.2s;
 				}
+				#main > .timeline .timeline-content h2 {
+					font-size: 24px;
+				}
+				#main > .timeline .timeline-content p {
+					font-size: 15px;
+				}
+				#main > .timeline .timeline-content .date {
+					font-size: 16px;
+				}
+				#main > .timeline .timeline-content .tl-text ul li {
+					font-size: 14px;
+				}
 			}
 
 			@media screen and (min-width: 1280px) and (max-width: 1680px) {
@@ -4230,6 +4284,18 @@ input, select, textarea {
 					width: 40px;
 					transition: 1.2s;
 				}
+				#main > .timeline .timeline-content h2 {
+					font-size: 25px;
+				}
+				#main > .timeline .timeline-content p {
+					font-size: 16px;
+				}
+				#main > .timeline .timeline-content .date {
+					font-size: 18px;
+				}
+				#main > .timeline .timeline-content .tl-text ul li {
+					font-size: 16px;
+				}
 			}
 
 			@media screen and (min-width: 1680px) {
@@ -4258,8 +4324,7 @@ input, select, textarea {
 					border-radius: 20px 0px 0px 20px;
 					box-shadow: 0 0.25rem 0.75rem 0 rgba(30, 30, 30, 0.65);
 					transition: 1s;
-				}
-				
+				}	
 				#main > .timeline ul li:nth-child(odd) {
 					float: left;
 					clear: right;
@@ -4289,6 +4354,18 @@ input, select, textarea {
 				#main > .timeline ul li:nth-child(even)::before {
 					transform: translate(-50%, -50%);
 					left: -30px;
+				}
+				#main > .timeline .timeline-content h2 {
+					font-size: 30px;
+				}
+				#main > .timeline .timeline-content p {
+					font-size: 16px;
+				}
+				#main > .timeline .timeline-content .date {
+					font-size: 18px;
+				}
+				#main > .timeline .timeline-content .tl-text ul li {
+					font-size: 16px;
 				}
 			}
 
@@ -5021,7 +5098,7 @@ input, select, textarea {
 	@media screen and (max-width: 980px) {
 
 		body.is-navPanel-visible #wrapper {
-			opacity: 0.6;
+			opacity: 0.5;
 		}
 
 		body.is-navPanel-visible #navPanel {
@@ -5037,7 +5114,6 @@ input, select, textarea {
 
 
 /* Tiles */
-
 .tiles {
 	display: -moz-flex;
 	display: -webkit-flex;

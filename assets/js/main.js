@@ -283,7 +283,6 @@ const enableDarkMode = () => {
   document.body.classList.add('dark-mode');
   // 2. Update darkMode in localStorage
   localStorage.setItem('darkMode', 'enabled');
-//   darkModeToggle.classList.toggle("fa-sun");
 }
 
 const disableDarkMode = () => {
@@ -291,7 +290,6 @@ const disableDarkMode = () => {
   document.body.classList.remove('dark-mode');
   // 2. Update darkMode in localStorage 
   localStorage.setItem('darkMode', null);
-//   darkModeToggle.classList.toggle("fa-moon");
 }
  
 // If the user already visited and enabled darkMode
