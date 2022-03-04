@@ -50,9 +50,7 @@
 
 				<!-- Main -->
 					<div id="main">
-
-						<!-- Featured Post -->
-						
+						<!-- Title Post -->
 							<header class="major">
 								<div class="photo">
 									<img class="photo" src="images/projects.png" alt="Passion projects" title="Jims Projects" >
@@ -62,16 +60,8 @@
 										<h2>Which leads to innovation.</h2>
 									</div>
 								  </div>
-
-								<!-- <header class="major">
-									<span class="date">April 25, 2017</span>
-								</header> -->
-								<!-- <header class="major">
-									<h2>What I see thru my eyes</h2>
-									<h4>Relive the moments. Seeing is beliving.</h4>
-								</header> -->
 							</header>
-	
+						
 						<!-- Posts -->
 							<section class="posts">
 								<!-- Article 1 -->
@@ -81,7 +71,7 @@
 											<h4>Robotic</h4></a></h2>
 									</header>
 									<a href="#article_1" class="image fit"><img src="images/projects/doggo_v0.png" alt="Legged Robot Dog" title="Doggo v0" /></a>
-									<p>Low-cost legged Robot dog with 12 joints powered by SG90 servo motors that is controlled by Raspberry Pi/Arduino. Aim to develop simple walking and standing capability. </p>
+									<p>Low-cost legged Robot dog with 12 joints powered by SG90 servo motors that is controlled by Raspberry Pi/Arduino. Aim to develop simple walking and standing capability with it. </p>
 									<ul class="actions special">
 										<li><a href="#article_1" class="button">Work in progress</a></li>
 									</ul>
@@ -104,7 +94,11 @@
 										<h2 style="text-transform: none"><a href="#article_3">Frontline Fighters<br />
 											<h4>Tech</h4></a></h2>
 									</header>
-									<a href="#article_3" class="image fit"><img src="images/projects/frontline_fighters.png"  alt="GameBoy Advanced Game" title="Frontline Fighters"/></a>
+									<div class="container">
+										<iframe  width="100%" height="100%" class="embedVideo"
+										src="https://www.youtube.com/embed/m20UOmL7dM4" allowfullscreen>
+										</iframe>
+									</div>
 									<p>Retro GBA Game developed in C and assembly language. The program uses button interrupts and game timer running at 10ms for optimal performance.
 										Go on an adventurous journey as a frontline fighter, 
 										solving challenging puzzles and battling against viruses across each level, as the difficulty increases. </p> 
@@ -120,25 +114,36 @@
 									<a href="#article_4" class="image fit"><img src="images/projects/solo8_mujoco.png"  alt="Deep Reinforcement Learning" title="Solo8 Deep RL"/></a>
 									<p>Use of Deep Reinforcement Learning to teach open source legged robot design Solo 8 to walk on both flat and rough terrain.
 										Mujoco gym is used to emulate the physics to train the agent to walk, it is rewarded for distance and speed, while punished 
-										for falls and veering off course.
+										for idling, falling and veering off course.
 									</p> 
 										<ul class="actions special">
 											<li><a href="https://github.com/JiemeZen/me5406_rl" target="_blank" class="button">See on Github</a></li>
 										</ul></article>
 							</section>
 
+						
+						<!-- Featured Post -->
+							<article class="post featured" id="motions" style="margin: 0">
+								<h2><a href="#">jimmyzeng.tech<br />
+								<h4>personal website</h4></a></h2>
+								<p style="text-align:center">This very website is coded in HTML, CSS and JS, forked from template 'Massively' by html5up.net.
+									<br/>I chose to code it instead of using website builder is to experience the full web development process of 
+									coding, hosting, domain setup and search engine optimization, while enjoying full flexibility and customisability.
+								</p> 
+							</article>
+
 						<!-- Footer -->
 							<footer>
 								<div class="pagination" id="pages">
 									<!-- <a href="#" class="previous">Prev</a> -->
 									<a class="page active">1</a>
-									<a href="projects2.html#article_3" class="page">2</a>
-									<a href="projects3.html#article_3" class="page">3</a>
+									<a href="projects2.html#article_1" class="page">2</a>
+									<a href="projects3.html#article_1" class="page">3</a>
 									<!-- <span class="extra">&hellip;</span>
 									<a href="#" class="page">8</a>
 									<a href="#" class="page">9</a>
 									<a href="#" class="page">10</a> -->
-									<a href="projects2.html#article_3" class="next">Next</a>
+									<a href="projects2.html#article_1" class="next">Next</a>
 								</div>
 							</footer>
 

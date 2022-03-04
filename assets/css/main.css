@@ -3612,23 +3612,31 @@ input, select, textarea {
 	}
 	.dark-mode .button:hover {
 		box-shadow: inset 0 0 0 2px #18c0efbb;
+		color: #18bfef !important;
+	}
+	.dark-mode .button.primary:hover {
+		box-shadow: inset 0 0 0 2px #18bfefbb;
 		color: #111 !important;
 	}
+
 	.dark-mode #footer {background-color: #0d141a;}
 	.dark-mode #footer h3{color: #ccc;}
 	.dark-mode #footer p{color: #ddd;}
 	.dark-mode #footer .links li a{color: #ccc;}
 	.dark-mode #footer .icons li a{color: #ccc;}
+
 	.dark-mode .pagination span {color:#ccc;}
 	.dark-mode .pagination a {color: #aaa !important;}
 	.dark-mode .pagination a.active {color: #333 !important;}
 	.dark-mode .pagination a:hover {
-		color: #18bfef !important;
+		color: #111 !important;
 		border-color: #18bfef;
 		z-index: 1;
 	}
 
-
+	.dark-mode #footer > section.split > section {
+		border-color: #1e2d38;
+	}
 
 
 	#main {
@@ -3775,7 +3783,7 @@ input, select, textarea {
 					position:relative; 
 					display:block; 
 					width: 100%;
-					margin-top: 2.5rem;
+					margin: 2.5rem 0;
 				}
 
 				#main .embedVideo {
@@ -4011,7 +4019,7 @@ input, select, textarea {
 			
 			#main > .timeline .timeline-content h2 {
 				font-weight: 500;
-				font-size: 22px;
+				font-size: 20px;
 				line-height: 30px;
 				margin-bottom: 10px;
 				color:#222222;
@@ -4025,7 +4033,7 @@ input, select, textarea {
 			}
 			
 			#main > .timeline .timeline-content .date {
-				font-size: 15px;
+				font-size: 13px;
 				margin-bottom: 20px;
 			}
 
@@ -4038,9 +4046,9 @@ input, select, textarea {
 				all: unset;
 				display: inline-block;
 				border-radius: 10px;
-				font-size: 14px;
+				font-size: 11px;
 				line-height: 32px;
-				padding: 0 0.8em 0 0.8em;
+				padding: 0 0.8em;
 				margin: 5px;
 				background: #18bfef;
 				color:#000;
@@ -4052,7 +4060,8 @@ input, select, textarea {
 					text-decoration: none;
 				}
 				#main > .timeline .timeline-content .tl-text ul a li:hover {
-					opacity: 0.7;
+					/* padding: 0 3em; */
+					transform: scale(1.1);
 				}
 				#main > .timeline .timeline-content .tl-text ul li:hover{
 					box-shadow: 0 0.25rem 0.75rem 0 rgba(30, 30, 30, 0.45);
@@ -4172,13 +4181,13 @@ input, select, textarea {
 				#main > .timeline ul li:nth-child(odd) {
 					float: left;
 					clear: right;
-					transform: translateX(-5%);
+					transform: translateX(-4%);
 					border-radius: 20px 0px 20px 20px;
 				}
 				#main > .timeline ul li:nth-child(even) {
 					float: right;
 					clear: left;
-					transform: translateX(5%);
+					transform: translateX(4%);
 					border-radius: 0px 20px 20px 20px;
 				}
 				#main > .timeline ul li::before {
@@ -4291,10 +4300,10 @@ input, select, textarea {
 					font-size: 16px;
 				}
 				#main > .timeline .timeline-content .date {
-					font-size: 18px;
+					font-size: 16px;
 				}
 				#main > .timeline .timeline-content .tl-text ul li {
-					font-size: 16px;
+					font-size: 14px;
 				}
 			}
 
@@ -4653,7 +4662,7 @@ input, select, textarea {
 					}
 
 					#footer > section.split > section:last-child {
-						padding: 3rem 4rem 3rem 4rem ;
+						padding: 3rem 4rem 1rem 4rem ;
 					}
 
 				#footer > section.split.contact > section {
@@ -4665,7 +4674,7 @@ input, select, textarea {
 					-webkit-align-items: center;
 					-ms-align-items: center;
 					align-items: center;
-					padding: 1.15rem 4rem;
+					padding: 2rem 4rem;
 				}
 
 					#footer > section.split.contact > section > * {
@@ -4769,19 +4778,19 @@ input, select, textarea {
 		@media screen and (max-width: 736px) {
 
 			#footer > section {
-				padding: 2rem 2rem 0.1rem 2rem ;
+				padding: 2rem 2rem 2rem 2rem ;
 			}
 
 				#footer > section.split > section {
-					padding: 2rem 2rem 0.1rem 2rem ;
+					padding: 2rem 2rem 2rem 2rem ;
 				}
 
 					#footer > section.split > section:first-child {
-						padding: 2rem 2rem 0.1rem 2rem ;
+						padding: 2rem 2rem 2rem 2rem ;
 					}
 
 					#footer > section.split > section:last-child {
-						padding: 2rem 2rem 0.1rem 2rem ;
+						padding: 2rem 2rem 2rem 2rem ;
 					}
 
 				#footer > section.split.contact > section {
