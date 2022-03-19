@@ -435,7 +435,7 @@ input, select, textarea {
 	.sitemap a:hover{
 		color:#18bfef;
 	}
-	@media screen and (max-width: 736px) {
+	@media screen and (max-width: 480px) {
 		.sites{font-size: 12px;}
 		.h3{font-size: 10px;}
 		.sitemap > .col-12-small{width:50%;}
@@ -469,8 +469,11 @@ input, select, textarea {
 		.row > .col-3 {width: 25%;}
 		.row > .off-3 {margin-left: 25%;}
 
-		.row > .col-4 {width: 30%; transition: 0.75s;}
-		.row > .col-4:hover{width: 40%; transition: 0.75s;}
+		.row > .col-4-img {width: 30%; transition: 0.75s;}
+		.row > .col-4-img:hover{width: 40%; transition: 0.75s;}
+
+		.row > .col-4 {width: 33.33333%; transition: 0.75s;}
+		.row > .col-4 ul{font-size: 14px;}
 		.row > .off-4 {margin-left: 33.33333%;}
 
 		.row > .col-5 {width: 41.66667%;}
@@ -2520,7 +2523,7 @@ input, select, textarea {
 
 		.image.fit {
 			display: block;
-			margin: 2.5rem 0;
+			margin: 2rem 0;
 			width: 100%;
 		}
 
@@ -2546,10 +2549,35 @@ input, select, textarea {
 				width: 100%;
 			}
 
+		@media screen and (max-width: 1280px) {
+
+			.image.right {
+				max-width: 30%;
+				margin: 0 0 1rem 2rem;
+				top: 0.75rem;
+			}
+		}
+
+
+		@media screen and (max-width: 1060px) {
+
+			.image.right {
+				max-width: 45%;
+				margin: 0 0 1rem 2rem;
+				top: 0.75rem;
+			}
+		}
+
 		@media screen and (max-width: 736px) {
 
 			.image.fit {
 				margin: 2rem 0;
+			}
+
+			.image.right {
+				max-width: 45%;
+				margin: 0 0 2rem 2rem;
+				top: 0.75rem;
 			}
 
 			.image.main {
@@ -3179,8 +3207,12 @@ input, select, textarea {
 		border-right: .17em solid pink;/* The typewriter cursor */
 		white-space: nowrap;/* Keeps the content on a single line */
 		margin: 0 auto;/* Gives that scrolling effect as the typing happens */
-		letter-spacing: .17em;/* Adjust as needed */
-		animation: typing 3.5s steps(30, end), blinking-cursor .5s step-end infinite;
+		letter-spacing: .12em;/* Adjust as needed */
+		animation: typing 2.5s steps(30, end), blinking-cursor .5s step-end infinite;
+		text-decoration: none;
+	}
+	.typewriter a{
+		text-decoration: none;
 	}
 	/* The typing effect */
 	@keyframes typing {
@@ -3808,12 +3840,21 @@ input, select, textarea {
 				text-align: center;
 			}
 
+			#main > .post h1.intro-title{
+				text-align:left; text-transform: none; font-size: 80px;
+				margin-bottom: 0.5em;
+			}
+
 			@media screen and (max-width: 1280px) {
 
 				#main > .post {
 					padding: 6rem 4rem 4rem 4rem ;
 				}
 
+				#main > .post p{font-size: 16px;}
+				#main > .post article > p{font-size: 16px;}
+				#main > .post h1.intro-title{font-size: 56px;}
+				#main > .post > .major h3{font-size: 32px;}
 			}
 
 			@media screen and (max-width: 736px) {
@@ -3833,6 +3874,25 @@ input, select, textarea {
 						margin: 0 0 1.5rem 0;
 					}
 
+					#main > .post p{font-size: 14px;}
+					#main > .post article > p{font-size: 14px;}
+					#main > .post h1.intro-title{font-size: 40px;}
+					#main > .post blockquote{font-size: 14px;}
+			}
+
+			@media screen and (max-width: 480px) {
+
+				#main {
+					width: 100%;
+				}
+
+				#main > .post h1.intro-title{
+					text-align:left; text-transform: none; font-size: 40px;
+					margin: 0.5em 0 1em 0;
+				}
+
+				#main > .post > .major h3{font-size: 26px;}
+				#main > .post h2{font-size: 24px;}
 			}
 
 		#main > .posts {
@@ -3852,10 +3912,6 @@ input, select, textarea {
 			width: 100%;
 			padding: 0;
 		}
-
-			#main > .post h1.intro-title{
-				text-align:left; text-transform: none; font-size: 80px;
-			}
 
 			#main > .posts > * {
 				-moz-flex-shrink: 1;
@@ -3902,7 +3958,7 @@ input, select, textarea {
 					position:relative; 
 					display:block; 
 					width: 100%;
-					margin: 2.5rem 0;
+					margin: 2rem 0;
 				}
 
 				#main .embedVideo {
@@ -3979,11 +4035,8 @@ input, select, textarea {
 					width: 50%;
 				}
 
-				#main > .post h1.intro-title{
-					text-align:left; text-transform: none; font-size: 62px;
-				}
-
-
+				#main > .posts p{font-size: 16px;}
+				#main > .posts article > p{font-size: 16px;}
 			}
 
 
@@ -4020,34 +4073,14 @@ input, select, textarea {
 					margin-right: auto;
 				}
 
-				#main > .post h1.intro-title{
-					text-align:left; text-transform: none; font-size: 50px;
+				#main > .posts p{font-size: 14px;}
+				#main > .posts article > p{font-size: 14px;}
+
+				#main > * {
+					padding: 2rem 2rem 0.1rem 2rem ;
 				}
-
-			}
-
-		@media screen and (max-width: 736px) {
-
-			#main > * {
-				padding: 2rem 2rem 0.1rem 2rem ;
-			}
-			#main div.photo-centered h2 {font-size: 3vw;}
-			#main div.photo-centered h4 {font-size: 3vw;}
-
-			
-
-		}
-
-		@media screen and (max-width: 480px) {
-
-			#main {
-				width: 100%;
-			}
-
-			#main > .post h1.intro-title{
-				text-align:left; text-transform: none; font-size: 40px;
-			}
-
+				#main div.photo-centered h2 {font-size: 3vw;}
+				#main div.photo-centered h4 {font-size: 3vw;}
 		}
 
 		/* Skill Card */
@@ -5487,10 +5520,19 @@ input, select, textarea {
 		.tiles {
 			margin: -1.25em 0 0 -1.25em;
 		}
+			
 
 			.tiles article {
 				width: calc(50% - 1.25em);
 				margin: 1.25em 0 0 1.25em;
+			}
+			
+			.tiles article h2{
+				font-size:20px;
+			}
+
+			.tiles article h4{
+				font-size:11px;
 			}
 
 				.tiles article:hover > .image {
@@ -5502,7 +5544,7 @@ input, select, textarea {
 
 	}
 
-	@media screen and (max-width: 480px) {
+	@media screen and (max-width: 360px) {
 
 		.tiles {
 			margin: 0;
