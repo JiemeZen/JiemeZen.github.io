@@ -3780,7 +3780,7 @@ input, select, textarea {
 	.dark-mode .pagination a {color: #aaa !important;}
 	.dark-mode .pagination a.active {color: #333 !important;}
 	.dark-mode .pagination a:hover {
-		color: #111 !important;
+		color: #18bfef !important;
 		border-color: #18bfef;
 		z-index: 1;
 	}
