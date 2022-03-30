@@ -2513,13 +2513,19 @@ input, select, textarea {
 			float: left;
 			margin: 0 2rem 2rem 0;
 			top: 0.75rem;
+			transition: 0.75s;
 		}
 
 		.image.right {
 			float: right;
 			margin: 0 0 2rem 2rem;
 			top: 0.75rem;
+			transition: 0.75s;
 		}
+
+			.image.left:hover, .image.right:hover {
+				transform: scale(1.05) translateY(-20px);
+			}
 
 		.image.fit {
 			display: block;
