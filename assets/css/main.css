@@ -437,7 +437,7 @@ input, select, textarea {
 	}
 	@media screen and (max-width: 480px) {
 		.sites{font-size: 12px;}
-		.h3{font-size: 10px;}
+		.h3{font-size: 12px;}
 		.sitemap > .col-12-small{width:50%;}
 	}
 
@@ -481,8 +481,11 @@ input, select, textarea {
 
 		.row > .col-6 {width: 45%; transition: 0.5s;}
 		.row > .col-6:hover {width: 55%; transition:0.5s}
+		.row > .col-6a {width: 45%; margin: 20px;}
+
 		.row > .off-6 {margin-left: 50%; transition: 0.5s;}
 		.row > .off-6:hover {margin-left: 40%; transition: 0.5s;}
+
 		.row > .on-6 {margin-right: 50%; transition: 0.5s;}
 		.row > .on-6:hover {margin-right: 40%; transition: 0.5s;}
 
