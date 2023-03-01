@@ -5,12 +5,18 @@ body {
     text-align: center;
     font-size: 4vh;
     color: aliceblue;
+    /* -webkit-transform: translate(0%, -20%);
+            transform: translate(0%, -20%); */
+    transform: translateY(-30%);
+    transition-delay: 3s;
+    transition: all 3s;
   }
   
   .box {
     position: block;
   }
   .box::before {
+    margin-top: 50px;
     /* display: block;
     margin-left: auto;
     margin-right: auto; */
@@ -27,6 +33,7 @@ body {
     border-radius: 50%;
   }
   .box-body {
+    margin-top: 50px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -43,7 +50,8 @@ body {
   .box-body .img{
     opacity: 0;
     transform: translateY(0%);
-    transition: all 3s;
+    transition-delay: 3s;
+    transition: all 2s;
     margin: 0 auto;
     display: block;
     position: relative;
