@@ -1,7 +1,14 @@
 body {
     background: black;
   }
+
+  .iframe-container { 
+		text-align:center; 
+  		width:100%; 
+  } 
+
   .title {
+    font-family: "SF Pro Text", Helvetica;
     text-align: center;
     font-size: 4vh;
     color: aliceblue;
