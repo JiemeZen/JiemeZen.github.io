@@ -1,0 +1,84 @@
+[
+    {
+        "title": "Doggo v0",
+        "subtitle": "Robotic",
+        "image": "images/projects/doggo_v0.png",
+        "video": "",
+        "description": "Low-cost legged Robot dog with 12 joints powered by SG90 servo motors that is controlled by Raspberry Pi/Arduino. Aim to develop simple walking and standing capability with it. Designed with custom kinematics.",
+        "link": "#article_1",
+        "buttonText": "Work in progress",
+        "buttonLink": "#article_1"
+    },
+    {
+        "title": "Hand Cursor",
+        "subtitle": "Computer Vision",
+        "image": "",
+        "video": "https://www.youtube.com/embed/NhBtfUdcvmk?si=a0lal8BZNHiekQ3G",
+        "description": "Control your cursor and click with your hands only, without a mouse. Just wave your hands and do a pinch gesture to your webcam will do.",
+        "link": "#article_2",
+        "buttonText": "Work in progress",
+        "buttonLink": "#article_2"
+    },
+    {
+        "title": "Frontline Fighters",
+        "subtitle": "Tech",
+        "image": "",
+        "video": "https://www.youtube.com/embed/m20UOmL7dM4",
+        "description": "Retro GBA Game developed in C and assembly language. The program uses button interrupts and game timer running at 10ms for optimal performance. Go on an adventurous journey as a frontline fighter, solving challenging puzzles and battling against viruses across each level, as the difficulty increases.",
+        "link": "images/projects",
+        "buttonText": "Try the game",
+        "buttonLink": "images/projects/jims_frontline_fighters.zip",
+        "download": true
+    },
+    {
+        "title": "Train Solo8 to Walk",
+        "subtitle": "Robotic",
+        "image": "images/projects/solo8_mujoco.png",
+        "video": "",
+        "description": "Use of Deep Reinforcement Learning to teach open source legged robot design Solo 8 to walk on both flat and rough terrain. Mujoco gym is used to emulate the physics to train the agent to walk, it is rewarded for distance and speed, while punished for idling, falling and veering off course.",
+        "link": "https://github.com/JiemeZen/me5406_rl",
+        "buttonText": "See on Github",
+        "buttonLink": "https://github.com/JiemeZen/me5406_rl"
+    }
+    ,
+    {
+        "title": "Bumblebee AUV 4.0",
+        "subtitle": "NUS Team Bumblebee",
+        "image": "images/projects/bbauv4.png",
+        "video": "",
+        "description": "Principle hull and structure designer of the 4th Generation Bumblebee Autonomous Underwater Vehicle (AUV). Encompassing design, structure rigidity and strength. Validated through Finite Element Analysis and Computation Fluid Dynamic Simulations.",
+        "link": "#article_5",
+        "buttonText": "Find Out More",
+        "buttonLink": "#https://bumblebee.sg/auv/bbauv4/mechanical/"
+    },
+    {
+        "title": "Hornet AUV 4.0", 
+        "subtitle": "NUS Team Bumblebee - Trainee",
+        "image": "",
+        "video": "https://www.youtube.com/embed/cZJQVpu99U0",
+        "description": "Hornet 4.0 is the 4th iteration of the NUS Bumblebee freshmen programme. Came up with the frame design and integration of the vehicle within 8 months for the Singapore Autonomous Underwater Vehicle Competition (SAUVC 2018) with limited budgets.",
+        "link": "#article_6",
+        "buttonText": "Find Out More",
+        "buttonLink": "#https://bumblebee.sg/auv/hornet/mechanical/"
+    },
+    {
+        "title": "ROS Gazebo",
+        "subtitle": "Robotic",
+        "image": "",
+        "video": "https://www.youtube.com/embed/6spacrgSM4Y",
+        "description": "University Project using Robotic Operating System (ROS) Gazebo Virtual Simulator to implement a critically damped PID controller for Husky Robot. Followed by use of TurtleBot to navigate and solve maze in the most efficient method using Breath-First-Search.",
+        "link": "#article_7",
+        "buttonText": "Find Out More",
+        "buttonLink": "#article_7"
+    },
+    {
+        "title": "ROS Co-Op Gazebo",
+        "subtitle": "Subtitle 8",
+        "image": "",
+        "video": "https://www.youtube.com/embed/JdUAycB9Ffk",
+        "description": "ROS Gazebo Co-Operation between UAV and TurtleBot to reach the target goal. It is completed as a university project using Robotic Operating System (ROS). Work includes PID control tuning, sensor data transformation, Kalman filter, finite-state-machine and etc.",
+        "link": "#article_8",
+        "buttonText": "Find Out More",
+        "buttonLink": "#article_8"
+    }
+]
