@@ -63,8 +63,8 @@
 							</header>
 						
 						<!-- Portfolio Projects -->
-							<section class="posts" id="articles">
-							</section>
+						<section class="posts" id="articles">
+						</section>
 
 						<!-- Footer -->
 						<footer>
@@ -211,15 +211,25 @@
 									if ((page === 1 && index < articlesPerPage) || (page > 1 && index >= 4 + (page - 2) * articlesPerPage && index < 4 + (page - 1) * articlesPerPage)) {
 										const articleElement = document.createElement('article');
 										articleElement.id = `article_${index + 1}`;
+										let mediaContent = '';
+
+										if (article.video) {
+											mediaContent = `
+												<div class="container">
+													<iframe width="100%" height="100%" class="embedVideo" src="${article.video}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>
+												</div>`;
+										} else if (article.image) {
+											mediaContent = `<img src="${article.image}" alt="${article.alt}" title="${article.alt_title}" class="image fit" />`;
+										} else if (article.figma) {
+											mediaContent = `<iframe width="100%" height="800px" src="${article.figma}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>`;
+										}
+
 										articleElement.innerHTML = `
 											<header>
 												<h2 style="text-transform: none"><a href="${article.link}">${article.title}<br />
 													<h4>${article.subtitle}</h4></a></h2>
 											</header>
-											${article.video ? `
-											<div class="container">
-												<iframe width="100%" height="100%" class="embedVideo" src="${article.video}" allowfullscreen></iframe>
-											</div>` : `<img src="${article.image}" alt="${article.title}" title="${article.title}" class="image fit" />`}
+											${mediaContent}
 											<p>${article.description}</p>
 											<ul class="actions special"><li><a href="${article.buttonLink}" class="button" ${article.download ? 'download' : ''}>${article.buttonText}</a></li></ul>
 										`;
