@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume - Jimmy Zeng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Arial:wght@400;700&display=swap');
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+
+        .resume-container {
+            width: 800px;
+            background: white;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #68c4fc;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            text-align: justify;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .header-text {
+            flex: 1;
+            color: black;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .header-text p {
+            font-size: 14px;
+            margin-top: 20px;
+            margin-right: 20px;
+        }
+
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            overflow: hidden;
+            border-radius: 50%;
+            background: white;
+            padding: 3px;
+        }
+
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            border-radius: 20%;
+            object-fit: cover;
+        }
+
+        .contacts-experience {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .left-column {
+            width: 27%;
+        }
+
+        .right-column {
+            width: 69%;
+        }
+
+        h2 {
+            color: #0078D4;
+            font-size: 18px;
+            border-bottom: 2px solid #0078D4;
+            padding-bottom: 5px;
+            text-decoration: none;
+            margin-bottom: 0px;
+        }
+        
+        h3 {
+            color: #0078D4;
+            /* color: black; */
+            font-size: 16px;
+            margin-bottom: 1px;
+            text-decoration: none;
+            margin-top: 5px;
+        }
+
+        h4 {
+            color: #000000;
+            font-size: 16px;
+            margin: 0px;
+            margin-bottom: 1px;
+            text-decoration: none;
+        }
+
+        .skills h4 {
+            margin-top: 15px;
+        }
+
+        .contacts p, .experience p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .contacts a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .experience ul {
+            padding-left: 15px;
+            padding-right: 15px;
+            text-align: justify;
+            margin-top: 10px;
+        }
+
+        .experience ul li {
+            font-size: 14px;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .skills ul, .education ul, .honors ul {
+            list-style-type: disc;
+            font-size: 14px;
+            line-height: 1.3;
+            padding-left: 15px;
+            margin-top: 5px;
+        }
+
+        .education, .honors {
+            /* background: #f0f8ff; */
+            margin: 0px;
+            padding-top: 0.5px;
+            padding-bottom: 0.5px;
+            padding-left: 10px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        .ball-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .ball {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #0078D4;
+            margin-right: 5px;
+            margin-top: 2px;
+        }
+
+        .contacts i {
+            margin-right: 8px;
+            color: #0078D4; /* Match the color to your theme */
+        }
+
+        /* Print-specific styles */
+        @media print {
+            .resume-container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="resume-container">
+        <div class="header">
+            <div class="header-text">
+                <h1>Aung Pyei Phyo (Jimmy)</h1>
+                <p>
+                    Highly motivated R&D Engineer with a proven track record of delivering innovative robotic 
+                    and AI-driven solutions for complex industrial automation challenges. Expert in designing 
+                    and implementing integrated hardware and software systems, specializing in automated inspection 
+                    through advanced computer vision and machine learning for high-tech manufacturing environments.
+                </p>
+            </div>
+            <div class="profile-pic">
+                <img src="images/jimy_id.jpg" alt="Jimmy's Profile Picture">
+            </div>
+        </div>
+
+        <div class="contacts-experience">
+            <div class="left-column">
+                <div class="contacts">
+                    <h2>Contacts</h2>
+                    <p><i class="fas fa-mobile-alt"></i> <strong>+65 9386 8664</strong></p>
+                    <p><i class="fas fa-envelope"></i> <strong><a href="mailto:jimmychan06@gmail.com">jimmychan06@gmail.com</a></strong></p>
+                    <p><i class="fas fa-globe"></i> <a href="http://www.jimmyzeng.tech" target="_blank">www.jimmyzeng.tech</a></p>
+                    <p><i class="fab fa-linkedin"></i> <a href="https://www.linkedin.com/in/j-zeng/" target="_blank">www.linkedin.com/in/j-zeng/</a></p>
+                </div>
+                
+                <div class="skills">
+                    <h2>Skills</h2>
+                    <h4>Engineering & Design: </h4>
+                    <ul>
+                        <li>System Engineering</li>
+                        <li>Finite Element Analysis (FEA)</li>
+                        <li>Computational Fluid Dynamics</li>
+                        <li>Rapid Prototyping</li>
+                        <li>Robotic Kinematics</li>
+                        <li>Control Systems</li>
+                        <li>Industrial Robots & CoBots</li>
+                    </ul>
+
+                    <h4>Software & AI: </h4>
+                    <ul>
+                        <li>Python, C, C#, C++</li>
+                        <li>2D/3D Computer Vision </li>
+                        <li>Image Processing </li>
+                        <li>Machine Learning/DL </li>
+                        <li>UI/UX Design </li>
+                    </ul>
+
+                    <h4>Tools & Platforms:  </h4>
+                    <ul>
+                        <li>SolidWorks (CSWP)</li>
+                        <li>Blender</li>
+                        <li>Linux & ROS</li>
+                        <li>MATLAB/Simulink</li>
+                        <li>Git & JIRA</li>
+                        <li>Microsoft Projects</li>
+                    </ul>
+                </div>
+
+                <div class="skills">
+                    <h2>Languages</h2>
+                    <h4>English</h4>
+                    <div class="ball-section" data-balls="5"></div>
+                    <h4>Chinese</h4>
+                    <div class="ball-section" data-balls="4"></div>
+                    <h4>Burmese</h4>
+                    <div class="ball-section" data-balls="3"></div>
+                    <h4>Japanese</h4>
+                    <div class="ball-section" data-balls="2"></div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="experience">
+                    <h2>Experience</h2>
+                    <h3>Application & Computer Vision Engineer</h3>
+                    <h4>Augmentus Robotics | 2024-2025</h4>
+                    <ul>
+                        <li>Developed and maintained the backend server for Augmentus Application, 
+                            enabling seamless integration and communication with various industrial 
+                            robots and perception systems for automated toolpath generation.  </li>
+                        <li>Launched key product features including a deep learning defect detection 
+                            system for aerospace remanufacturing to fully automate a manual process. </li>
+                        <li>Led on-site troubleshooting and support locally and overseas. Working with
+                            ABB, UR, KUKA, and Fanuc robotics for diverse automation projects. 
+                        </li>
+                    </ul>
+                    
+                    <h3>Research & Development Engineer</h3>
+                    <h4>A* STAR - Advanced Remanufacturing and Tech Centre | 2021-2024</h4>
+                    <ul>
+                        <li>Led automation projects using vision systems and non-destructive testing 
+                            with collaborative robots and mobile robot for large-area inspections with ROS. </li>
+                        <li>Developed an adaptive inspection system leveraging computer graphics and 
+                            AI. Engineered a synthetic data pipeline to accelerate machine learning. </li>
+                        <li>Published 2 papers and achieved 7 research inventions as main/co-inventor. </li>
+                    </ul>
+
+                    <h3>Tech Lead & Co-Mechanical Lead | Undergraduate Research Team</h3>
+                    <h4><a href="https://bumblebee.sg" style="text-decoration: none; color:#000000">BUMBLEBEE.SG, National University of Singapore</a> | 2018-2021 </h4>
+                    <ul>
+                        <li>Directed a team of 30 undergraduate engineers designing autonomous 
+                            systems for international robotics competitions representing Singapore.  </li>
+                        <li> Oversaw simulation, integration, and system design for award-winning 
+                            autonomous underwater vehicles. </li>
+                    </ul>
+                </div>
+                
+                <div class="experience">
+                    <h2>Education</h2>
+                    <h3>National University of Singapore | 2018-2021</h3>
+                    <h4>Bachelor of Engineering, Mechanical Engineering (Honours)</h4>
+                    <ul>
+                        <li>Specialisation in Robotics (Kinematics, Control & Soft Robotic)</li>
+                        <li>Awards: JTC-NUS Gold Medal for Most Innovative FYP, First Place at NUS 
+                            IEEE Hackathon </li>
+                    </ul>
+
+                    <h3>Ngee Ann Polytechnic | 2015-2018</h3>
+                    <h4>Diploma with Merit in Aerospace Technology with Business Minor</h4>
+                    <ul>
+                        <li>Temasek Foundation's Scholar</li>
+                    </ul>
+                </div>
+                
+                <div class="experience">
+                    <h2>Honors & Awards</h2>
+                    <ul>
+                        <li>JTC-NUS Gold Medal for Final Year Project – Robotic Eye Surgery Mechanism 
+                            Design (Simulation, Control, Kinematics) </li>
+                        <li>NUS IEEE Hackathon 2019 – Best Innovative & Mind-blowing Hack </li>
+                        <li>Academic awards in Innovation, Engineering Design, and Leadership </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createBallRow(numBalls) {
+          const ballContainer = document.createElement("div");
+          ballContainer.classList.add("ball-container");
+    
+          for (let i = 0; i < numBalls; i++) {
+            const ball = document.createElement("div");
+            ball.classList.add("ball");
+            ballContainer.appendChild(ball);
+          }
+    
+          return ballContainer;
+        }
+    
+        const ballSections = document.querySelectorAll(".ball-section");
+    
+        ballSections.forEach(ballSection => {
+          // Get the number of balls from the data attribute
+          const numBalls = parseInt(ballSection.dataset.balls);
+    
+          // Create and append the row
+          ballSection.appendChild(createBallRow(numBalls));
+        });
+    </script>
+</body>
+</html>

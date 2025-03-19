@@ -1,0 +1,86 @@
+{
+    "professionalSummary": "Technical professional with vast experience in robotics, AI, and industrial automation, leveraging hands-on expertise. Adept at translating user requirements into technical roadmaps, designing end-to-end solutions, and driving cross-functional teams to deliver innovative products that solve real-world problems.",
+    "coreSkills": {
+      "Product Management:": [
+        "Requirements Gathering",
+        "Product Development",
+        "Customer-Facing Demos",
+        "Project Management",
+        "Agile/Scrum",
+        "Cross-functional Team Coordination"
+      ],
+      "Strategy & Roadmapping:": [
+        "Market Research",
+        "Product Vision & Strategy",
+        "Stakeholder Engagement",
+        "Technical Roadmapping"
+      ],
+      "Technical Proficiencies": [
+        "Systems Engineering & Integration",
+        "Robotics & Automation",
+        "Computer Vision & AI",
+        "SolidWorks (CSWP)",
+        "Python, C, C#, C++",
+        "Blender",
+        "Linux & ROS",
+        "MATLAB/Simulink",
+        "Git & JIRA"
+      ]
+    },
+    "experience": [
+      {
+        "title": "Application & Computer Vision Engineer",
+        "company": "Augmentus Robotics",
+        "years": "2024 – 2025",
+        "responsibilities": [
+          "Developed key product features including a deep learning defect detection module for aerospace remanufacturing, reducing manual inspection effort.",
+          "Owned the back-end server architecture enabling seamless communication between industrial robots and perception systems for automated toolpath generation.",
+          "Collaborated with clients and internal teams to gather requirements, present solutions, and optimize user experience for diverse automation projects (ABB, UR, KUKA, Fanuc)."
+        ]
+      },
+      {
+        "title": "Research & Development Engineer",
+        "company": "ASTAR – Advanced Remanufacturing & Technology Centre",
+        "years": "2021 – 2024",
+        "responsibilities": [
+          "Led automation initiatives involving computer vision and non-destructive testing for collaborative robot platforms, ensuring smart and efficient inspection.",
+          "Designed an adaptive inspection system leveraging computer graphics to generate synthetic data for AI training, significantly reducing development time.",  
+          "Published 2 papers and co-invented 7 research solutions, demonstrating thought leadership and innovation in AI-driven robotics."
+        ]
+      },
+      {
+        "title": "Tech Lead & Co-Mechanical Lead (Undergraduate Research Team)",
+        "company": "BUMBLEBEE.SG, National University of Singapore",
+        "years": "2018 – 2021",
+        "responsibilities": [
+          "Coordinated product development cycles for award-winning autonomous underwater vehicles, focusing on user-centric design and rapid prototyping.",
+          "Managed stakeholder relationships (university sponsors, competition organizers), ensuring alignment on project milestones and deliverables."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Engineering (Mechanical, Honours)",
+        "institution": "National University of Singapore",
+        "years": "2018 – 2021",
+        "specialization": "Robotics (Kinematics, Control & Soft Robotics)",
+        "awards": [
+          "JTC-NUS Gold Medal (Most Innovative FYP)",
+          "First Place at NUS IEEE Hackathon"
+        ]
+      },
+      {
+        "degree": "Diploma in Aerospace Technology (with Business Minor)",
+        "institution": "Ngee Ann Polytechnic",
+        "years": "2015 – 2018",
+        "awards": [
+          "Temasek Foundation Scholar"
+        ]
+      }
+    ],
+    "honorsAwards": [
+      "JTC-NUS Gold Medal for Final Year Project – Robotic Eye Surgery Mechanism Design",
+      "NUS IEEE Hackathon – Best Innovative & Mind-blowing Hack",
+      "Multiple academic awards in innovation, engineering design, and leadership"
+    ]
+}

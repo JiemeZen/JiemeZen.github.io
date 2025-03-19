@@ -1,0 +1,85 @@
+{
+    "professionalSummary": "Innovative R&D Engineer and Trusted Technical Advisor specializing in robotics, AI-driven computer vision, and advanced automation. Proven ability to rapidly prototype novel solutions, publish cutting-edge research, and provide up-to-date technical guidance on integrating emerging technologies into industrial processes.",
+    "coreSkills": {
+      "Research & Innovation": [
+        "Experimental Design",
+        "Rapid Prototyping",
+        "Feasibility Studies"
+      ],
+      "Technical Consulting": [
+        "Diagnostics",
+        "Solution Proposals",
+        "Client Communication",
+        "Problem Solving"
+      ],
+      "AI & Robotics": [
+        "2D/3D Computer Vision",
+        "Machine Learning/DL",
+        "Industrial Robots & CoBots"
+      ],
+      "Technical Proficiencies": [
+        "SolidWorks (CSWP)",
+        "Python, C, C#, C++",
+        "Blender",
+        "Linux & ROS",
+        "MATLAB/Simulink",
+        "Git & JIRA"
+      ]
+    },
+    "experience": [
+      {
+        "title": "Application & Computer Vision Engineer",
+        "company": "Augmentus Robotics",
+        "years": "2024 – 2025",
+        "responsibilities": [
+          "Designed and deployed AI-driven solutions for automated toolpath generation and defect detection, contributing to industry-leading R&D efforts in aerospace remanufacturing.",
+          "Provided on-site technical consulting to clients worldwide, troubleshooting system-level issues and optimizing robotic workflows.",
+          "Evaluated new technologies for integration into the Augmentus platform, driving continuous innovation in computer vision and robotics."
+        ]
+      },
+      {
+        "title": "Research & Development Engineer",
+        "company": "ASTAR – Advanced Remanufacturing & Technology Centre",
+        "years": "2021 – 2024",
+        "responsibilities": [
+          "Led AI and robotics research projects, developing large-area inspection systems using collaborative robots and mobile platforms with ROS.",
+          "Engineered a synthetic data pipeline to accelerate machine learning development, cutting labeling costs and time significantly.",
+          "Authored 2 peer-reviewed papers and contributed to 7 research inventions as main/co-inventor, showcasing a strong track record in innovation."
+        ]
+      },
+      {
+        "title": "Tech Lead & Co-Mechanical Lead (Undergraduate Research Team)",
+        "company": "BUMBLEBEE.SG, National University of Singapore",
+        "years": "2018 – 2021",
+        "responsibilities": [
+          "Coordinated advanced R&D for autonomous underwater vehicles, overseeing mechanical design, system simulation, and integration.",
+          "Mentored undergraduate researchers, fostering a culture of innovation and rigorous testing to achieve competitive performance internationally."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Engineering (Mechanical, Honours)",
+        "institution": "National University of Singapore",
+        "years": "2018 – 2021",
+        "specialization": "Robotics (Kinematics, Control & Soft Robotics)",
+        "awards": [
+          "JTC-NUS Gold Medal (Most Innovative FYP)",
+          "First Place at NUS IEEE Hackathon"
+        ]
+      },
+      {
+        "degree": "Diploma in Aerospace Technology (with Business Minor)",
+        "institution": "Ngee Ann Polytechnic",
+        "years": "2015 – 2018",
+        "awards": [
+          "Temasek Foundation Scholar"
+        ]
+      }
+    ],
+    "honorsAwards": [
+      "JTC-NUS Gold Medal for Final Year Project – Robotic Eye Surgery Mechanism Design",
+      "NUS IEEE Hackathon – Best Innovative & Mind-blowing Hack",
+      "Multiple academic awards in innovation, engineering design, and leadership"
+    ]
+}

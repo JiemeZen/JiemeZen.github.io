@@ -1,0 +1,87 @@
+{
+    "professionalSummary": "Highly motivated Systems Engineer and Technical Project Manager with 4 years of experience integrating robotics, AI, and computer vision systems. Proven track record of leading cross-functional teams, coordinating complex automation projects, and delivering innovative solutions on time and under budget for high-tech manufacturing environments.",
+    "coreSkills": {
+      "Engineering & Design:": [
+        "Systems Engineering & Integration",
+        "Robotics & Automation",
+        "Computer Vision & AI",
+        "Control Systems",
+        "Rapid Prototyping",
+        "Finite Element Analysis",
+        "Computational Fluid Dynamics"
+      ],
+      "Project Management": [
+        "Agile/Scrum",
+        "Stakeholder Management",
+        "Requirements Gathering",
+        "Budget & Timeline Oversight",
+        "Cross-functional Team Coordination",
+        "Client Engagement"
+      ],
+      "Technical Proficiencies": [
+        "SolidWorks (CSWP)",
+        "Python, C, C#, C++",
+        "Blender",
+        "Linux & ROS",
+        "MATLAB/Simulink",
+        "Git & JIRA"
+      ]
+    },
+    "experience": [
+      {
+        "title": "Application & Computer Vision Engineer",
+        "company": "Augmentus Robotics",
+        "years": "2024 – 2025",
+        "responsibilities": [
+          "Spearheaded system integration of back-end server with multiple industrial robots (ABB, UR, KUKA, Fanuc) for automated toolpath generation.",
+          "Led technical troubleshooting and on-site support locally and overseas, managing stakeholder communication and resolving critical system-level issues.",
+          "Implemented project timelines and coordinated with cross-disciplinary teams to launch a deep learning defect detection system, automating aerospace remanufacturing processes."
+        ]
+      },
+      {
+        "title": "Research & Development Engineer",
+        "company": "ASTAR – Advanced Remanufacturing & Technology Centre",
+        "years": "2021 – 2024",
+        "responsibilities": [
+          "Managed end-to-end project lifecycles for large-area inspection solutions using collaborative robots and mobile platforms (ROS-based).",
+          "Oversaw integration of AI-driven vision systems and NDT technologies, ensuring seamless operation across mechanical, electrical, and software components.",
+          "Supervised junior engineers in developing an adaptive inspection system", 
+          "Published 2 papers and achieved 7 research inventions as main/co-inventor."
+        ]
+      },
+      {
+        "title": "Tech Lead & Co-Mechanical Lead (Undergraduate Research Team)",
+        "company": "BUMBLEBEE.SG, National University of Singapore",
+        "years": "2018 – 2021",
+        "responsibilities": [
+          "Directed a team of 30 engineers to design and build autonomous underwater vehicles, managing schedules, resource allocation, and risk assessments.",
+          "Coordinated simulation, system integration, and testing for competition-ready robotics systems, achieving international recognition."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Engineering (Mechanical, Honours)",
+        "institution": "National University of Singapore",
+        "years": "2018 – 2021",
+        "specialization": "Robotics (Kinematics, Control & Soft Robotics)",
+        "awards": [
+          "JTC-NUS Gold Medal (Most Innovative FYP)",
+          "First Place at NUS IEEE Hackathon"
+        ]
+      },
+      {
+        "degree": "Diploma in Aerospace Technology (with Business Minor)",
+        "institution": "Ngee Ann Polytechnic",
+        "years": "2015 – 2018",
+        "awards": [
+          "Temasek Foundation Scholar"
+        ]
+      }
+    ],
+    "honorsAwards": [
+      "JTC-NUS Gold Medal for Final Year Project – Robotic Eye Surgery Mechanism Design",
+      "NUS IEEE Hackathon – Best Innovative & Mind-blowing Hack",
+      "Multiple academic awards in innovation, engineering design, and leadership"
+    ]
+}
