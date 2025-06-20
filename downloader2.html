@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Batch Google Drive Downloads (Open in New Tabs)</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    textarea { width: 100%; height: 150px; }
+  </style>
+  <script>
+    function openLinksInTabs() {
+      const linksText = document.getElementById("driveLinks").value;
+      const linksArray = linksText.match(/https:\/\/drive\.google\.com\/file\/d\/[a-zA-Z0-9_-]+\/view\?[^ \n]+/g);
+
+      if (!linksArray) {
+        alert("No valid Google Drive links found.");
+        return;
+      }
+
+      linksArray.forEach((link, index) => {
+        const fileIdMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+        if (fileIdMatch && fileIdMatch[1]) {
+          const fileId = fileIdMatch[1];
+          const directLink = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          window.open(directLink, '_blank');
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+
+  <h2>Batch Google Drive Downloads (Open in New Tabs)</h2>
+  <p>Paste your Google Drive links below:</p>
+  <textarea id="driveLinks" placeholder="Paste your links here..."></textarea><br><br>
+  <button onclick="openLinksInTabs()">Open All in New Tabs</button>
+
+</body>
+</html>

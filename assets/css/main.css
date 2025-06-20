@@ -372,6 +372,19 @@ input, select, textarea {
   z-index: 9;
 }
 
+.iframe-container {
+  margin: 1rem 0;
+}
+
+.load-iframe {
+  cursor: pointer;
+  color: #333;
+}
+
+.load-iframe:hover {
+  text-decoration: underline;
+}
+
 @media screen and (max-width: 1680px) {
 	.pulse-base {
 		transform: translateY(100%);

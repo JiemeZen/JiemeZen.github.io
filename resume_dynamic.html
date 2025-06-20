@@ -12,7 +12,8 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
+            /* background-color: #f4f4f4; */
         }
 
 
@@ -20,9 +21,12 @@
             width: 800px;
             background: white;
             margin: 30px auto;
+            padding: 0px;
+            border-radius: 0px;
+            box-shadow: 0;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
         }
 
         .header {
@@ -246,7 +250,7 @@
                 </div>
                 
                 <div class="education">
-                    <h2>Education</h2>
+                    <h2>Education & Awards</h2>
                     <h3>National University of Singapore | 2018-2021</h3>
                     <h4>Bachelor of Engineering, Mechanical Engineering (Honours)</h4>
                     <ul>
@@ -258,20 +262,21 @@
                     </ul>
                 </div>
                 
-                <div class="honors">
+                <!-- <div class="honors">
                     <h2>Honors & Awards</h2>
                     <ul>
                     </ul>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
 
     <script>
         // Fetch the JSON data
+        fetch('resume_mech_eng.json')
         // fetch('resume_sys_eng.json')
         // fetch('resume_prod_mng.json')
-        fetch('resume_rnd_eng.json')
+        // fetch('resume_rnd_eng.json')
         .then(response => response.json())
         .then(data => {
             // Update the professional summary

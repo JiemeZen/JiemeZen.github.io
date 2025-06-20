@@ -31,7 +31,7 @@
         "alt": "game-development",
         "alt_title": "gameboy-advance-game",
         "description": "Retro GBA Game developed in C and assembly language. The program uses button interrupts and game timer running at 10ms for optimal performance. Go on an adventurous journey as a frontline fighter, solving challenging puzzles and battling against viruses across each level, as the difficulty increases.",
-        "link": "images/projects",
+        "link": "#article_3",
         "buttonText": "Try the game",
         "buttonLink": "images/projects/jims_frontline_fighters.zip",
         "download": true
@@ -44,7 +44,7 @@
         "alt": "deep-reinforcement-learning",
         "alt_title": "solo8-deep-RL",
         "description": "Use of Deep Reinforcement Learning to teach open source legged robot design Solo 8 to walk on both flat and rough terrain. Mujoco gym is used to emulate the physics to train the agent to walk, it is rewarded for distance and speed, while punished for idling, falling and veering off course.",
-        "link": "https://github.com/JiemeZen/me5406_rl",
+        "link": "#article_4",
         "buttonText": "See on Github",
         "buttonLink": "https://github.com/JiemeZen/me5406_rl"
     }

@@ -1,0 +1,84 @@
+{
+    "professionalSummary": "Mechanically trained R&D Engineer with proven expertise in robotic integration, precision system design, and industrial automation. Specializes in developing turnkey solutions combining mechanical hardware, robotics, machine vision, and AI-driven inspection systems for high-tech manufacturing. Skilled in system integration, tooling design, and process optimization for complex production environments.",
+    "coreSkills": {
+      "Engineering & Design:": [
+        "System Engineering",
+        "Finite Element Analysis (FEA)",
+        "Computational Fluid Dynamics",
+        "Rapid Prototyping",
+        "Robotic Kinematics",
+        "Control Systems",
+        "Industrial Robots & CoBots"
+      ],
+      "Software & AI:": [
+        "Client Engagement",
+        "Python, C, C#, C++",
+        "2D/3D Computer Vision",
+        "Image Processing",
+        "Machine Learning/DL",
+        "UI/UX Design"
+      ],
+      "Tools & Platforms:": [
+        "SolidWorks (CSWP)",
+        "Blender",
+        "Linux & ROS",
+        "MATLAB/Simulink",
+        "Git & JIRA",
+        "Microsoft Projects"
+      ]
+    },
+    "experience": [
+      {
+        "title": "Application & Computer Vision Engineer",
+        "company": "Augmentus Robotics",
+        "years": "2024 – 2025",
+        "responsibilities": [
+          "Designed, prototyped, and integrated robotic fixtures and end-of-arm tooling for multi-robot automated manufacturing systems.",
+          "Led system integration and on-site commissioning of industrial robotic cells (ABB, UR, KUKA, Fanuc), resolving mechanical and system-level issues in high-demand production environments.",
+          "Collaborated with cross-disciplinary teams to deliver automated inspection and defect detection solutions, contributing to tooling optimization and process improvement initiatives."
+        ]
+      },
+      {
+        "title": "Research & Development Engineer",
+        "company": "ASTAR – Advanced Remanufacturing & Technology Centre",
+        "years": "2021 – 2024",
+        "responsibilities": [
+          "Developed a proprietary vision-based inspection system and capacitive sensor technology for FMCG packaging inspection, including full machine prototype design and integration.",
+          "Conducted FEA and CFD analysis for wind turbine concepts to assess renewable energy feasibility in Singapore’s urban environment.",
+          "Led development of adaptive, reconfigurable inspection systems leverage computer graphic, integrating robotic platforms, custom sensors, and AI-driven inspection planning to enhance process efficiency.", 
+          "Experience in leading small team and project management. Recorded 7 internal research invention as main/co-inventor."
+        ]
+      },
+      {
+        "title": "Tech Lead & Co-Mechanical Lead (Undergraduate Research Team)",
+        "company": "BUMBLEBEE.SG, National University of Singapore",
+        "years": "2018 – 2021",
+        "responsibilities": [
+          "Directed a team of 30 engineers to design and build autonomous underwater vehicles, managing schedules, resource allocation, and risk assessments.",
+          "Designed and coordinated simulation, system integration, and testing for competition-ready robotics systems, achieving international championship."
+        ]
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Engineering (Mechanical, Honours)",
+        "institution": "National University of Singapore",
+        "years": "2018 – 2021",
+        "specialization": "Robotics (Kinematics, Control & Soft Robotics)",
+        "awards": [
+          "Specialisation in Robotics (Kinematics, Control & Soft Robotic)",
+          "JTC-NUS Gold Medal for Most Innovative FYP – Robotic Eye Surgery",
+          "First Place at NUS IEEE Hackathon – Best Innovative & Mind-blowing Hack"
+        ]
+      },
+      {
+        "degree": "Diploma in Aerospace Technology (with Business Minor)",
+        "institution": "Ngee Ann Polytechnic",
+        "years": "2015 – 2018",
+        "awards": [
+          "Temasek Foundation Scholar",
+          "Multiple academic awards in Innovation, Engineering Design, and Leadership"
+        ]
+      }
+    ]
+}

@@ -327,7 +327,151 @@ function loadHTML(url, elementId) {
 		.catch(error => console.error('Error loading HTML:', error));
 }
 
+// DOM Content Functions
 document.addEventListener("DOMContentLoaded", function() {
-	loadHTML('social.html', 'social-section');
-	loadHTML('sitemap.html', 'sitemap-section');
+	// loadHTML('social.html', 'social-section');
+	// loadHTML('sitemap.html', 'sitemap-section');
+	loadHTML('footer.html', 'footer-container');
+
+	fetch('contents/proj_articles.json')
+		.then(response => response.json())
+		.then(data => {
+			const articlesContainer = document.getElementById('articles');
+			const portfolioWebsite = document.getElementById("website");
+			const portfolioPublications = document.getElementById("publications");
+			let articlesPerPage = 4;
+			let currentPage = 1;
+
+			// Calculate total pages based on the maximum articles per page (6)
+			const totalPages = Math.ceil((data.length - 4) / 6) + 1;
+
+			function showPage(page) {
+				if (page === 1) {
+					articlesPerPage = 4;
+				} else {
+					articlesPerPage = 6;
+				}
+
+				articlesContainer.innerHTML = ''; // Clear existing articles
+
+				data.forEach((article, index) => {
+					if ((page === 1 && index < articlesPerPage) || (page > 1 && index >= 4 + (page - 2) * articlesPerPage && index < 4 + (page - 1) * articlesPerPage)) {
+						const articleElement = document.createElement('article');
+						articleElement.id = `article_${index + 1}`;
+						let mediaContent = '';
+
+						if (article.video) {
+							mediaContent = `
+								<div class="container">
+									<iframe width="100%" height="100%" class="embedVideo" src="${article.video}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>
+								</div>`;
+						} else if (article.image) {
+							mediaContent = `<img src="${article.image}" alt="${article.alt}" title="${article.alt_title}" class="image fit" />`;
+						} else if (article.figma) {
+							mediaContent = `<iframe width="100%" height="800px" src="${article.figma}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>`;
+						}
+
+						articleElement.innerHTML = `
+							<header>
+								<h2 style="text-transform: none"><a href="${article.link}">${article.title}<br />
+									<h4>${article.subtitle}</h4></a></h2>
+							</header>
+							${mediaContent}
+							<p>${article.description}</p>
+							<ul class="actions special"><li><a href="${article.buttonLink}" class="button" ${article.download ? 'download' : ''}>${article.buttonText}</a></li></ul>
+						`;
+						articlesContainer.appendChild(articleElement);
+					}
+				});
+
+				if (page === 1) {
+					portfolioWebsite.style.display = 'block';
+					portfolioPublications.style.display = 'block';
+				} else {
+					portfolioWebsite.style.display = 'none';
+					portfolioPublications.style.display = 'none';
+				}
+
+				createPagination();
+			}
+
+			function createPagination() {
+				const pagination = document.getElementById("pages");
+				pagination.innerHTML = '';
+
+				if (currentPage > 1) {
+					const prevLink = document.createElement('a');
+					prevLink.textContent = 'Prev';
+					prevLink.href = "#";
+					prevLink.className = 'previous';
+					prevLink.addEventListener('click', function(e) {
+						e.preventDefault();
+						currentPage--;
+						showPage(currentPage);
+					});
+					pagination.appendChild(prevLink);
+				}
+
+				for (let i = 1; i <= totalPages; i++) {
+					const pageLink = document.createElement('a');
+					pageLink.textContent = i;
+					pageLink.href = "#";
+					pageLink.className = 'page';
+					if (i === currentPage) pageLink.classList.add('active');
+					pageLink.addEventListener('click', function(e) {
+						e.preventDefault();
+						currentPage = i;
+						showPage(currentPage);
+					});
+					pagination.appendChild(pageLink);
+				}
+
+				if (currentPage < totalPages) {
+					const nextLink = document.createElement('a');
+					nextLink.textContent = 'Next';
+					nextLink.href = "#";
+					nextLink.className = 'next';
+					nextLink.addEventListener('click', function(e) {
+						e.preventDefault();
+						currentPage++;
+						showPage(currentPage);
+					});
+					pagination.appendChild(nextLink);
+				}
+			}
+
+			showPage(currentPage);
+		})
+		.catch(error => console.error('Error loading articles:', error));
+});
+
+	
+
+document.querySelectorAll('.load-iframe').forEach(title => {
+  title.addEventListener('click', () => {
+
+    const container = title.nextElementSibling;
+
+    // If iframe hasn't been loaded yet, create and insert it
+    if (!container.querySelector('iframe')) {
+      const iframe = document.createElement('iframe');
+      iframe.src = title.getAttribute('data-src');
+      iframe.width = "100%";
+      iframe.height = "800";
+      iframe.frameBorder = "0";
+      iframe.allowFullscreen = true;
+      container.appendChild(iframe);
+    }
+
+    // Toggle show/hide iframe container
+    if (container.style.display === "none" || container.style.display === "") {
+      container.style.display = "block";
+
+      // Scroll to title only when showing the iframe
+      title.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } else {
+      container.style.display = "none";
+    }
+  });
 });
