@@ -134,12 +134,12 @@
         "buttonLink": "#article_11"
     },
     {
-        "title": "RoboSub 2021",
+        "title": "RoboSub 2019",
         "subtitle": "NUS Team Bumblebee",
         "image": "",
         "video": "https://www.youtube.com/embed/IOYOj7iZr00",
-        "alt": "robosub-2021",
-        "alt_title": "robosub-2021",
+        "alt": "robosub-2019",
+        "alt_title": "robosub-2019",
         "description": "Team video presenting the development and modification made to the existing BBAUV 3.5X for the RoboSub 2019. Development is made possible through the cumulative hard work of Bumblebee members.",
         "link": "https://bumblebee.sg/competitions/robosub/2019/",
         "buttonText": "Find Out More",
@@ -191,7 +191,7 @@
         "description": "Product Design Submission to Hyundai-NTU 3D Print challenge 2022. It was inspired by the Ioniq 5 grid headlight design, that allows for easy of reconfiguration and attachment system.",
         "link": "#article_16",
         "buttonText": "Find Out More",
-        "buttonLink": "#article_16"
+        "buttonLink": "/hyundai_challenge.html"
     },
     {
         "title": "Pay Anything",
