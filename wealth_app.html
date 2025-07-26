@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Portfolio Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better aesthetics and responsiveness */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Light blue-gray background */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* More rounded corners */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Softer shadow */
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="password"] {
+            padding: 0.75rem;
+            border: 1px solid #cbd5e0; /* Light border */
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box; /* Include padding in width */
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #6366f1; /* Indigo focus ring */
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Light indigo shadow on focus */
+        }
+        button {
+            transition: all 0.2s ease-in-out;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .btn-primary {
+            background-color: #6366f1; /* Indigo */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-primary:hover {
+            background-color: #4f46e5; /* Darker indigo */
+        }
+        .btn-secondary {
+            background-color: #e0e7ff; /* Light indigo */
+            color: #4f46e5; /* Darker indigo */
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-secondary:hover {
+            background-color: #c7d2fe; /* Even lighter indigo */
+        }
+        .btn-delete {
+            color: #ef4444; /* Red */
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+        .btn-delete:hover {
+            background-color: #fee2e2; /* Light red background on hover */
+        }
+        .btn-refresh {
+            color: #3b82f6; /* Blue */
+            padding: 0.5rem;
+            border-radius: 50%;
+        }
+        .btn-refresh:hover {
+            background-color: #dbeafe; /* Light blue background on hover */
+        }
+        .table-header th {
+            padding: 0.75rem 1.5rem;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6b7280; /* Gray text */
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background-color: #f9fafb; /* Light gray background */
+        }
+        .table-row td {
+            padding: 1rem 1.5rem;
+            font-size: 0.875rem;
+            color: #4b5563; /* Darker gray text */
+            white-space: nowrap;
+        }
+        .table-row:nth-child(even) {
+            background-color: #f9fafb; /* Alternate row color */
+        }
+        .table-row:hover {
+            background-color: #f3f4f6; /* Hover effect */
+        }
+        .gain {
+            color: #10b981; /* Green for gain */
+        }
+        .loss {
+            color: #ef4444; /* Red for loss */
+        }
+        .message {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 500;
+        }
+        .message.success {
+            background-color: #d1fae5; /* Light green */
+            color: #065f46; /* Dark green */
+        }
+        .message.error {
+            background-color: #fee2e2; /* Light red */
+            color: #991b1b; /* Dark red */
+        }
+        .message.info {
+            background-color: #dbeafe; /* Light blue */
+            color: #1e40af; /* Dark blue */
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-950 text-gray-900 dark:text-gray-100 min-h-screen p-4 sm:p-8">
+    <div class="container">
+        <!-- Header (common to all pages) -->
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl sm:text-5xl font-bold text-indigo-700 dark:text-indigo-400 mb-2">
+                Wealth App
+            </h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">
+                Simple Stock Portfolio Tracker
+            </p>
+        </header>
+
+        <!-- User ID & Navigation (visible after login) -->
+        <nav id="loggedInNav" class="hidden mb-6 flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
+            <div class="text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-0">
+                Logged in as: <span id="userEmailDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md break-all"></span>
+                (ID: <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md break-all"></span>)
+            </div>
+            <div class="flex space-x-2">
+                <button id="navEntryBtn" class="btn-secondary">Entry</button>
+                <button id="navDashboardBtn" class="btn-secondary">Dashboard</button>
+                <button id="logoutBtn" class="btn-secondary">Logout</button>
+            </div>
+        </nav>
+
+        <!-- Message Display (common) -->
+        <div id="messageDisplay" class="message hidden"></div>
+
+        <!-- Login/Signup Page -->
+        <div id="loginPage" class="page">
+            <section class="card w-full sm:w-2/3 lg:w-1/2 mx-auto">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4 text-center">Login / Sign Up</h2>
+                <div class="space-y-4 mb-6">
+                    <input type="email" id="loginEmail" placeholder="Email" required>
+                    <input type="password" id="loginPassword" placeholder="Password" required>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="loginBtn" class="btn-primary flex-1">Login</button>
+                    <button id="signupBtn" class="btn-secondary flex-1">Sign Up</button>
+                </div>
+                <p class="text-sm text-gray-500 text-center mt-4">
+                    Use email/password to login or sign up.
+                </p>
+            </section>
+        </div>
+
+        <!-- Entry Page -->
+        <div id="entryPage" class="page hidden">
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Add New Stock</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <input type="text" id="newTicker" placeholder="Ticker (e.g., AAPL)">
+                    <input type="number" id="newShares" placeholder="Shares">
+                    <input type="number" step="0.01" id="newDcaPrice" placeholder="DCA Price">
+                </div>
+                <button id="addStockBtn" class="btn-primary w-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-plus"><path d="M12 5v14M5 12h14"/></svg>
+                    <span>Add Stock to Portfolio</span>
+                </button>
+            </section>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page hidden">
+            <!-- Portfolio Summary -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Summary</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Cost</p>
+                        <p id="totalCost" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Current Value</p>
+                        <p id="totalValue" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+                    </div>
+                    <div id="gainLossSummary" class="p-4 rounded-lg shadow-sm">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Gain/Loss</p>
+                        <p id="totalGainLoss" class="text-xl font-bold">$0.00 (0.00%)</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Portfolio Positions Table -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Your Positions</h2>
+                <div id="portfolioEmptyMessage" class="text-center text-gray-500 dark:text-gray-400 hidden">
+                    No stocks in your portfolio yet. Add some on the Entry page!
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Ticker</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Shares</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">DCA Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mkt Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cost</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Value</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gain ($)</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gain (%)</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portfolioTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Stock rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Footer (common to all pages) -->
+            <footer class="mb-8 text-center">
+                <p class="text-lg text-gray-600 dark:text-gray-400">
+                    &copy; Jimmy Zeng 2025
+                </p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ====================================================================================================
+        // IMPORTANT: FOR GITHUB PAGES DEPLOYMENT, YOU MUST REPLACE THESE PLACEHOLDERS
+        // WITH YOUR ACTUAL FIREBASE CONFIGURATION AND APP ID.
+        // Get this from your Firebase Console -> Project settings -> Your apps -> Web app -> Firebase SDK snippet.
+        // ====================================================================================================
+
+        // Replace 'YOUR_FIREBASE_APP_ID' with your actual Firebase App ID (e.g., 'your-project-id')
+        // This is typically the projectId from your firebaseConfig.
+        const appId = 'wealthapp-2cddf'; // Example: 'my-stock-tracker-12345'
+
+        // Replace this entire firebaseConfig object with YOUR ACTUAL FIREBASE CONFIGURATION.
+        // It should look something like:
+        /*
+        const firebaseConfig = {
+            apiKey: "AIzaSy...",
+            authDomain: "your-project-id.firebaseapp.com",
+            projectId: "your-project-id",
+            storageBucket: "your-project-id.appspot.com",
+            messagingSenderId: "1234567890",
+            appId: "1:1234567890:web:abcdef1234567890",
+            measurementId: "G-ABCDEF1234"
+        };
+        */
+        const firebaseConfig = {
+            apiKey: "AIzaSyD6ZcQw20CqGspKvCuNCwp3TevagKdKhQg",
+            authDomain: "wealthapp-2cddf.firebaseapp.com",
+            projectId: "wealthapp-2cddf",
+            storageBucket: "wealthapp-2cddf.firebasestorage.app",
+            messagingSenderId: "114330023809",
+            appId: "1:114330023809:web:83bd0874d90ff75e6ada80",
+            measurementId: "G-0J6QBYJXY6"
+        };
+
+
+        // For GitHub Pages, you won't have __initial_auth_token.
+        // Firebase Auth will handle sign-in via email/password or anonymous sign-in if no user is logged in.
+        const initialAuthToken = null; // Set to null for GitHub Pages deployment.
+
+        // ====================================================================================================
+        // END OF REQUIRED CHANGES FOR GITHUB PAGES
+        // ====================================================================================================
+
+
+        let db;
+        let auth;
+        let currentUserId = null;
+        let currentUserEmail = null;
+        let isAuthReady = false;
+        let portfolioData = []; // This will hold the parsed JSON array of stocks
+
+        // DOM elements
+        const loggedInNav = document.getElementById('loggedInNav');
+        const userEmailDisplay = document.getElementById('userEmailDisplay');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const messageDisplay = document.getElementById('messageDisplay');
+
+        // Login Page elements
+        const loginPage = document.getElementById('loginPage');
+        const loginEmailInput = document.getElementById('loginEmail');
+        const loginPasswordInput = document.getElementById('loginPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+
+        // Entry Page elements
+        const entryPage = document.getElementById('entryPage');
+        const newTickerInput = document.getElementById('newTicker');
+        const newSharesInput = document.getElementById('newShares');
+        const newDcaPriceInput = document.getElementById('newDcaPrice');
+        const addStockBtn = document.getElementById('addStockBtn');
+        const navEntryBtn = document.getElementById('navEntryBtn');
+
+        // Dashboard Page elements
+        const dashboardPage = document.getElementById('dashboardPage');
+        const portfolioTableBody = document.getElementById('portfolioTableBody');
+        const portfolioEmptyMessage = document.getElementById('portfolioEmptyMessage');
+        const totalCostEl = document.getElementById('totalCost');
+        const totalValueEl = document.getElementById('totalValue');
+        const totalGainLossEl = document.getElementById('totalGainLoss');
+        const gainLossSummaryEl = document.getElementById('gainLossSummary');
+        const navDashboardBtn = document.getElementById('navDashboardBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Flag to prevent multiple rapid price fetches on initial load/navigation
+        let hasFetchedPricesOnDashboardLoad = false;
+
+
+        /**
+         * Displays a message to the user.
+         * @param {string} messageText - The message to display.
+         * @param {'success'|'error'|'info'} type - The type of message (for styling).
+         */
+        function showMessage(messageText, type = 'info') {
+            // Clear any existing timeout to prevent messages from disappearing too quickly
+            clearTimeout(messageDisplay.dataset.timeoutId);
+
+            messageDisplay.textContent = messageText;
+            messageDisplay.className = `message ${type}`; // Reset classes and apply new type
+            messageDisplay.classList.remove('hidden');
+
+            // Set a new timeout and store its ID
+            const timeoutId = setTimeout(() => {
+                messageDisplay.classList.add('hidden');
+            }, 5000); // Hide after 5 seconds
+            messageDisplay.dataset.timeoutId = timeoutId;
+        }
+
+        /**
+         * Shows a specific page and hides others.
+         * @param {HTMLElement} pageToShow - The DOM element of the page to show.
+         */
+        function showPage(pageToShow) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            pageToShow.classList.remove('hidden');
+
+            // If navigating to the dashboard, trigger a price refresh if not already done
+            if (pageToShow === dashboardPage && isAuthReady && !hasFetchedPricesOnDashboardLoad) {
+                refreshAllStocksMarketPrices();
+                hasFetchedPricesOnDashboardLoad = true; // Set flag to prevent immediate re-fetch
+            }
+        }
+
+        /**
+         * Initializes Firebase and sets up authentication.
+         */
+        async function initializeFirebase() {
+            try {
+                // Ensure firebaseConfig is not just the placeholder
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+                    console.error("Firebase configuration is missing or invalid. Please update firebaseConfig with your actual project details.");
+                    showMessage("Error: Firebase configuration is not set up correctly. Please check the code.", 'error');
+                    return;
+                }
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        currentUserEmail = user.email || 'Anonymous';
+                        userIdDisplay.textContent = currentUserId;
+                        userEmailDisplay.textContent = currentUserEmail;
+                        loggedInNav.classList.remove('hidden');
+                        isAuthReady = true;
+                        setupRealtimeListener(); // Start listening for data once auth is ready
+                        // Initial page display after auth, will trigger refreshAllStocksMarketPrices via showPage
+                        showPage(dashboardPage);
+                    } else {
+                        console.warn("No user logged in. Showing login page.");
+                        loggedInNav.classList.add('hidden');
+                        showPage(loginPage);
+                        isAuthReady = false; // Reset auth ready state
+                        hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
+                    }
+                });
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                showMessage(`Initialization error: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Handles user signup with email and password.
+         */
+        async function handleSignUp() {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Please enter both email and password.", 'error');
+                return;
+            }
+
+            try {
+                await createUserWithEmailAndPassword(auth, email, password);
+                showMessage("Account created successfully! You are now logged in.", 'success');
+                // onAuthStateChanged will handle page redirection
+            } catch (error) {
+                console.error("Signup error:", error);
+                showMessage(`Signup failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Handles user login with email and password.
+         */
+        async function handleLogin() {
+            const email = loginEmailInput.value;
+            const password = loginPasswordInput.value;
+
+            if (!email || !password) {
+                showMessage("Please enter both email and password.", 'error');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Logged in successfully!", 'success');
+                // onAuthStateChanged will handle page redirection
+            } catch (error) {
+                console.error("Login error:", error);
+                showMessage(`Login failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Handles user logout.
+         */
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                showMessage("Logged out successfully.", 'info');
+                portfolioData = []; // Clear portfolio data on logout
+                renderPortfolio([]); // Clear UI
+                updatePortfolioSummary([]); // Clear summary
+                loggedInNav.classList.add('hidden');
+                showPage(loginPage);
+                hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
+            } catch (error) {
+                console.error("Logout error:", error);
+                showMessage(`Logout failed: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Sets up a real-time listener for the user's portfolio JSON document.
+         */
+        function setupRealtimeListener() {
+            if (!db || !currentUserId || !isAuthReady) {
+                return;
+            }
+
+            // Path to the single document storing portfolio JSON
+            const docPath = `artifacts/${appId}/users/${currentUserId}/user_data/portfolio_json`;
+            const docRef = doc(db, docPath);
+
+            onSnapshot(docRef, (docSnapshot) => {
+                if (docSnapshot.exists()) {
+                    const data = docSnapshot.data();
+                    try {
+                        // Parse the JSON string back into an array
+                        portfolioData = JSON.parse(data.stocksData || '[]');
+                    } catch (e) {
+                        console.error("Error parsing portfolio JSON:", e);
+                        portfolioData = []; // Reset if parsing fails
+                        showMessage("Error loading portfolio data. Data might be corrupted.", 'error');
+                    }
+                } else {
+                    portfolioData = []; // Document doesn't exist yet, start with empty portfolio
+                }
+                renderPortfolio(portfolioData);
+                updatePortfolioSummary(portfolioData);
+
+                // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                // IMPORTANT CHANGE: Removed direct call to refreshAllStocksMarketPrices here.
+                // It will now be called when showPage(dashboardPage) is triggered.
+                // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+            }, (error) => {
+                console.error("Error fetching portfolio document:", error);
+                showMessage(`Error loading portfolio: ${error.message}`, 'error');
+            });
+        }
+
+        /**
+         * Saves the current portfolioData array as a JSON string to Firestore.
+         * @param {Array<Object>} dataToSave - The array of stock objects to save.
+         */
+        async function savePortfolio(dataToSave) {
+            if (!db || !currentUserId) {
+                showMessage("Error: Not authenticated or database not ready to save.", 'error');
+                return;
+            }
+            const docPath = `artifacts/${appId}/users/${currentUserId}/user_data/portfolio_json`;
+            const docRef = doc(db, docPath);
+            try {
+                await setDoc(docRef, { stocksData: JSON.stringify(dataToSave) });
+                // No message here, as onSnapshot will trigger render and message if needed
+            } catch (e) {
+                console.error("Error saving portfolio JSON:", e);
+                showMessage(`Error saving portfolio: ${e.message}`, 'error');
+            }
+        }
+
+        /**
+         * Renders the portfolio data into the HTML table.
+         * @param {Array<Object>} portfolio - The array of stock objects.
+         */
+        function renderPortfolio(portfolio) {
+            portfolioTableBody.innerHTML = ''; // Clear existing rows
+
+            if (portfolio.length === 0) {
+                portfolioEmptyMessage.classList.remove('hidden');
+            } else {
+                portfolioEmptyMessage.classList.add('hidden');
+            }
+
+            portfolio.forEach(stock => {
+                const cost = stock.shares * stock.dcaPrice;
+                const value = stock.shares * (stock.marketPrice || stock.dcaPrice);
+                const gainLoss = value - cost;
+                const gainLossPercent = cost > 0 ? (gainLoss / cost) * 100 : 0;
+
+                const row = document.createElement('tr');
+                row.className = "table-row hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out";
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${stock.ticker}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${stock.shares}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">$${stock.dcaPrice.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                        ${stock.marketPrice ? `$${stock.marketPrice.toFixed(2)}` : 'N/A'}
+                        <button class="ml-2 p-1 rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-300 transition duration-150 ease-in-out btn-refresh" data-id="${stock.id}" data-ticker="${stock.ticker}" title="Refresh Market Price">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-refresh-cw"><path d="M21 12a9 9 0 0 0-9-9c-7.2 0-9 1.8-9 9s1.8 9 9 9a9 9 0 0 0 9-9"/><path d="M17 12h-5v5"/></svg>
+                        </button>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">$${cost.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">$${value.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${gainLoss >= 0 ? 'gain' : 'loss'}">$${gainLoss.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${gainLossPercent >= 0 ? 'gain' : 'loss'}">${gainLossPercent.toFixed(2)}%</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 transition duration-150 ease-in-out p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 btn-delete" data-id="${stock.id}" data-ticker="${stock.ticker}" title="Delete Stock">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                    </td>
+                `;
+                portfolioTableBody.appendChild(row);
+            });
+
+            // Attach event listeners to newly created buttons
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.onclick = (event) => {
+                    const id = event.currentTarget.dataset.id;
+                    const ticker = event.currentTarget.dataset.ticker;
+                    deleteStock(id, ticker);
+                };
+            });
+            document.querySelectorAll('.btn-refresh').forEach(button => {
+                button.onclick = (event) => {
+                    const id = event.currentTarget.dataset.id;
+                    const ticker = event.currentTarget.dataset.ticker;
+                    fetchMarketPrice(id, ticker); // Call the actual fetch function
+                };
+            });
+        }
+
+        /**
+         * Updates the portfolio summary section.
+         * @param {Array<Object>} portfolio - The array of stock objects.
+         */
+        function updatePortfolioSummary(portfolio) {
+            const totalCost = portfolio.reduce((sum, stock) => sum + (stock.shares * stock.dcaPrice), 0);
+            const totalValue = portfolio.reduce((sum, stock) => sum + (stock.shares * (stock.marketPrice || stock.dcaPrice)), 0);
+            const totalGainLoss = totalValue - totalCost;
+            const gainLossPercentage = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
+
+            totalCostEl.textContent = `$${totalCost.toFixed(2)}`;
+            totalValueEl.textContent = `$${totalValue.toFixed(2)}`;
+            totalGainLossEl.textContent = `$${totalGainLoss.toFixed(2)} (${gainLossPercentage.toFixed(2)}%)`;
+
+            // Update summary card styling based on gain/loss
+            if (totalGainLoss >= 0) {
+                gainLossSummaryEl.className = 'p-4 rounded-lg shadow-sm bg-green-50 dark:bg-green-900';
+                totalGainLossEl.classList.remove('loss');
+                totalGainLossEl.classList.add('gain');
+            } else {
+                gainLossSummaryEl.className = 'p-4 rounded-lg shadow-sm bg-red-50 dark:bg-red-900';
+                totalGainLossEl.classList.remove('gain');
+                totalGainLossEl.classList.add('loss');
+            }
+        }
+
+        /**
+         * Adds a new stock to the portfolioData array and saves it to Firestore.
+         */
+        async function addStock() {
+            if (!db || !currentUserId) {
+                showMessage("Error: Not authenticated or database not ready.", 'error');
+                return;
+            }
+
+            const ticker = newTickerInput.value.trim();
+            const shares = parseFloat(newSharesInput.value);
+            const dcaPrice = parseFloat(newDcaPriceInput.value);
+
+            if (!ticker || isNaN(shares) || isNaN(dcaPrice) || shares <= 0 || dcaPrice <= 0) {
+                showMessage("Please fill in all fields (Ticker, Shares, DCA Price) with valid positive numbers.", 'error');
+                return;
+            }
+
+            // Generate a unique ID for the new stock
+            const newStockId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+
+            const newStock = {
+                id: newStockId,
+                ticker: ticker.toUpperCase(),
+                shares: shares,
+                dcaPrice: dcaPrice,
+                marketPrice: 0, // Placeholder
+                timestamp: Date.now()
+            };
+
+            portfolioData.push(newStock);
+            await savePortfolio(portfolioData); // Save the updated array
+
+            newTickerInput.value = '';
+            newSharesInput.value = '';
+            newDcaPriceInput.value = '';
+            showMessage(`Added ${ticker.toUpperCase()} to your portfolio!`, 'success');
+        }
+
+        /**
+         * Deletes a stock from the portfolioData array and saves it to Firestore.
+         * @param {string} id - The unique ID of the stock to delete.
+         * @param {string} ticker - The ticker symbol of the stock (for messages).
+         */
+        async function deleteStock(id, ticker) {
+            if (!db || !currentUserId) {
+                showMessage("Error: Not authenticated or database not ready.", 'error');
+                return;
+            }
+            const initialLength = portfolioData.length;
+            portfolioData = portfolioData.filter(stock => stock.id !== id);
+            if (portfolioData.length < initialLength) {
+                await savePortfolio(portfolioData);
+                showMessage(`Deleted ${ticker} from your portfolio.`, 'success');
+            } else {
+                showMessage(`Could not find ${ticker} to delete.`, 'error');
+            }
+        }
+
+        /**
+         * Fetches market price for a single stock by scraping Yahoo Finance using a CORS proxy.
+         * IMPORTANT: Relying on public CORS proxies for production is not recommended due to
+         * reliability, security, and rate limit concerns.
+         * @param {string} stockId - The unique ID of the stock to update.
+         * @param {string} ticker - The ticker symbol to search for.
+         */
+        async function fetchMarketPrice(stockId, ticker) {
+            showMessage(`Attempting to fetch market price for ${ticker} via proxy... (Note: Public proxies can be unreliable)`, 'info');
+            const yahooFinanceUrl = `https://sg.finance.yahoo.com/quote/${ticker}/`; // Assuming .SI for Singapore stocks
+            // Using a public CORS proxy. Use with caution.
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const targetUrl = proxyUrl + encodeURIComponent(yahooFinanceUrl);
+
+            try {
+                const response = await fetch(targetUrl);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const htmlText = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                // Find the element with data-testid="qsp-price"
+                const priceElement = doc.querySelector('[data-testid="qsp-price"]');
+                let price = 'N/A';
+
+                if (priceElement) {
+                    price = parseFloat(priceElement.textContent.replace(/,/g, '')); // Remove commas for parsing
+                }
+
+                if (price !== 'N/A' && !isNaN(price)) {
+                    // Find the stock in the local array and update its marketPrice
+                    const stockIndex = portfolioData.findIndex(stock => stock.id === stockId);
+                    if (stockIndex !== -1) {
+                        portfolioData[stockIndex].marketPrice = price;
+                        portfolioData[stockIndex].lastUpdated = Date.now();
+                        await savePortfolio(portfolioData); // Save the updated array
+                        showMessage(`Updated market price for ${ticker}: $${price.toFixed(2)}`, 'success');
+                    } else {
+                        showMessage(`Stock with ID ${stockId} not found in local portfolio.`, 'error');
+                    }
+                } else {
+                    showMessage(`Could not find live price for ${ticker}. Check ticker or try again.`, 'error');
+                }
+
+            } catch (error) {
+                console.error("Error fetching market price via proxy:", error);
+                showMessage(`Failed to fetch price for ${ticker} via proxy: ${error.message}. Try refreshing.`, 'error');
+            }
+        }
+
+        /**
+         * Refreshes market prices for all stocks in the portfolio.
+         */
+        function refreshAllStocksMarketPrices() {
+            if (portfolioData.length > 0) {
+                showMessage("Refreshing all stock market prices...", 'info');
+                portfolioData.forEach(stock => fetchMarketPrice(stock.id, stock.ticker));
+            } else {
+                showMessage("No stocks in portfolio to refresh prices.", 'info');
+            }
+        }
+
+
+        // Event Listeners
+        window.onload = initializeFirebase; // Initialize Firebase when the window loads
+
+        // Login/Signup buttons
+        loginBtn.addEventListener('click', handleLogin);
+        signupBtn.addEventListener('click', handleSignUp);
+
+        // Navigation buttons
+        navEntryBtn.addEventListener('click', () => {
+            showPage(entryPage);
+            hasFetchedPricesOnDashboardLoad = false; // Reset flag when leaving dashboard
+        });
+        navDashboardBtn.addEventListener('click', () => showPage(dashboardPage));
+        logoutBtn.addEventListener('click', handleLogout);
+
+        // Add Stock button
+        addStockBtn.addEventListener('click', addStock);
+
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
