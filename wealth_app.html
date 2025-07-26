@@ -6,6 +6,8 @@
     <title>Stock Portfolio Tracker</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+        <!-- D3.js CDN for charts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <style>
         /* Custom styles for better aesthetics and responsiveness */
         body {
@@ -27,7 +29,8 @@
         input[type="text"],
         input[type="number"],
         input[type="email"],
-        input[type="password"] {
+        input[type="password"],
+        input[type="date"] { /* Added date input styling */
             padding: 0.75rem;
             border: 1px solid #cbd5e0; /* Light border */
             border-radius: 0.5rem;
@@ -38,7 +41,8 @@
         input[type="text"]:focus,
         input[type="number"]:focus,
         input[type="email"]:focus,
-        input[type="password"]:focus {
+        input[type="password"]:focus,
+        input[type="date"]:focus { /* Added date input focus styling */
             outline: none;
             border-color: #6366f1; /* Indigo focus ring */
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Light indigo shadow on focus */
@@ -141,6 +145,22 @@
             background-color: #dbeafe; /* Light blue */
             color: #1e40af; /* Dark blue */
         }
+        /* Pie Chart Specific Styles */
+        #portfolioPieChart {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto; /* Maintain aspect ratio */
+        }
+        .arc text {
+            font-size: 10px;
+            fill: white;
+            text-anchor: middle;
+        }
+        .arc path {
+            stroke: #fff;
+            stroke-width: 1px;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-950 text-gray-900 dark:text-gray-100 min-h-screen p-4 sm:p-8">
@@ -191,7 +211,7 @@
 
         <!-- Entry Page -->
         <div id="entryPage" class="page hidden">
-            <section class="card">
+            <section class="card mb-8">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Add New Stock</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <input type="text" id="newTicker" placeholder="Ticker (e.g., AAPL)">
@@ -203,6 +223,20 @@
                     <span>Add Stock to Portfolio</span>
                 </button>
             </section>
+
+            <!-- New: Record Dividend Panel -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Record Dividend</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                    <input type="text" id="dividendTicker" placeholder="Ticker (e.g., G3B)">
+                    <input type="number" step="0.01" id="dividendAmount" placeholder="Amount (e.g., 50.00)">
+                    <input type="date" id="dividendDate">
+                </div>
+                <button id="recordDividendBtn" class="btn-primary w-full bg-green-600 hover:bg-green-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-dollar-sign"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <span>Record Dividend</span>
+                </button>
+            </section>
         </div>
 
         <!-- Dashboard Page -->
@@ -210,7 +244,7 @@
             <!-- Portfolio Summary -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Summary</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center"> <!-- Adjusted grid for dividends -->
                     <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
                         <p class="text-sm text-gray-500 dark:text-gray-400">Total Cost</p>
                         <p id="totalCost" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
@@ -219,10 +253,25 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400">Current Value</p>
                         <p id="totalValue" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
                     </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Dividends</p>
+                        <p id="totalDividends" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
+                    </div>
                     <div id="gainLossSummary" class="p-4 rounded-lg shadow-sm">
                         <p class="text-sm text-gray-500 dark:text-gray-400">Gain/Loss</p>
                         <p id="totalGainLoss" class="text-xl font-bold">$0.00 (0.00%)</p>
                     </div>
+                </div>
+            </section>
+
+            <!-- New: Pie Chart Section -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Allocation</h2>
+                <div class="flex justify-center items-center">
+                    <svg id="portfolioPieChart" width="300" height="300"></svg>
+                </div>
+                <div id="pieChartLegend" class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 text-sm text-gray-700 dark:text-gray-300">
+                    <!-- Legend will be populated by JS -->
                 </div>
             </section>
 
@@ -249,6 +298,29 @@
                         </thead>
                         <tbody id="portfolioTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                             <!-- Stock rows will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- New: Dividend History Table -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Dividend History</h2>
+                <div id="dividendEmptyMessage" class="text-center text-gray-500 dark:text-gray-400 hidden">
+                    No dividends recorded yet.
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ticker</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dividendHistoryTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <!-- Dividend rows will be inserted here by JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -317,7 +389,8 @@
         let currentUserId = null;
         let currentUserEmail = null;
         let isAuthReady = false;
-        let portfolioData = []; // This will hold the parsed JSON array of stocks
+        // portfolioData now holds an object with 'stocks' and 'dividends' arrays
+        let portfolioData = { stocks: [], dividends: [] };
 
         // DOM elements
         const loggedInNav = document.getElementById('loggedInNav');
@@ -339,6 +412,12 @@
         const newDcaPriceInput = document.getElementById('newDcaPrice');
         const addStockBtn = document.getElementById('addStockBtn');
         const navEntryBtn = document.getElementById('navEntryBtn');
+        
+        // New Dividend Entry elements
+        const dividendTickerInput = document.getElementById('dividendTicker');
+        const dividendAmountInput = document.getElementById('dividendAmount');
+        const dividendDateInput = document.getElementById('dividendDate');
+        const recordDividendBtn = document.getElementById('recordDividendBtn');
 
         // Dashboard Page elements
         const dashboardPage = document.getElementById('dashboardPage');
@@ -348,8 +427,19 @@
         const totalValueEl = document.getElementById('totalValue');
         const totalGainLossEl = document.getElementById('totalGainLoss');
         const gainLossSummaryEl = document.getElementById('gainLossSummary');
+        const totalDividendsEl = document.getElementById('totalDividends'); // New
         const navDashboardBtn = document.getElementById('navDashboardBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+
+        // New Dividend History elements
+        const dividendHistoryTableBody = document.getElementById('dividendHistoryTableBody');
+        const dividendEmptyMessage = document.getElementById('dividendEmptyMessage');
+
+        // New Pie Chart elements
+        const portfolioPieChartSvg = document.getElementById('portfolioPieChart');
+        const pieChartLegend = document.getElementById('pieChartLegend');
+
+
 
         // Flag to prevent multiple rapid price fetches on initial load/navigation
         let hasFetchedPricesOnDashboardLoad = false;
@@ -401,7 +491,9 @@
                 if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
                     console.error("Firebase configuration is missing or invalid. Please update firebaseConfig with your actual project details.");
                     showMessage("Error: Firebase configuration is not set up correctly. Please check the code.", 'error');
-                    return;
+                    // IMPORTANT: Ensure login page is visible even if Firebase init fails due to bad config
+                    showPage(loginPage);
+                    return; // Stop further execution if config is bad
                 }
 
                 const app = initializeApp(firebaseConfig);
@@ -430,6 +522,8 @@
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
                 showMessage(`Initialization error: ${error.message}`, 'error');
+                // IMPORTANT: Ensure login page is visible if any other initialization error occurs
+                showPage(loginPage);
             }
         }
 
@@ -484,9 +578,10 @@
             try {
                 await signOut(auth);
                 showMessage("Logged out successfully.", 'info');
-                portfolioData = []; // Clear portfolio data on logout
-                renderPortfolio([]); // Clear UI
-                updatePortfolioSummary([]); // Clear summary
+                portfolioData = { stocks: [], dividends: [] }; // Clear all portfolio data on logout
+                renderPortfolio(portfolioData.stocks); // Clear stock UI
+                renderDividendHistory(portfolioData.dividends); // Clear dividend UI
+                updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends);
                 loggedInNav.classList.add('hidden');
                 showPage(loginPage);
                 hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
@@ -512,24 +607,22 @@
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
                     try {
-                        // Parse the JSON string back into an array
-                        portfolioData = JSON.parse(data.stocksData || '[]');
+                        // Parse the single JSON string back into an object with stocks and dividends
+                        const parsedContent = JSON.parse(data.portfolioContent || '{}');
+                        portfolioData.stocks = parsedContent.stocks || [];
+                        portfolioData.dividends = parsedContent.dividends || [];
                     } catch (e) {
                         console.error("Error parsing portfolio JSON:", e);
-                        portfolioData = []; // Reset if parsing fails
+                        portfolioData = { stocks: [], dividends: [] }; // Reset if parsing fails
                         showMessage("Error loading portfolio data. Data might be corrupted.", 'error');
                     }
                 } else {
-                    portfolioData = []; // Document doesn't exist yet, start with empty portfolio
+                    portfolioData = { stocks: [], dividends: [] }; // Document doesn't exist yet, start with empty portfolio
                 }
-                renderPortfolio(portfolioData);
-                updatePortfolioSummary(portfolioData);
-
-                // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-                // IMPORTANT CHANGE: Removed direct call to refreshAllStocksMarketPrices here.
-                // It will now be called when showPage(dashboardPage) is triggered.
-                // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+                renderPortfolio(portfolioData.stocks);
+                renderDividendHistory(portfolioData.dividends); // Render dividends
+                updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends); // Update summary with both
+                renderPieChart(portfolioData.stocks); // Render pie chart
             }, (error) => {
                 console.error("Error fetching portfolio document:", error);
                 showMessage(`Error loading portfolio: ${error.message}`, 'error');
@@ -537,8 +630,8 @@
         }
 
         /**
-         * Saves the current portfolioData array as a JSON string to Firestore.
-         * @param {Array<Object>} dataToSave - The array of stock objects to save.
+         * Saves the current portfolioData object as a JSON string to Firestore.
+         * @param {Object} dataToSave - The object containing stocks and dividends arrays.
          */
         async function savePortfolio(dataToSave) {
             if (!db || !currentUserId) {
@@ -548,7 +641,8 @@
             const docPath = `artifacts/${appId}/users/${currentUserId}/user_data/portfolio_json`;
             const docRef = doc(db, docPath);
             try {
-                await setDoc(docRef, { stocksData: JSON.stringify(dataToSave) });
+                // Save the entire portfolioData object as a JSON string
+                await setDoc(docRef, { portfolioContent: JSON.stringify(dataToSave) });
                 // No message here, as onSnapshot will trigger render and message if needed
             } catch (e) {
                 console.error("Error saving portfolio JSON:", e);
@@ -558,18 +652,18 @@
 
         /**
          * Renders the portfolio data into the HTML table.
-         * @param {Array<Object>} portfolio - The array of stock objects.
+         * @param {Array<Object>} stocks - The array of stock objects.
          */
-        function renderPortfolio(portfolio) {
+        function renderPortfolio(stocks) {
             portfolioTableBody.innerHTML = ''; // Clear existing rows
 
-            if (portfolio.length === 0) {
+            if (stocks.length === 0) {
                 portfolioEmptyMessage.classList.remove('hidden');
             } else {
                 portfolioEmptyMessage.classList.add('hidden');
             }
 
-            portfolio.forEach(stock => {
+            stocks.forEach(stock => {
                 const cost = stock.shares * stock.dcaPrice;
                 const value = stock.shares * (stock.marketPrice || stock.dcaPrice);
                 const gainLoss = value - cost;
@@ -618,18 +712,63 @@
         }
 
         /**
-         * Updates the portfolio summary section.
-         * @param {Array<Object>} portfolio - The array of stock objects.
+         * Renders the dividend history data into the HTML table.
+         * @param {Array<Object>} dividends - The array of dividend objects.
          */
-        function updatePortfolioSummary(portfolio) {
-            const totalCost = portfolio.reduce((sum, stock) => sum + (stock.shares * stock.dcaPrice), 0);
-            const totalValue = portfolio.reduce((sum, stock) => sum + (stock.shares * (stock.marketPrice || stock.dcaPrice)), 0);
+        function renderDividendHistory(dividends) {
+            dividendHistoryTableBody.innerHTML = ''; // Clear existing rows
+
+            if (dividends.length === 0) {
+                dividendEmptyMessage.classList.remove('hidden');
+            } else {
+                dividendEmptyMessage.classList.add('hidden');
+            }
+
+            // Sort dividends by date descending
+            const sortedDividends = [...dividends].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            sortedDividends.forEach(dividend => {
+                const row = document.createElement('tr');
+                row.className = "table-row hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150 ease-in-out";
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">${dividend.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">${dividend.ticker}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">$${dividend.amount.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 transition duration-150 ease-in-out p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900 btn-delete-dividend" data-id="${dividend.id}" data-ticker="${dividend.ticker}" title="Delete Dividend">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                    </td>
+                `;
+                dividendHistoryTableBody.appendChild(row);
+            });
+
+            document.querySelectorAll('.btn-delete-dividend').forEach(button => {
+                button.onclick = (event) => {
+                    const id = event.currentTarget.dataset.id;
+                    const ticker = event.currentTarget.dataset.ticker;
+                    deleteDividend(id, ticker);
+                };
+            });
+        }
+
+        /**
+         * Updates the portfolio summary section.
+         * @param {Array<Object>} stocks - The array of stock objects.
+         * @param {Array<Object>} dividends - The array of dividend objects.
+         */
+        function updatePortfolioSummary(stocks, dividends) {
+            const totalCost = stocks.reduce((sum, stock) => sum + (stock.shares * stock.dcaPrice), 0);
+            const totalValue = stocks.reduce((sum, stock) => sum + (stock.shares * (stock.marketPrice || stock.dcaPrice)), 0);
             const totalGainLoss = totalValue - totalCost;
             const gainLossPercentage = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
+            const totalDividends = dividends.reduce((sum, dividend) => sum + dividend.amount, 0);
+
 
             totalCostEl.textContent = `$${totalCost.toFixed(2)}`;
             totalValueEl.textContent = `$${totalValue.toFixed(2)}`;
             totalGainLossEl.textContent = `$${totalGainLoss.toFixed(2)} (${gainLossPercentage.toFixed(2)}%)`;
+            totalDividendsEl.textContent = `$${totalDividends.toFixed(2)}`; // Update total dividends
 
             // Update summary card styling based on gain/loss
             if (totalGainLoss >= 0) {
@@ -644,7 +783,7 @@
         }
 
         /**
-         * Adds a new stock to the portfolioData array and saves it to Firestore.
+         * Adds a new stock to the portfolioData.stocks array and saves it to Firestore.
          */
         async function addStock() {
             if (!db || !currentUserId) {
@@ -673,8 +812,8 @@
                 timestamp: Date.now()
             };
 
-            portfolioData.push(newStock);
-            await savePortfolio(portfolioData); // Save the updated array
+            portfolioData.stocks.push(newStock);
+            await savePortfolio(portfolioData); // Save the updated object
 
             newTickerInput.value = '';
             newSharesInput.value = '';
@@ -683,7 +822,7 @@
         }
 
         /**
-         * Deletes a stock from the portfolioData array and saves it to Firestore.
+         * Deletes a stock from the portfolioData.stocks array and saves it to Firestore.
          * @param {string} id - The unique ID of the stock to delete.
          * @param {string} ticker - The ticker symbol of the stock (for messages).
          */
@@ -692,15 +831,73 @@
                 showMessage("Error: Not authenticated or database not ready.", 'error');
                 return;
             }
-            const initialLength = portfolioData.length;
-            portfolioData = portfolioData.filter(stock => stock.id !== id);
-            if (portfolioData.length < initialLength) {
+            const initialLength = portfolioData.stocks.length;
+            portfolioData.stocks = portfolioData.stocks.filter(stock => stock.id !== id);
+            if (portfolioData.stocks.length < initialLength) {
                 await savePortfolio(portfolioData);
                 showMessage(`Deleted ${ticker} from your portfolio.`, 'success');
             } else {
                 showMessage(`Could not find ${ticker} to delete.`, 'error');
             }
         }
+
+        /**
+         * Records a new dividend to the portfolioData.dividends array and saves it to Firestore.
+         */
+        async function recordDividend() {
+            if (!db || !currentUserId) {
+                showMessage("Error: Not authenticated or database not ready.", 'error');
+                return;
+            }
+
+            const ticker = dividendTickerInput.value.trim();
+            const amount = parseFloat(dividendAmountInput.value);
+            const date = dividendDateInput.value; // YYYY-MM-DD format
+
+            if (!ticker || isNaN(amount) || amount <= 0 || !date) {
+                showMessage("Please fill in all fields (Ticker, Amount, Date) with valid positive amount.", 'error');
+                return;
+            }
+
+            const newDividendId = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+
+            const newDividend = {
+                id: newDividendId,
+                ticker: ticker.toUpperCase(),
+                amount: amount,
+                date: date,
+                timestamp: Date.now() // For internal sorting if needed
+            };
+
+            portfolioData.dividends.push(newDividend);
+            await savePortfolio(portfolioData);
+
+            dividendTickerInput.value = '';
+            dividendAmountInput.value = '';
+            dividendDateInput.value = '';
+            showMessage(`Recorded $${amount.toFixed(2)} dividend for ${ticker.toUpperCase()} on ${date}!`, 'success');
+        }
+
+        /**
+         * Deletes a dividend from the portfolioData.dividends array and saves it to Firestore.
+         * @param {string} id - The unique ID of the dividend to delete.
+         * @param {string} ticker - The ticker symbol of the dividend (for messages).
+         */
+        async function deleteDividend(id, ticker) {
+            if (!db || !currentUserId) {
+                showMessage("Error: Not authenticated or database not ready.", 'error');
+                return;
+            }
+            const initialLength = portfolioData.dividends.length;
+            portfolioData.dividends = portfolioData.dividends.filter(dividend => dividend.id !== id);
+            if (portfolioData.dividends.length < initialLength) {
+                await savePortfolio(portfolioData);
+                showMessage(`Deleted dividend for ${ticker}.`, 'success');
+            } else {
+                showMessage(`Could not find dividend for ${ticker} to delete.`, 'error');
+            }
+        }
+
 
         /**
          * Fetches market price for a single stock by scraping Yahoo Finance using a CORS proxy.
@@ -737,11 +934,11 @@
 
                 if (price !== 'N/A' && !isNaN(price)) {
                     // Find the stock in the local array and update its marketPrice
-                    const stockIndex = portfolioData.findIndex(stock => stock.id === stockId);
+                    const stockIndex = portfolioData.stocks.findIndex(stock => stock.id === stockId);
                     if (stockIndex !== -1) {
-                        portfolioData[stockIndex].marketPrice = price;
-                        portfolioData[stockIndex].lastUpdated = Date.now();
-                        await savePortfolio(portfolioData); // Save the updated array
+                        portfolioData.stocks[stockIndex].marketPrice = price;
+                        portfolioData.stocks[stockIndex].lastUpdated = Date.now();
+                        await savePortfolio(portfolioData); // Save the updated object
                         showMessage(`Updated market price for ${ticker}: $${price.toFixed(2)}`, 'success');
                     } else {
                         showMessage(`Stock with ID ${stockId} not found in local portfolio.`, 'error');
@@ -760,14 +957,96 @@
          * Refreshes market prices for all stocks in the portfolio.
          */
         function refreshAllStocksMarketPrices() {
-            if (portfolioData.length > 0) {
+            if (portfolioData.stocks.length > 0) {
                 showMessage("Refreshing all stock market prices...", 'info');
-                portfolioData.forEach(stock => fetchMarketPrice(stock.id, stock.ticker));
+                portfolioData.stocks.forEach(stock => fetchMarketPrice(stock.id, stock.ticker));
             } else {
                 showMessage("No stocks in portfolio to refresh prices.", 'info');
             }
         }
 
+        /**
+         * Renders a D3.js pie chart of stock positions by current market value.
+         * @param {Array<Object>} stocks - The array of stock objects.
+         */
+        function renderPieChart(stocks) {
+            // Clear previous chart
+            d3.select(portfolioPieChartSvg).selectAll("*").remove();
+            pieChartLegend.innerHTML = '';
+
+            const dataForChart = stocks
+                .filter(d => d.marketPrice && d.shares > 0) // Only include stocks with valid market price and shares
+                .map(d => ({
+                    ticker: d.ticker,
+                    value: d.shares * d.marketPrice
+                }))
+                .filter(d => d.value > 0); // Only include stocks with positive value
+
+            if (dataForChart.length === 0) {
+                // Optionally display a message if no data for chart
+                d3.select(portfolioPieChartSvg).append("text")
+                    .attr("x", 150) // Center of the SVG
+                    .attr("y", 150)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "#6b7280")
+                    .text("No data for pie chart (check market prices)");
+                return;
+            }
+
+            const totalPortfolioValue = d3.sum(dataForChart, d => d.value);
+
+            const width = 300;
+            const height = 300;
+            const radius = Math.min(width, height) / 2;
+
+            const svg = d3.select(portfolioPieChartSvg)
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+            const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+            const pie = d3.pie()
+                .value(d => d.value)
+                .sort(null); // No sorting, use input order
+
+            const arc = d3.arc()
+                .innerRadius(0)
+                .outerRadius(radius);
+
+            const arcs = svg.selectAll(".arc")
+                .data(pie(dataForChart))
+                .enter()
+                .append("g")
+                .attr("class", "arc");
+
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", d => color(d.data.ticker));
+
+            // Add text labels inside slices if they fit
+            arcs.append("text")
+                .attr("transform", d => `translate(${arc.centroid(d)})`)
+                .attr("dy", "0.35em")
+                .text(d => {
+                    const percentage = (d.data.value / totalPortfolioValue * 100);
+                    return percentage > 5 ? `${d.data.ticker} (${percentage.toFixed(1)}%)` : ''; // Only show if slice is big enough
+                })
+                .style("font-size", "10px")
+                .style("fill", "white");
+
+            // Create a legend
+            dataForChart.forEach((d, i) => {
+                const legendItem = document.createElement('div');
+                legendItem.className = 'flex items-center space-x-1';
+                legendItem.innerHTML = `
+                    <span style="background-color: ${color(d.ticker)}; width: 12px; height: 12px; border-radius: 3px;"></span>
+                    <span>${d.ticker} ($${d.value.toFixed(2)})</span>
+                `;
+                pieChartLegend.appendChild(legendItem);
+            });
+        }
 
         // Event Listeners
         window.onload = initializeFirebase; // Initialize Firebase when the window loads
@@ -784,8 +1063,10 @@
         navDashboardBtn.addEventListener('click', () => showPage(dashboardPage));
         logoutBtn.addEventListener('click', handleLogout);
 
-        // Add Stock button
+        
+        // Add Stock and Record Dividend buttons
         addStockBtn.addEventListener('click', addStock);
+        recordDividendBtn.addEventListener('click', recordDividend); // New event listener for dividend
 
     </script>
 </body>
