@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Portfolio Tracker</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Wealth App</title>
     <script src="https://cdn.tailwindcss.com"></script>
-        <!-- D3.js CDN for charts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <style>
         /* Custom styles for better aesthetics and responsiveness */
@@ -17,21 +15,21 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 1rem;
         }
         .card {
             background-color: #ffffff;
             border-radius: 1rem; /* More rounded corners */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Softer shadow */
             padding: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem; /* Slightly reduced margin for coziness */
         }
         input[type="text"],
         input[type="number"],
         input[type="email"],
         input[type="password"],
-        input[type="date"] { /* Added date input styling */
-            padding: 0.75rem;
+        input[type="date"],
+        textarea { /* Added textarea styling */
+            padding: 0.65rem; /* Slightly reduced padding */
             border: 1px solid #cbd5e0; /* Light border */
             border-radius: 0.5rem;
             font-size: 1rem;
@@ -42,7 +40,8 @@
         input[type="number"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus,
-        input[type="date"]:focus { /* Added date input focus styling */
+        input[type="date"]:focus,
+        textarea:focus { /* Added textarea focus styling */
             outline: none;
             border-color: #6366f1; /* Indigo focus ring */
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Light indigo shadow on focus */
@@ -57,7 +56,7 @@
         .btn-primary {
             background-color: #6366f1; /* Indigo */
             color: white;
-            padding: 0.75rem 1.5rem;
+            padding: 0.65rem 1.25rem; /* Shrunk padding */
             border-radius: 0.75rem;
             font-weight: 600;
             display: flex;
@@ -71,7 +70,7 @@
         .btn-secondary {
             background-color: #e0e7ff; /* Light indigo */
             color: #4f46e5; /* Darker indigo */
-            padding: 0.75rem 1.5rem;
+            padding: 0.65rem 1.25rem; /* Shrunk padding */
             border-radius: 0.75rem;
             font-weight: 600;
             display: flex;
@@ -107,6 +106,10 @@
             text-transform: uppercase;
             letter-spacing: 0.05em;
             background-color: #f9fafb; /* Light gray background */
+            cursor: pointer; /* Indicate sortable */
+        }
+        .table-header th:hover {
+            background-color: #f3f4f6; /* Hover effect for sortable headers */
         }
         .table-row td {
             padding: 1rem 1.5rem;
@@ -145,41 +148,139 @@
             background-color: #dbeafe; /* Light blue */
             color: #1e40af; /* Dark blue */
         }
-        /* Pie Chart Specific Styles */
-        #portfolioPieChart {
+        /* Treemap Specific Styles */
+        #portfolioTreemapChart {
             display: block;
             margin: 0 auto;
             max-width: 100%;
-            height: auto; /* Maintain aspect ratio */
+            height: auto; /* Allow height to adjust based on aspect ratio */
         }
-        .arc text {
+        .node rect {
+            /* fill: steelblue; Removed this line to allow D3.js to control fill */
+            stroke: #fff;
+        }
+        .node text {
             font-size: 10px;
             fill: white;
-            text-anchor: middle;
+            pointer-events: none; /* Allow events to pass through to rect */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6); /* Dark shadow for readability */
         }
-        .arc path {
-            stroke: #fff;
-            stroke-width: 1px;
+
+        /* Dark Mode Overrides */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #1a202c; /* Dark background */
+                color: #e2e8f0; /* Light text */
+            }
+            .container {
+                /* No change needed, max-width and padding are layout properties */
+            }
+            .card {
+                background-color: #2d3748; /* Darker card background */
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            }
+            input[type="text"],
+            input[type="number"],
+            input[type="email"],
+            input[type="password"],
+            input[type="date"],
+            textarea {
+                background-color: #4a5568; /* Dark input background */
+                border-color: #6b7280; /* Darker border */
+                color: #e2e8f0; /* Light text */
+            }
+            input[type="text"]:focus,
+            input[type="number"]:focus,
+            input[type="email"]:focus,
+            input[type="password"]:focus,
+            input[type="date"]:focus,
+            textarea:focus {
+                border-color: #818cf8; /* Lighter indigo focus ring */
+                box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+            }
+            .btn-primary {
+                background-color: #4f46e5; /* Darker indigo */
+            }
+            .btn-primary:hover {
+                background-color: #3730a3; /* Even darker indigo */
+            }
+            .btn-secondary {
+                background-color: #4338ca; /* Darker indigo for secondary */
+                color: #e0e7ff; /* Lighter text */
+            }
+            .btn-secondary:hover {
+                background-color: #312e81; /* Even darker indigo */
+            }
+            .btn-delete {
+                color: #fca5a5; /* Lighter red */
+            }
+            .btn-delete:hover {
+                background-color: #450a0a; /* Darker red background on hover */
+            }
+            .btn-refresh {
+                color: #93c5fd; /* Lighter blue */
+            }
+            .btn-refresh:hover {
+                background-color: #1e3a8a; /* Darker blue background on hover */
+            }
+            .table-header th {
+                background-color: #4a5568; /* Darker gray background */
+                color: #a0aec0; /* Lighter gray text */
+            }
+            .table-header th:hover {
+                background-color: #2d3748; /* Darker hover effect */
+            }
+            .table-row td {
+                color: #cbd5e0; /* Lighter gray text */
+            }
+            .table-row:nth-child(even) {
+                background-color: #2d3748; /* Darker alternate row color */
+            }
+            .table-row:hover {
+                background-color: #4a5568; /* Darker hover effect */
+            }
+            .gain {
+                color: #6ee7b7; /* Lighter green for gain */
+            }
+            .loss {
+                color: #fca5a5; /* Lighter red for loss */
+            }
+            .message.success {
+                background-color: #064e3b; /* Darker green */
+                color: #a7f3d0; /* Lighter green */
+            }
+            .message.error {
+                background-color: #7f1d1d; /* Darker red */
+                color: #fecaca; /* Lighter red */
+            }
+            .message.info {
+                background-color: #1e3a8a; /* Darker blue */
+                color: #bfdbfe; /* Lighter blue */
+            }
+            .node text {
+                fill: #e2e8f0; /* Light text for treemap labels */
+            }
+            footer {
+                color: #a0aec0; /* Lighter gray for footer text */
+            }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-800 dark:to-gray-950 text-gray-900 dark:text-gray-100 min-h-screen p-4 sm:p-8">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-950 text-gray-900 dark:text-gray-100 min-h-screen p-4 sm:p-8">
     <div class="container">
-        <!-- Header (common to all pages) -->
         <header class="mb-8 text-center">
             <h1 class="text-4xl sm:text-5xl font-bold text-indigo-700 dark:text-indigo-400 mb-2">
-                Wealth App
+                WealthApp
             </h1>
             <p class="text-lg text-gray-600 dark:text-gray-400">
                 Simple Stock Portfolio Tracker
             </p>
         </header>
 
-        <!-- User ID & Navigation (visible after login) -->
         <nav id="loggedInNav" class="hidden mb-6 flex flex-col sm:flex-row justify-between items-center bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg">
             <div class="text-sm text-gray-500 dark:text-gray-400 mb-4 sm:mb-0">
                 Logged in as: <span id="userEmailDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md break-all"></span>
-                (ID: <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md break-all"></span>)
+                <br/>ID: <span id="userIdDisplay" class="font-mono bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded-md break-all"></span>
             </div>
             <div class="flex space-x-2">
                 <button id="navEntryBtn" class="btn-secondary">Entry</button>
@@ -188,10 +289,8 @@
             </div>
         </nav>
 
-        <!-- Message Display (common) -->
         <div id="messageDisplay" class="message hidden"></div>
 
-        <!-- Login/Signup Page -->
         <div id="loginPage" class="page">
             <section class="card w-full sm:w-2/3 lg:w-1/2 mx-auto">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4 text-center">Login / Sign Up</h2>
@@ -203,13 +302,12 @@
                     <button id="loginBtn" class="btn-primary flex-1">Login</button>
                     <button id="signupBtn" class="btn-secondary flex-1">Sign Up</button>
                 </div>
-                <p class="text-sm text-gray-500 text-center mt-4">
+                <p class="text-sm text-gray-500 dark:text-gray-400 text-center mt-4">
                     Use email/password to login or sign up.
                 </p>
             </section>
         </div>
 
-        <!-- Entry Page -->
         <div id="entryPage" class="page hidden">
             <section class="card mb-8">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Add New Stock</h2>
@@ -224,7 +322,6 @@
                 </button>
             </section>
 
-            <!-- New: Record Dividend Panel -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Record Dividend</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
@@ -239,13 +336,10 @@
             </section>
         </div>
 
-        <!-- Dashboard Page -->
         <div id="dashboardPage" class="page hidden">
-            <!-- Portfolio Summary -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Summary</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center"> <!-- Adjusted grid for dividends -->
-                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center"> <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
                         <p class="text-sm text-gray-500 dark:text-gray-400">Total Cost</p>
                         <p id="totalCost" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
                     </div>
@@ -258,24 +352,18 @@
                         <p id="totalDividends" class="text-xl font-bold text-gray-800 dark:text-gray-200">$0.00</p>
                     </div>
                     <div id="gainLossSummary" class="p-4 rounded-lg shadow-sm">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Gain/Loss</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Total Gain/Loss (incl. Dividends)</p>
                         <p id="totalGainLoss" class="text-xl font-bold">$0.00 (0.00%)</p>
                     </div>
                 </div>
             </section>
 
-            <!-- New: Pie Chart Section -->
             <section class="card">
-                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Allocation</h2>
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Allocation (Treemap)</h2>
                 <div class="flex justify-center items-center">
-                    <svg id="portfolioPieChart" width="300" height="300"></svg>
-                </div>
-                <div id="pieChartLegend" class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 text-sm text-gray-700 dark:text-gray-300">
-                    <!-- Legend will be populated by JS -->
-                </div>
-            </section>
+                    <svg id="portfolioTreemapChart"></svg> </div>
+                </section>
 
-            <!-- Portfolio Positions Table -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Your Positions</h2>
                 <div id="portfolioEmptyMessage" class="text-center text-gray-500 dark:text-gray-400 hidden">
@@ -288,7 +376,7 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Ticker</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Shares</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">DCA Price</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mkt Price</th>
+                                <th scope="col" scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Mkt Price</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cost</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Value</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Gain ($)</th>
@@ -297,13 +385,11 @@
                             </tr>
                         </thead>
                         <tbody id="portfolioTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <!-- Stock rows will be inserted here by JavaScript -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- New: Dividend History Table -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Dividend History</h2>
                 <div id="dividendEmptyMessage" class="text-center text-gray-500 dark:text-gray-400 hidden">
@@ -313,29 +399,76 @@
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                         <thead class="bg-gray-50 dark:bg-gray-700">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg">Date</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ticker</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tl-lg" data-sort-key="date" data-sort-order="desc">
+                                    Date
+                                    <span class="sort-icon inline-block ml-1" data-sort-key="date"></span>
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider" data-sort-key="ticker" data-sort-order="asc">
+                                    Ticker
+                                    <span class="sort-icon inline-block ml-1" data-sort-key="ticker"></span>
+                                </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
                                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="dividendHistoryTableBody" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                            <!-- Dividend rows will be inserted here by JavaScript -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Footer (common to all pages) -->
-            <footer class="mb-8 text-center">
-                <p class="text-lg text-gray-600 dark:text-gray-400">
-                    &copy; Jimmy Zeng 2025
-                </p>
+            <!-- New: Stock Insight Generator Section -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">✨ AI Stock Insight</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label for="insightTicker" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Enter Ticker Symbol:</label>
+                        <input type="text" id="insightTicker" placeholder="e.g., TSLA" class="w-full">
+                    </div>
+                    <button id="getInsightBtn" class="btn-primary w-full bg-purple-600 hover:bg-purple-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-lightbulb"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 6c0 1.8-.5 3.1-1.5 4.5-1 .8-1.5 1.5-1.5 2.5 0 2.5 2 5 4 5h8c2 0 4-2.5 4-5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                        <span>Get Insight</span>
+                    </button>
+                    <div id="insightResult" class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-800 dark:text-gray-200 min-h-[80px] flex items-center justify-center text-center">
+                        Enter a ticker and click "Get Insight" to learn more.
+                    </div>
+                </div>
+
+                <!-- New Insight Display Sections -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                        <h3 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Primary Business</h3>
+                        <p id="primaryBusinessDiv" class="text-sm text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                        <h3 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Recent Highlight</h3>
+                        <p id="recentHighlightDiv" class="text-sm text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                        <h3 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">General Outlook</h3>
+                        <p id="generalOutlookDiv" class="text-sm text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                        <h3 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Analyst Consensus</h3>
+                        <p id="analystConsensusDiv" class="text-sm text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm">
+                        <h3 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Economic Moat</h3>
+                        <p id="economicMoatDiv" class="text-sm text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                    <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg shadow-sm col-span-1 md:col-span-2">
+                        <h3 class="font-semibold text-indigo-700 dark:text-indigo-300 mb-2">Financial Statements Summary <span class="text-xs text-gray-500 dark:text-gray-400">(Not real-time data)</span></h3>
+                        <p id="financialStatementsDiv" class="text-sm text-gray-800 dark:text-gray-200">N/A</p>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="mt-8 text-center text-gray-600 dark:text-gray-400">
+                <p>&copy; Jimmy Zeng 2025</p>
             </footer>
         </div>
     </div>
 
-    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -347,24 +480,11 @@
         // Get this from your Firebase Console -> Project settings -> Your apps -> Web app -> Firebase SDK snippet.
         // ====================================================================================================
 
-        // Replace 'YOUR_FIREBASE_APP_ID' with your actual Firebase App ID (e.g., 'your-project-id')
-        // This is typically the projectId from your firebaseConfig.
-        const appId = 'wealthapp-2cddf'; // Example: 'my-stock-tracker-12345'
-
-        // Replace this entire firebaseConfig object with YOUR ACTUAL FIREBASE CONFIGURATION.
-        // It should look something like:
-        /*
-        const firebaseConfig = {
-            apiKey: "AIzaSy...",
-            authDomain: "your-project-id.firebaseapp.com",
-            projectId: "your-project-id",
-            storageBucket: "your-project-id.appspot.com",
-            messagingSenderId: "1234567890",
-            appId: "1:1234567890:web:abcdef1234567890",
-            measurementId: "G-ABCDEF1234"
-        };
-        */
-        const firebaseConfig = {
+        // Global variables provided by Canvas (or fallback for local testing)
+        // If __app_id and __firebase_config are provided by the Canvas environment, use them.
+        // Otherwise, use the example placeholders.
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'wealthapp-2cddf';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyD6ZcQw20CqGspKvCuNCwp3TevagKdKhQg",
             authDomain: "wealthapp-2cddf.firebaseapp.com",
             projectId: "wealthapp-2cddf",
@@ -373,14 +493,11 @@
             appId: "1:114330023809:web:83bd0874d90ff75e6ada80",
             measurementId: "G-0J6QBYJXY6"
         };
-
-
-        // For GitHub Pages, you won't have __initial_auth_token.
-        // Firebase Auth will handle sign-in via email/password or anonymous sign-in if no user is logged in.
-        const initialAuthToken = null; // Set to null for GitHub Pages deployment.
+        // __initial_auth_token is provided by Canvas for anonymous login.
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? initialAuthToken : null;
 
         // ====================================================================================================
-        // END OF REQUIRED CHANGES FOR GITHUB PAGES
+        // END OF REQUIRED CHANGES FOR GITHUB PAGES (ensure your actual config is here)
         // ====================================================================================================
 
 
@@ -391,6 +508,10 @@
         let isAuthReady = false;
         // portfolioData now holds an object with 'stocks' and 'dividends' arrays
         let portfolioData = { stocks: [], dividends: [] };
+
+        // Current sort state for dividend history table
+        let currentDividendSortKey = 'date';
+        let currentDividendSortOrder = 'desc';
 
         // DOM elements
         const loggedInNav = document.getElementById('loggedInNav');
@@ -412,12 +533,13 @@
         const newDcaPriceInput = document.getElementById('newDcaPrice');
         const addStockBtn = document.getElementById('addStockBtn');
         const navEntryBtn = document.getElementById('navEntryBtn');
-        
+
         // New Dividend Entry elements
         const dividendTickerInput = document.getElementById('dividendTicker');
         const dividendAmountInput = document.getElementById('dividendAmount');
         const dividendDateInput = document.getElementById('dividendDate');
         const recordDividendBtn = document.getElementById('recordDividendBtn');
+
 
         // Dashboard Page elements
         const dashboardPage = document.getElementById('dashboardPage');
@@ -434,11 +556,25 @@
         // New Dividend History elements
         const dividendHistoryTableBody = document.getElementById('dividendHistoryTableBody');
         const dividendEmptyMessage = document.getElementById('dividendEmptyMessage');
+        const dividendTableHeaderDate = document.querySelector('th[data-sort-key="date"]');
+        const dividendTableHeaderTicker = document.querySelector('th[data-sort-key="ticker"]');
 
-        // New Pie Chart elements
-        const portfolioPieChartSvg = document.getElementById('portfolioPieChart');
-        const pieChartLegend = document.getElementById('pieChartLegend');
 
+        // New Treemap Chart elements
+        const portfolioTreemapChartSvg = document.getElementById('portfolioTreemapChart');
+
+        // New LLM Insight elements
+        const insightTickerInput = document.getElementById('insightTicker');
+        const getInsightBtn = document.getElementById('getInsightBtn');
+        const insightResultDiv = document.getElementById('insightResult');
+
+        // New specific insight display elements
+        const primaryBusinessDiv = document.getElementById('primaryBusinessDiv');
+        const recentHighlightDiv = document.getElementById('recentHighlightDiv');
+        const generalOutlookDiv = document.getElementById('generalOutlookDiv');
+        const analystConsensusDiv = document.getElementById('analystConsensusDiv');
+        const economicMoatDiv = document.getElementById('economicMoatDiv');
+        const financialStatementsDiv = document.getElementById('financialStatementsDiv');
 
 
         // Flag to prevent multiple rapid price fetches on initial load/navigation
@@ -487,43 +623,52 @@
          */
         async function initializeFirebase() {
             try {
-                // Ensure firebaseConfig is not just the placeholder
-                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY") {
+                // Check if firebaseConfig is properly set up
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "YOUR_API_KEY" ||
+                    !firebaseConfig.projectId || firebaseConfig.projectId === "YOUR_PROJECT_ID") {
                     console.error("Firebase configuration is missing or invalid. Please update firebaseConfig with your actual project details.");
                     showMessage("Error: Firebase configuration is not set up correctly. Please check the code.", 'error');
-                    // IMPORTANT: Ensure login page is visible even if Firebase init fails due to bad config
-                    showPage(loginPage);
-                    return; // Stop further execution if config is bad
+                    db = null;
+                    auth = null;
+                    showPage(loginPage); // Always show login page if config is bad
+                    return;
                 }
 
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentUserId = user.uid;
-                        currentUserEmail = user.email || 'Anonymous';
-                        userIdDisplay.textContent = currentUserId;
-                        userEmailDisplay.textContent = currentUserEmail;
-                        loggedInNav.classList.remove('hidden');
-                        isAuthReady = true;
-                        setupRealtimeListener(); // Start listening for data once auth is ready
-                        // Initial page display after auth, will trigger refreshAllStocksMarketPrices via showPage
-                        showPage(dashboardPage);
-                    } else {
-                        console.warn("No user logged in. Showing login page.");
-                        loggedInNav.classList.add('hidden');
-                        showPage(loginPage);
-                        isAuthReady = false; // Reset auth ready state
-                        hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
-                    }
-                });
+                // Handle Canvas preview automatic login using __initial_auth_token
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    // onAuthStateChanged will be triggered after signInWithCustomToken
+                } else {
+                    // Standard email/password or anonymous sign-in flow for non-Canvas environments
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            currentUserId = user.uid;
+                            currentUserEmail = user.email || 'Anonymous';
+                            userIdDisplay.textContent = currentUserId;
+                            userEmailDisplay.textContent = currentUserEmail;
+                            loggedInNav.classList.remove('hidden');
+                            isAuthReady = true;
+                            setupRealtimeListener(); // Start listening for data once auth is ready
+                            showPage(dashboardPage); // Initial page display after auth
+                        } else {
+                            console.warn("No user logged in. Showing login page.");
+                            loggedInNav.classList.add('hidden');
+                            showPage(loginPage);
+                            isAuthReady = false; // Reset auth ready state
+                            hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
+                        }
+                    });
+                }
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
-                showMessage(`Initialization error: ${error.message}`, 'error');
-                // IMPORTANT: Ensure login page is visible if any other initialization error occurs
-                showPage(loginPage);
+                showMessage(`Initialization error: ${error.message}. Please check your Firebase configuration and internet connection.`, 'error');
+                db = null;
+                auth = null;
+                showPage(loginPage); // Always show login page if any initialization error occurs
             }
         }
 
@@ -534,6 +679,10 @@
             const email = loginEmailInput.value;
             const password = loginPasswordInput.value;
 
+            if (!auth) {
+                showMessage("Firebase Auth is not initialized. Please check Firebase configuration.", 'error');
+                return;
+            }
             if (!email || !password) {
                 showMessage("Please enter both email and password.", 'error');
                 return;
@@ -556,6 +705,10 @@
             const email = loginEmailInput.value;
             const password = loginPasswordInput.value;
 
+            if (!auth) {
+                showMessage("Firebase Auth is not initialized. Please check Firebase configuration.", 'error');
+                return;
+            }
             if (!email || !password) {
                 showMessage("Please enter both email and password.", 'error');
                 return;
@@ -575,13 +728,17 @@
          * Handles user logout.
          */
         async function handleLogout() {
+            if (!auth) {
+                showMessage("Firebase Auth is not initialized. Cannot log out.", 'error');
+                return;
+            }
             try {
                 await signOut(auth);
                 showMessage("Logged out successfully.", 'info');
                 portfolioData = { stocks: [], dividends: [] }; // Clear all portfolio data on logout
                 renderPortfolio(portfolioData.stocks); // Clear stock UI
                 renderDividendHistory(portfolioData.dividends); // Clear dividend UI
-                updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends);
+                updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends); // Clear summary
                 loggedInNav.classList.add('hidden');
                 showPage(loginPage);
                 hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
@@ -620,9 +777,10 @@
                     portfolioData = { stocks: [], dividends: [] }; // Document doesn't exist yet, start with empty portfolio
                 }
                 renderPortfolio(portfolioData.stocks);
-                renderDividendHistory(portfolioData.dividends); // Render dividends
+                // Pass current sort state to renderDividendHistory
+                renderDividendHistory(portfolioData.dividends, currentDividendSortKey, currentDividendSortOrder);
                 updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends); // Update summary with both
-                renderPieChart(portfolioData.stocks); // Render pie chart
+                renderTreemap(portfolioData.stocks); // Render treemap instead of pie chart
             }, (error) => {
                 console.error("Error fetching portfolio document:", error);
                 showMessage(`Error loading portfolio: ${error.message}`, 'error');
@@ -714,8 +872,10 @@
         /**
          * Renders the dividend history data into the HTML table.
          * @param {Array<Object>} dividends - The array of dividend objects.
+         * @param {string} sortKey - The key to sort by ('date' or 'ticker').
+         * @param {string} sortOrder - The sort order ('asc' or 'desc').
          */
-        function renderDividendHistory(dividends) {
+        function renderDividendHistory(dividends, sortKey, sortOrder) {
             dividendHistoryTableBody.innerHTML = ''; // Clear existing rows
 
             if (dividends.length === 0) {
@@ -724,8 +884,33 @@
                 dividendEmptyMessage.classList.add('hidden');
             }
 
-            // Sort dividends by date descending
-            const sortedDividends = [...dividends].sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Sort dividends based on provided key and order
+            const sortedDividends = [...dividends].sort((a, b) => {
+                let valA = a[sortKey];
+                let valB = b[sortKey];
+
+                if (sortKey === 'date') {
+                    valA = new Date(valA);
+                    valB = new Date(valB);
+                } else if (sortKey === 'ticker') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Update sort icons in headers
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.innerHTML = ''; // Clear existing icons
+            });
+            const currentSortIcon = document.querySelector(`.sort-icon[data-sort-key="${sortKey}"]`);
+            if (currentSortIcon) {
+                currentSortIcon.innerHTML = sortOrder === 'asc' ? '&#9650;' : '&#9660;'; // Up arrow for asc, down for desc
+            }
+
 
             sortedDividends.forEach(dividend => {
                 const row = document.createElement('tr');
@@ -752,6 +937,7 @@
             });
         }
 
+
         /**
          * Updates the portfolio summary section.
          * @param {Array<Object>} stocks - The array of stock objects.
@@ -760,9 +946,9 @@
         function updatePortfolioSummary(stocks, dividends) {
             const totalCost = stocks.reduce((sum, stock) => sum + (stock.shares * stock.dcaPrice), 0);
             const totalValue = stocks.reduce((sum, stock) => sum + (stock.shares * (stock.marketPrice || stock.dcaPrice)), 0);
-            const totalGainLoss = totalValue - totalCost;
-            const gainLossPercentage = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
             const totalDividends = dividends.reduce((sum, dividend) => sum + dividend.amount, 0);
+            const totalGainLoss = (totalValue - totalCost) + totalDividends; // P&L combined with dividends
+            const gainLossPercentage = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
 
 
             totalCostEl.textContent = `$${totalCost.toFixed(2)}`;
@@ -908,7 +1094,9 @@
          */
         async function fetchMarketPrice(stockId, ticker) {
             showMessage(`Attempting to fetch market price for ${ticker} via proxy... (Note: Public proxies can be unreliable)`, 'info');
-            const yahooFinanceUrl = `https://sg.finance.yahoo.com/quote/${ticker}/`; // Assuming .SI for Singapore stocks
+            // Yahoo Finance URL for SGX stocks often uses .SI suffix for Singapore.
+            // For other markets, the suffix might differ or be absent.
+            const yahooFinanceUrl = `https://sg.finance.yahoo.com/quote/${ticker}/`;
             // Using a public CORS proxy. Use with caution.
             const proxyUrl = 'https://api.allorigins.win/raw?url=';
             const targetUrl = proxyUrl + encodeURIComponent(yahooFinanceUrl);
@@ -966,87 +1154,198 @@
         }
 
         /**
-         * Renders a D3.js pie chart of stock positions by current market value.
+         * Renders a D3.js treemap of stock positions by current market value, colored by performance.
          * @param {Array<Object>} stocks - The array of stock objects.
          */
-        function renderPieChart(stocks) {
+        function renderTreemap(stocks) {
             // Clear previous chart
-            d3.select(portfolioPieChartSvg).selectAll("*").remove();
-            pieChartLegend.innerHTML = '';
+            d3.select(portfolioTreemapChartSvg).selectAll("*").remove();
 
-            const dataForChart = stocks
-                .filter(d => d.marketPrice && d.shares > 0) // Only include stocks with valid market price and shares
-                .map(d => ({
-                    ticker: d.ticker,
-                    value: d.shares * d.marketPrice
-                }))
-                .filter(d => d.value > 0); // Only include stocks with positive value
+            // Dynamic width and height based on the parent container
+            const chartContainerWidth = portfolioTreemapChartSvg.parentElement.clientWidth; // Default to 800 if no width
+            // Maintain original aspect ratio (e.g., 500/300 = 1.666)
+            const aspectRatio = 900 / 200;
+            const width = chartContainerWidth;
+            const height = width / aspectRatio;
 
-            if (dataForChart.length === 0) {
-                // Optionally display a message if no data for chart
-                d3.select(portfolioPieChartSvg).append("text")
-                    .attr("x", 150) // Center of the SVG
-                    .attr("y", 150)
+            // Set the SVG's viewbox for proper scaling
+            d3.select(portfolioTreemapChartSvg)
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .attr("height", height); // Explicitly set height based on calculated value
+
+
+            // Filter out stocks with invalid market price or zero shares/value
+            const validStocks = stocks.filter(d => d.marketPrice && d.shares > 0 && (d.shares * d.marketPrice) > 0);
+
+            if (validStocks.length === 0) {
+                d3.select(portfolioTreemapChartSvg).append("text")
+                    .attr("x", width / 2)
+                    .attr("y", height / 2)
                     .attr("text-anchor", "middle")
-                    .attr("fill", "#6b7280")
-                    .text("No data for pie chart (check market prices)");
+                    .attr("fill", "var(--tw-text-gray-500)") /* Use Tailwind variable for dark mode compatibility */
+                    .text("No data for treemap (check market prices and shares)");
                 return;
             }
 
-            const totalPortfolioValue = d3.sum(dataForChart, d => d.value);
+            // Create hierarchical data for the treemap
+            const root = d3.hierarchy({ children: validStocks })
+                .sum(d => d.shares * d.marketPrice) // Sum by current market value
+                .sort((a, b) => b.value - a.value); // Sort by value descending
 
-            const width = 300;
-            const height = 300;
-            const radius = Math.min(width, height) / 2;
+            const treemapLayout = d3.treemap()
+                .size([width, height])
+                .padding(1); // Small padding between rectangles
 
-            const svg = d3.select(portfolioPieChartSvg)
-                .attr("width", width)
-                .attr("height", height)
-                .append("g")
-                .attr("transform", `translate(${width / 2}, ${height / 2})`);
+            treemapLayout(root);
 
-            const color = d3.scaleOrdinal(d3.schemeCategory10);
+            // Define a color scale for performance (Gain/Loss %)
+            // Domain: -30% (loss) to 30% (gain), with 0% as neutral
+            // Range: Tailwind red-500, gray-300, green-500
+            const colorScale = d3.scaleLinear()
+                .domain([-30, 0, 30])
+                .range(["#ef4444", "#d1d5db", "#10b981"]);
 
-            const pie = d3.pie()
-                .value(d => d.value)
-                .sort(null); // No sorting, use input order
+            // Dark mode color adjustments for the scale
+            const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDarkMode) {
+                colorScale.range(["#fca5a5", "#4a5568", "#6ee7b7"]); // Lighter red, darker gray, lighter green for dark mode
+            }
 
-            const arc = d3.arc()
-                .innerRadius(0)
-                .outerRadius(radius);
 
-            const arcs = svg.selectAll(".arc")
-                .data(pie(dataForChart))
+            const nodes = d3.select(portfolioTreemapChartSvg)
+                .selectAll("g")
+                .data(root.leaves())
                 .enter()
                 .append("g")
-                .attr("class", "arc");
+                .attr("class", "node")
+                .attr("transform", d => `translate(${d.x0},${d.y0})`);
 
-            arcs.append("path")
-                .attr("d", arc)
-                .attr("fill", d => color(d.data.ticker));
+            nodes.append("rect")
+                .attr("width", d => d.x1 - d.x0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("fill", d => {
+                    const cost = d.data.shares * d.data.dcaPrice;
+                    const value = d.data.shares * d.data.marketPrice;
+                    const gainLossPercent = cost > 0 ? ((value - cost) / cost) * 100 : 0;
+                    console.log(`Ticker: ${d.data.ticker}, GainLossPercent: ${gainLossPercent.toFixed(2)}%, Color: ${colorScale(gainLossPercent)}`); // Log for debugging
+                    return colorScale(gainLossPercent);
+                });
 
-            // Add text labels inside slices if they fit
-            arcs.append("text")
-                .attr("transform", d => `translate(${arc.centroid(d)})`)
-                .attr("dy", "0.35em")
+            nodes.append("text")
+                .attr("x", 4) // Padding from left edge
+                .attr("y", 14) // Padding from top edge
                 .text(d => {
-                    const percentage = (d.data.value / totalPortfolioValue * 100);
-                    return percentage > 5 ? `${d.data.ticker} (${percentage.toFixed(1)}%)` : ''; // Only show if slice is big enough
+                    const percentage = (d.value / root.value) * 100;
+                    // Only show text if the rectangle is large enough
+                    if ((d.x1 - d.x0) > 20 && (d.y1 - d.y0) > 15) {
+                        return `${d.data.ticker} (${percentage.toFixed(1)}%)`;
+                    }
+                    return '';
                 })
-                .style("font-size", "10px")
-                .style("fill", "white");
+                .attr("clip-path", d => `url(#clip-${d.data.id})`); // Clip text if it overflows
 
-            // Create a legend
-            dataForChart.forEach((d, i) => {
-                const legendItem = document.createElement('div');
-                legendItem.className = 'flex items-center space-x-1';
-                legendItem.innerHTML = `
-                    <span style="background-color: ${color(d.ticker)}; width: 12px; height: 12px; border-radius: 3px;"></span>
-                    <span>${d.ticker} ($${d.value.toFixed(2)})</span>
-                `;
-                pieChartLegend.appendChild(legendItem);
-            });
+            // Add clip paths for text
+            nodes.append("clipPath")
+                .attr("id", d => `clip-${d.data.id}`)
+                .append("rect")
+                .attr("width", d => d.x1 - d.x0 - 4) // Subtract padding
+                .attr("height", d => d.y1 - d.y0 - 4); // Subtract padding
+
+            // Optional: Add tooltips for more detail on hover
+            nodes.append("title")
+                .text(d => {
+                    const cost = d.data.shares * d.data.dcaPrice;
+                    const value = d.data.shares * d.data.marketPrice;
+                    const gainLoss = value - cost;
+                    const gainLossPercent = cost > 0 ? (gainLoss / cost) * 100 : 0;
+                    return `${d.data.ticker}\nValue: $${d.value.toFixed(2)}\nGain/Loss: $${gainLoss.toFixed(2)} (${gainLossPercent.toFixed(2)}%)`;
+                });
         }
+
+        /**
+         * Calls the Gemini API to get a stock insight.
+         * @param {string} ticker - The stock ticker symbol.
+         */
+        async function getStockInsight(ticker) {
+            // Clear previous insights and show loading
+            insightResultDiv.innerHTML = '<div class="text-center text-indigo-500 dark:text-indigo-400">Generating insight...</div>';
+            primaryBusinessDiv.textContent = 'N/A';
+            recentHighlightDiv.textContent = 'N/A';
+            generalOutlookDiv.textContent = 'N/A';
+            analystConsensusDiv.textContent = 'N/A';
+            economicMoatDiv.textContent = 'N/A';
+            financialStatementsDiv.textContent = 'N/A';
+
+            if (!ticker) {
+                insightResultDiv.innerHTML = '<div class="text-red-500 dark:text-red-400">Please enter a ticker symbol.</div>';
+                return;
+            }
+
+            const prompt = `Provide a structured JSON response about the company with ticker symbol ${ticker}. The response should contain the following fields: "primaryBusiness", "recentHighlight", "generalOutlook", "analystConsensus", "economicMoat", and "financialStatements". For "recentHighlight", summarize a key recent event or development. For "generalOutlook", provide a brief future perspective. For "analystConsensus", give a general idea of how analysts view the stock (e.g., "Buy", "Hold", "Sell" or a summary of sentiment). For "economicMoat", briefly describe any competitive advantages. For "financialStatements", provide a *summary* of typical key metrics found in a company's latest quarterly financial statement (e.g., Revenue, Net Income, EPS, Cash Flow) based on your general knowledge, explicitly stating that this is not real-time data. If you cannot find information for a field, set its value to "N/A". Keep each field's value concise, ideally a few sentences.`;
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "primaryBusiness": { "type": "STRING" },
+                            "recentHighlight": { "type": "STRING" },
+                            "generalOutlook": { "type": "STRING" },
+                            "analystConsensus": { "type": "STRING" },
+                            "economicMoat": { "type": "STRING" },
+                            "financialStatements": { "type": "STRING" }
+                        },
+                        "required": ["primaryBusiness", "recentHighlight", "generalOutlook", "analystConsensus", "economicMoat", "financialStatements"]
+                    }
+                }
+            };
+            const apiKey = "AIzaSyC4hyDgZWg7NhE16koEKeYq76kKY8VsyPU"; // Canvas will provide this for gemini-2.0-flash
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`API error: ${response.status} - ${errorData.error.message || 'Unknown error'}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    try {
+                        const parsedInsight = JSON.parse(jsonText);
+                        primaryBusinessDiv.textContent = parsedInsight.primaryBusiness || 'N/A';
+                        recentHighlightDiv.textContent = parsedInsight.recentHighlight || 'N/A';
+                        generalOutlookDiv.textContent = parsedInsight.generalOutlook || 'N/A';
+                        analystConsensusDiv.textContent = parsedInsight.analystConsensus || 'N/A';
+                        economicMoatDiv.textContent = parsedInsight.economicMoat || 'N/A';
+                        financialStatementsDiv.textContent = parsedInsight.financialStatements || 'N/A';
+                        insightResultDiv.innerHTML = '<div class="text-center text-green-500 dark:text-green-400">Insight generated successfully!</div>';
+                    } catch (parseError) {
+                        console.error("Error parsing Gemini API response JSON:", parseError);
+                        insightResultDiv.innerHTML = `<div class="text-red-500 dark:text-red-400">Failed to parse insight: ${parseError.message}. Raw response: ${jsonText}</div>`;
+                    }
+                } else {
+                    insightResultDiv.innerHTML = '<div class="text-red-500 dark:text-red-400">No insight could be generated for this ticker.</div>';
+                }
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                insightResultDiv.innerHTML = `<div class="text-red-500 dark:text-red-400">Failed to get insight: ${error.message}</div>`;
+            }
+        }
+
 
         // Event Listeners
         window.onload = initializeFirebase; // Initialize Firebase when the window loads
@@ -1063,12 +1362,48 @@
         navDashboardBtn.addEventListener('click', () => showPage(dashboardPage));
         logoutBtn.addEventListener('click', handleLogout);
 
-        
         // Add Stock and Record Dividend buttons
         addStockBtn.addEventListener('click', addStock);
         recordDividendBtn.addEventListener('click', recordDividend); // New event listener for dividend
 
+        // LLM Insight button
+        getInsightBtn.addEventListener('click', () => {
+            const ticker = insightTickerInput.value.trim().toUpperCase();
+            getStockInsight(ticker);
+        });
+
+        // Dividend History Table Header Sorting
+        if (dividendTableHeaderDate) {
+            dividendTableHeaderDate.addEventListener('click', () => {
+                if (currentDividendSortKey === 'date') {
+                    currentDividendSortOrder = currentDividendSortOrder === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentDividendSortKey = 'date';
+                    currentDividendSortOrder = 'desc'; // Default to descending for date
+                }
+                renderDividendHistory(portfolioData.dividends, currentDividendSortKey, currentDividendSortOrder);
+            });
+        }
+
+        if (dividendTableHeaderTicker) {
+            dividendTableHeaderTicker.addEventListener('click', () => {
+                if (currentDividendSortKey === 'ticker') {
+                    currentDividendSortOrder = currentDividendSortOrder === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentDividendSortKey = 'ticker';
+                    currentDividendSortOrder = 'asc'; // Default to ascending for ticker
+                }
+                renderDividendHistory(portfolioData.dividends, currentDividendSortKey, currentDividendSortOrder);
+            });
+        }
+        // Add a resize event listener to re-render the treemap when the window size changes
+        window.addEventListener('resize', () => {
+            // Only re-render if the dashboard is currently visible and there's portfolio data
+            if (!dashboardPage.classList.contains('hidden') && portfolioData.stocks.length > 0) {
+                renderTreemap(portfolioData.stocks);
+            }
+        });
+
     </script>
 </body>
 </html>
-<!DOCTYPE html>
