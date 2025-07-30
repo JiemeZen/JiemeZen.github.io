@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wealth App</title>
+    <title>WealthDex</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <style>
@@ -166,6 +166,63 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.6); /* Dark shadow for readability */
         }
 
+        /* Historical Chart Specific Styles */
+        #historicalPerformanceChart {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            height: auto;
+        }
+        .axis text {
+            font-size: 10px;
+            fill: #6b7280; /* Gray text for axes */
+        }
+        .axis path,
+        .axis line {
+            stroke: #d1d5db; /* Light gray lines for axes */
+        }
+        .line {
+            fill: none;
+            stroke-width: 2px;
+        }
+        .line.value {
+            stroke: #6366f1; /* Indigo for value line */
+        }
+        .line.cost {
+            stroke: #3b82f6; /* Blue for cost line */
+            stroke-dasharray: 4 4; /* Dashed line for cost */
+        }
+        .chart-tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+        .chart-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .chart-legend-color {
+            width: 16px;
+            height: 4px;
+            border-radius: 2px;
+        }
+
         /* Dark Mode Overrides */
         @media (prefers-color-scheme: dark) {
             body {
@@ -260,6 +317,22 @@
             .node text {
                 fill: #e2e8f0; /* Light text for treemap labels */
             }
+            .axis text {
+                fill: #a0aec0; /* Lighter gray text for axes in dark mode */
+            }
+            .axis path,
+            .axis line {
+                stroke: #4a5568; /* Darker lines for axes in dark mode */
+            }
+            .line.value {
+                stroke: #818cf8; /* Lighter indigo for value line in dark mode */
+            }
+            .line.cost {
+                stroke: #93c5fd; /* Lighter blue for cost line in dark mode */
+            }
+            .chart-legend {
+                color: #cbd5e0;
+            }
             footer {
                 color: #a0aec0; /* Lighter gray for footer text */
             }
@@ -270,7 +343,7 @@
     <div class="container">
         <header class="mb-8 text-center">
             <h1 class="text-4xl sm:text-5xl font-bold text-indigo-700 dark:text-indigo-400 mb-2">
-                WealthApp
+                WealthDex
             </h1>
             <p class="text-lg text-gray-600 dark:text-gray-400">
                 Simple Stock Portfolio Tracker
@@ -356,8 +429,13 @@
                         <p id="totalGainLoss" class="text-xl font-bold">$0.00 (0.00%)</p>
                     </div>
                 </div>
+                <button id="saveSnapshotBtn" class="btn-primary w-full mt-6 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" class="lucide lucide-save"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    <span>Save Daily Snapshot</span>
+                </button>
             </section>
 
+            <!-- Portfolio Allocation (Treemap) -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Portfolio Allocation (Treemap)</h2>
                 <div class="flex justify-center items-center">
@@ -390,6 +468,7 @@
                 </div>
             </section>
 
+            <!-- Dividend History Section -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Dividend History</h2>
                 <div id="dividendEmptyMessage" class="text-center text-gray-500 dark:text-gray-400 hidden">
@@ -417,7 +496,25 @@
                 </div>
             </section>
 
-            <!-- New: Stock Insight Generator Section -->
+            <!-- Historical Performance Chart Section -->
+            <section class="card">
+                <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">Historical Performance</h2>
+                <div class="flex justify-center items-center">
+                    <svg id="historicalPerformanceChart"></svg>
+                </div>
+                <div class="chart-legend">
+                    <div class="chart-legend-item">
+                        <span class="chart-legend-color line-value bg-indigo-500 dark:bg-indigo-400"></span>
+                        <span>Portfolio Value</span>
+                    </div>
+                    <div class="chart-legend-item">
+                        <span class="chart-legend-color line-cost bg-blue-500 dark:bg-blue-400"></span>
+                        <span>Total Cost</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stock Insight Generator Section -->
             <section class="card">
                 <h2 class="text-2xl font-semibold text-indigo-600 dark:text-indigo-300 mb-4">✨ AI Stock Insight</h2>
                 <div class="space-y-4">
@@ -472,7 +569,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, onSnapshot, setDoc, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, onSnapshot, setDoc, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"; // Added getDocs
 
         // ====================================================================================================
         // IMPORTANT: FOR GITHUB PAGES DEPLOYMENT, YOU MUST REPLACE THESE PLACEHOLDERS
@@ -508,6 +605,7 @@
         let isAuthReady = false;
         // portfolioData now holds an object with 'stocks' and 'dividends' arrays
         let portfolioData = { stocks: [], dividends: [] };
+        let dailySnapshots = []; // New array to store historical snapshots
 
         // Current sort state for dividend history table
         let currentDividendSortKey = 'date';
@@ -552,6 +650,7 @@
         const totalDividendsEl = document.getElementById('totalDividends'); // New
         const navDashboardBtn = document.getElementById('navDashboardBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+        const saveSnapshotBtn = document.getElementById('saveSnapshotBtn'); // New snapshot button
 
         // New Dividend History elements
         const dividendHistoryTableBody = document.getElementById('dividendHistoryTableBody');
@@ -562,6 +661,9 @@
 
         // New Treemap Chart elements
         const portfolioTreemapChartSvg = document.getElementById('portfolioTreemapChart');
+
+        // New Historical Performance Chart elements
+        const historicalPerformanceChartSvg = document.getElementById('historicalPerformanceChart');
 
         // New LLM Insight elements
         const insightTickerInput = document.getElementById('insightTicker');
@@ -736,9 +838,11 @@
                 await signOut(auth);
                 showMessage("Logged out successfully.", 'info');
                 portfolioData = { stocks: [], dividends: [] }; // Clear all portfolio data on logout
+                dailySnapshots = []; // Clear historical data
                 renderPortfolio(portfolioData.stocks); // Clear stock UI
                 renderDividendHistory(portfolioData.dividends); // Clear dividend UI
                 updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends); // Clear summary
+                renderHistoricalChart([]); // Clear historical chart
                 loggedInNav.classList.add('hidden');
                 showPage(loginPage);
                 hasFetchedPricesOnDashboardLoad = false; // Reset flag for next login
@@ -749,41 +853,59 @@
         }
 
         /**
-         * Sets up a real-time listener for the user's portfolio JSON document.
+         * Sets up real-time listeners for the user's portfolio data and daily snapshots.
          */
         function setupRealtimeListener() {
             if (!db || !currentUserId || !isAuthReady) {
                 return;
             }
 
-            // Path to the single document storing portfolio JSON
-            const docPath = `artifacts/${appId}/users/${currentUserId}/user_data/portfolio_json`;
-            const docRef = doc(db, docPath);
+            // Listener for portfolio data (stocks and dividends)
+            const portfolioDocPath = `artifacts/${appId}/users/${currentUserId}/user_data/portfolio_json`;
+            const portfolioDocRef = doc(db, portfolioDocPath);
 
-            onSnapshot(docRef, (docSnapshot) => {
+            onSnapshot(portfolioDocRef, (docSnapshot) => {
                 if (docSnapshot.exists()) {
                     const data = docSnapshot.data();
                     try {
-                        // Parse the single JSON string back into an object with stocks and dividends
                         const parsedContent = JSON.parse(data.portfolioContent || '{}');
                         portfolioData.stocks = parsedContent.stocks || [];
                         portfolioData.dividends = parsedContent.dividends || [];
                     } catch (e) {
                         console.error("Error parsing portfolio JSON:", e);
-                        portfolioData = { stocks: [], dividends: [] }; // Reset if parsing fails
+                        portfolioData = { stocks: [], dividends: [] };
                         showMessage("Error loading portfolio data. Data might be corrupted.", 'error');
                     }
                 } else {
-                    portfolioData = { stocks: [], dividends: [] }; // Document doesn't exist yet, start with empty portfolio
+                    portfolioData = { stocks: [], dividends: [] };
                 }
                 renderPortfolio(portfolioData.stocks);
-                // Pass current sort state to renderDividendHistory
                 renderDividendHistory(portfolioData.dividends, currentDividendSortKey, currentDividendSortOrder);
-                updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends); // Update summary with both
-                renderTreemap(portfolioData.stocks); // Render treemap instead of pie chart
+                updatePortfolioSummary(portfolioData.stocks, portfolioData.dividends);
+                renderTreemap(portfolioData.stocks);
+                // Enable/disable snapshot button based on current portfolio state
+                checkAndEnableSnapshotButton();
             }, (error) => {
                 console.error("Error fetching portfolio document:", error);
                 showMessage(`Error loading portfolio: ${error.message}`, 'error');
+            });
+
+            // Listener for daily snapshots
+            const snapshotsCollectionPath = `artifacts/${appId}/users/${currentUserId}/daily_snapshots`;
+            const snapshotsCollectionRef = collection(db, snapshotsCollectionPath);
+            const q = query(snapshotsCollectionRef); // No specific ordering needed for onSnapshot, we'll sort client-side
+
+            onSnapshot(q, (querySnapshot) => {
+                dailySnapshots = [];
+                querySnapshot.forEach((doc) => {
+                    dailySnapshots.push(doc.data());
+                });
+                // Sort snapshots by date before rendering the chart
+                dailySnapshots.sort((a, b) => new Date(a.date) - new Date(b.date));
+                renderHistoricalChart(dailySnapshots);
+            }, (error) => {
+                console.error("Error fetching daily snapshots:", error);
+                showMessage(`Error loading historical data: ${error.message}`, 'error');
             });
         }
 
@@ -969,6 +1091,23 @@
         }
 
         /**
+         * Checks if all stocks have a valid market price and enables/disables the snapshot button.
+         */
+        function checkAndEnableSnapshotButton() {
+            const allPricesValid = portfolioData.stocks.length > 0 &&
+                                   portfolioData.stocks.every(stock => stock.marketPrice && stock.marketPrice > 0);
+            saveSnapshotBtn.disabled = !allPricesValid;
+            if (!allPricesValid && portfolioData.stocks.length > 0) {
+                saveSnapshotBtn.title = "Refresh all market prices to enable snapshot.";
+            } else if (portfolioData.stocks.length === 0) {
+                saveSnapshotBtn.title = "Add stocks to your portfolio to enable snapshot.";
+            } else {
+                saveSnapshotBtn.title = "Save current portfolio as a daily snapshot.";
+            }
+        }
+
+
+        /**
          * Adds a new stock to the portfolioData.stocks array and saves it to Firestore.
          */
         async function addStock() {
@@ -1137,7 +1276,9 @@
 
             } catch (error) {
                 console.error("Error fetching market price via proxy:", error);
-                showMessage(`Failed to fetch price for ${ticker} via proxy: ${error.message}. Try refreshing.`, 'error');
+                showMessage(`Failed to fetch price for ${ticker}. Try refreshing.`, 'error');
+            } finally {
+                checkAndEnableSnapshotButton(); // Re-check button state after price fetch attempt
             }
         }
 
@@ -1162,9 +1303,10 @@
             d3.select(portfolioTreemapChartSvg).selectAll("*").remove();
 
             // Dynamic width and height based on the parent container
-            const chartContainerWidth = portfolioTreemapChartSvg.parentElement.clientWidth; // Default to 800 if no width
+            const chartContainerWidth = Math.min(portfolioTreemapChartSvg.parentElement.clientWidth, 700); // Sets a max width of 1200px
+
             // Maintain original aspect ratio (e.g., 500/300 = 1.666)
-            const aspectRatio = 900 / 200;
+            const aspectRatio = 700 / 300;
             const width = chartContainerWidth;
             const height = width / aspectRatio;
 
@@ -1209,7 +1351,7 @@
             // Dark mode color adjustments for the scale
             const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (prefersDarkMode) {
-                colorScale.range(["#fca5a5", "#4a5568", "#6ee7b7"]); // Lighter red, darker gray, lighter green for dark mode
+                colorScale.range(["#ef4444", "#d1d5db", "#10b981"]); // Lighter red, darker gray, lighter green for dark mode
             }
 
 
@@ -1228,20 +1370,26 @@
                     const cost = d.data.shares * d.data.dcaPrice;
                     const value = d.data.shares * d.data.marketPrice;
                     const gainLossPercent = cost > 0 ? ((value - cost) / cost) * 100 : 0;
-                    console.log(`Ticker: ${d.data.ticker}, GainLossPercent: ${gainLossPercent.toFixed(2)}%, Color: ${colorScale(gainLossPercent)}`); // Log for debugging
+                    // console.log(`Ticker: ${d.data.ticker}, GainLossPercent: ${gainLossPercent.toFixed(2)}%, Color: ${colorScale(gainLossPercent)}`); // Log for debugging
                     return colorScale(gainLossPercent);
                 });
 
             nodes.append("text")
+                // .attr("x", d => (d.x0 + d.x1) / 2) // Center horizontally
+                // .attr("y", d => (d.y0 + d.y1) / 2) // Center vertically
                 .attr("x", 4) // Padding from left edge
                 .attr("y", 14) // Padding from top edge
+                // .attr("text-anchor", "middle") // Align text horizontally to the middle of its x position
+                .attr("dominant-baseline", "middle") // Align text vertically to the middle of its y position
                 .text(d => {
-                    const percentage = (d.value / root.value) * 100;
+                    const cost = d.data.shares * d.data.dcaPrice;
+                    const value = d.data.shares * d.data.marketPrice;
+                    const percentage = cost > 0 ? ((value - cost) / cost) * 100 : 0;
                     // Only show text if the rectangle is large enough
-                    if ((d.x1 - d.x0) > 20 && (d.y1 - d.y0) > 15) {
+                    if ((d.x1 - d.x0) > 5 && (d.y1 - d.y0) > 5) {
                         return `${d.data.ticker} (${percentage.toFixed(1)}%)`;
                     }
-                    return '';
+                    return `${d.data.ticker} (${percentage.toFixed(1)}%)`;
                 })
                 .attr("clip-path", d => `url(#clip-${d.data.id})`); // Clip text if it overflows
 
@@ -1262,6 +1410,166 @@
                     return `${d.data.ticker}\nValue: $${d.value.toFixed(2)}\nGain/Loss: $${gainLoss.toFixed(2)} (${gainLossPercent.toFixed(2)}%)`;
                 });
         }
+
+        /**
+         * Renders a D3.js line chart for historical portfolio performance.
+         * @param {Array<Object>} snapshots - The array of daily snapshot objects.
+         */
+        function renderHistoricalChart(snapshots) {
+            d3.select(historicalPerformanceChartSvg).selectAll("*").remove(); // Clear previous chart
+
+            if (snapshots.length === 0) {
+                d3.select(historicalPerformanceChartSvg).append("text")
+                    .attr("x", historicalPerformanceChartSvg.clientWidth / 2)
+                    .attr("y", historicalPerformanceChartSvg.clientHeight / 2)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "var(--tw-text-gray-500)")
+                    .text("No historical data available. Save a snapshot!");
+                return;
+            }
+
+            // Set up dimensions and margins
+            const margin = { top: 20, right: 30, bottom: 40, left: 60 };
+            const containerWidth = historicalPerformanceChartSvg.clientWidth * 2;
+            const containerHeight = 400; // Fixed height for consistency
+            const width = containerWidth - margin.left - margin.right;
+            const height = containerHeight - margin.top - margin.bottom;
+
+            d3.select(historicalPerformanceChartSvg)
+                .attr("viewBox", `0 0 ${containerWidth} ${containerHeight}`)
+                .attr("preserveAspectRatio", "xMidYMid meet")
+                .attr("height", containerHeight);
+
+            const svg = d3.select(historicalPerformanceChartSvg)
+                .append("g")
+                .attr("transform", `translate(${margin.left},${margin.top})`);
+
+            // Parse dates
+            const parseDate = d3.timeParse("%Y-%m-%d");
+            snapshots.forEach(d => {
+                d.date = parseDate(d.date);
+                d.totalValue = +d.totalValue; // Convert to number
+                d.totalCost = +d.totalCost;   // Convert to number
+            });
+
+            // Set up scales
+            const xScale = d3.scaleTime()
+                .domain(d3.extent(snapshots, d => d.date))
+                .range([0, width]);
+
+            const yScale = d3.scaleLinear()
+                .domain([0, d3.max(snapshots, d => Math.max(d.totalValue, d.totalCost)) * 1.1]) // 10% padding above max
+                .range([height, 0]);
+
+            // Define the lines
+            const valueLine = d3.line()
+                .x(d => xScale(d.date))
+                .y(d => yScale(d.totalValue));
+
+            const costLine = d3.line()
+                .x(d => xScale(d.date))
+                .y(d => yScale(d.totalCost));
+
+            // Add the X Axis
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", `translate(0,${height})`)
+                .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %d"))); // Format date ticks
+
+            // Add the Y Axis
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(d3.axisLeft(yScale)
+                    .tickValues(d3.range(0, yScale.domain()[1] + 1000, 1000)) // Generate ticks every $1000
+                    .tickFormat(d3.format("$,.0f"))); // Format as currency
+
+            // Add the value line
+            svg.append("path")
+                .data([snapshots])
+                .attr("class", "line value")
+                .attr("d", valueLine);
+
+            // Add the cost line
+            svg.append("path")
+                .data([snapshots])
+                .attr("class", "line cost")
+                .attr("d", costLine);
+
+            // Add tooltips (optional, more complex implementation needed for full functionality)
+            const tooltip = d3.select("body").append("div")
+                .attr("class", "chart-tooltip");
+
+            svg.selectAll(".dot")
+                .data(snapshots)
+                .enter().append("circle")
+                .attr("class", "dot")
+                .attr("cx", d => xScale(d.date))
+                .attr("cy", d => yScale(d.totalValue))
+                .attr("r", 4)
+                .attr("fill", "#6366f1")
+                .style("opacity", 0)
+                .on("mouseover", function(event, d) {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("opacity", .9);
+                    tooltip.html(`Date: ${d3.timeFormat("%Y-%m-%d")(d.date)}<br/>Value: $${d.totalValue.toFixed(2)}<br/>Cost: $${d.totalCost.toFixed(2)}`)
+                        .style("left", (event.pageX + 10) + "px")
+                        .style("top", (event.pageY - 28) + "px");
+                    d3.select(this).attr("r", 6).style("opacity", 1);
+                })
+                .on("mouseout", function(d) {
+                    tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0);
+                    d3.select(this).attr("r", 4).style("opacity", 0);
+                });
+        }
+
+        /**
+         * Saves a snapshot of the current portfolio performance to Firestore.
+         */
+        async function saveDailySnapshot() {
+            if (!db || !currentUserId) {
+                showMessage("Error: Not authenticated or database not ready.", 'error');
+                return;
+            }
+
+            // Ensure all stock prices are valid before saving
+            const allPricesValid = portfolioData.stocks.every(stock => stock.marketPrice && stock.marketPrice > 0);
+            if (!allPricesValid) {
+                showMessage("Cannot save snapshot: Not all stock market prices are available or valid. Please refresh prices first.", 'error');
+                return;
+            }
+
+            const today = new Date();
+            const dateString = today.toISOString().split('T')[0]; // YYYY-MM-DD
+
+            const totalCost = portfolioData.stocks.reduce((sum, stock) => sum + (stock.shares * stock.dcaPrice), 0);
+            const totalValue = portfolioData.stocks.reduce((sum, stock) => sum + (stock.shares * stock.marketPrice), 0);
+            const totalDividends = portfolioData.dividends.reduce((sum, dividend) => sum + dividend.amount, 0);
+            const totalGainLoss = (totalValue - totalCost) + totalDividends;
+
+            const snapshotData = {
+                date: dateString,
+                totalCost: totalCost,
+                totalValue: totalValue,
+                totalDividends: totalDividends,
+                totalGainLoss: totalGainLoss,
+                timestamp: Date.now() // For internal ordering if needed
+            };
+
+            const docPath = `artifacts/${appId}/users/${currentUserId}/daily_snapshots/${dateString}`;
+            const docRef = doc(db, docPath);
+
+            try {
+                await setDoc(docRef, snapshotData, { merge: true }); // Use merge to update if exists
+                showMessage(`Daily snapshot for ${dateString} saved successfully!`, 'success');
+            } catch (e) {
+                console.error("Error saving daily snapshot:", e);
+                showMessage(`Error saving daily snapshot: ${e.message}`, 'error');
+            }
+        }
+
 
         /**
          * Calls the Gemini API to get a stock insight.
@@ -1366,6 +1674,9 @@
         addStockBtn.addEventListener('click', addStock);
         recordDividendBtn.addEventListener('click', recordDividend); // New event listener for dividend
 
+        // Save Daily Snapshot button
+        saveSnapshotBtn.addEventListener('click', saveDailySnapshot);
+
         // LLM Insight button
         getInsightBtn.addEventListener('click', () => {
             const ticker = insightTickerInput.value.trim().toUpperCase();
@@ -1396,11 +1707,16 @@
                 renderDividendHistory(portfolioData.dividends, currentDividendSortKey, currentDividendSortOrder);
             });
         }
-        // Add a resize event listener to re-render the treemap when the window size changes
+        // Add a resize event listener to re-render the treemap and historical chart when the window size changes
         window.addEventListener('resize', () => {
             // Only re-render if the dashboard is currently visible and there's portfolio data
-            if (!dashboardPage.classList.contains('hidden') && portfolioData.stocks.length > 0) {
-                renderTreemap(portfolioData.stocks);
+            if (!dashboardPage.classList.contains('hidden')) {
+                if (portfolioData.stocks.length > 0) {
+                    renderTreemap(portfolioData.stocks);
+                }
+                if (dailySnapshots.length > 0) {
+                    renderHistoricalChart(dailySnapshots);
+                }
             }
         });
 
