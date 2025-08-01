@@ -1416,12 +1416,25 @@
          * @param {Array<Object>} snapshots - The array of daily snapshot objects.
          */
         function renderHistoricalChart(snapshots) {
-            d3.select(historicalPerformanceChartSvg).selectAll("*").remove(); // Clear previous chart
+            // Remove the entire SVG and re-create it to avoid D3 duplicate/resize issues
+            const parent = historicalPerformanceChartSvg.parentElement;
+            // Remove the old SVG node
+            historicalPerformanceChartSvg.remove();
+            // Create a new SVG node and assign the same id
+            const newSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            newSvg.setAttribute("id", "historicalPerformanceChart");
+            newSvg.style.display = "block";
+            newSvg.style.margin = "0 auto";
+            newSvg.style.maxWidth = "100%";
+            parent.appendChild(newSvg);
+
+            // Update the reference
+            window.historicalPerformanceChartSvg = newSvg;
 
             if (snapshots.length === 0) {
-                d3.select(historicalPerformanceChartSvg).append("text")
-                    .attr("x", historicalPerformanceChartSvg.clientWidth / 2)
-                    .attr("y", historicalPerformanceChartSvg.clientHeight / 2)
+                d3.select(newSvg).append("text")
+                    .attr("x", newSvg.clientWidth / 2)
+                    .attr("y", newSvg.clientHeight / 2)
                     .attr("text-anchor", "middle")
                     .attr("fill", "var(--tw-text-gray-500)")
                     .text("No historical data available. Save a snapshot!");
@@ -1430,17 +1443,19 @@
 
             // Set up dimensions and margins
             const margin = { top: 20, right: 30, bottom: 40, left: 60 };
-            const containerWidth = historicalPerformanceChartSvg.clientWidth * 2;
-            const containerHeight = 400; // Fixed height for consistency
+            // Use parent width for responsive sizing
+            const containerWidth = parent.clientWidth;
+            const containerHeight = parent.clientWidth < 500 ? 350 : 400; // Minimum height for smaller screens
             const width = containerWidth - margin.left - margin.right;
             const height = containerHeight - margin.top - margin.bottom;
 
-            d3.select(historicalPerformanceChartSvg)
+            d3.select(newSvg)
                 .attr("viewBox", `0 0 ${containerWidth} ${containerHeight}`)
                 .attr("preserveAspectRatio", "xMidYMid meet")
-                .attr("height", containerHeight);
+                .attr("height", containerHeight)
+                .attr("width", containerWidth);
 
-            const svg = d3.select(historicalPerformanceChartSvg)
+            const svg = d3.select(newSvg)
                 .append("g")
                 .attr("transform", `translate(${margin.left},${margin.top})`);
 
@@ -1448,8 +1463,8 @@
             const parseDate = d3.timeParse("%Y-%m-%d");
             snapshots.forEach(d => {
                 d.date = parseDate(d.date);
-                d.totalValue = +d.totalValue; // Convert to number
-                d.totalCost = +d.totalCost;   // Convert to number
+                d.totalValue = +d.totalValue;
+                d.totalCost = +d.totalCost;
             });
 
             // Set up scales
@@ -1458,7 +1473,7 @@
                 .range([0, width]);
 
             const yScale = d3.scaleLinear()
-                .domain([0, d3.max(snapshots, d => Math.max(d.totalValue, d.totalCost)) * 1.1]) // 10% padding above max
+                .domain([0, d3.max(snapshots, d => Math.max(d.totalValue, d.totalCost)) * 1.1])
                 .range([height, 0]);
 
             // Define the lines
@@ -1470,18 +1485,36 @@
                 .x(d => xScale(d.date))
                 .y(d => yScale(d.totalCost));
 
+            // Unique x-axis ticks (max 7)
+            const uniqueDates = Array.from(new Set(snapshots.map(d => +d.date)))
+                .map(d => new Date(d))
+                .sort((a, b) => a - b);
+
+            let tickDates = uniqueDates;
+            if (uniqueDates.length > 7) {
+                const step = Math.ceil(uniqueDates.length / 7);
+                tickDates = uniqueDates.filter((d, i) => i % step === 0);
+                if (tickDates[tickDates.length - 1].getTime() !== uniqueDates[uniqueDates.length - 1].getTime()) {
+                    tickDates.push(uniqueDates[uniqueDates.length - 1]);
+                }
+            }
+
             // Add the X Axis
             svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", `translate(0,${height})`)
-                .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%b %d"))); // Format date ticks
+                .call(
+                    d3.axisBottom(xScale)
+                        .tickValues(tickDates)
+                        .tickFormat(d3.timeFormat("%b %d"))
+                );
 
             // Add the Y Axis
             svg.append("g")
                 .attr("class", "y axis")
                 .call(d3.axisLeft(yScale)
-                    .tickValues(d3.range(0, yScale.domain()[1] + 1000, 1000)) // Generate ticks every $1000
-                    .tickFormat(d3.format("$,.0f"))); // Format as currency
+                    .tickValues(d3.range(0, yScale.domain()[1] + 1000, 1000))
+                    .tickFormat(d3.format("$,.0f")));
 
             // Add the value line
             svg.append("path")
@@ -1495,7 +1528,7 @@
                 .attr("class", "line cost")
                 .attr("d", costLine);
 
-            // Add tooltips (optional, more complex implementation needed for full functionality)
+            // Tooltip
             const tooltip = d3.select("body").append("div")
                 .attr("class", "chart-tooltip");
 
@@ -1517,7 +1550,7 @@
                         .style("top", (event.pageY - 28) + "px");
                     d3.select(this).attr("r", 6).style("opacity", 1);
                 })
-                .on("mouseout", function(d) {
+                .on("mouseout", function() {
                     tooltip.transition()
                         .duration(500)
                         .style("opacity", 0);
