@@ -29,24 +29,34 @@
     },
     "experience": [
       {
+        "title": "Senior Development Engineer",
+        "company": "ASTAR – Advanced Remanufacturing & Technology Centre",
+        "years": "2025 – Present",
+        "responsibilities": [
+          "Develop and implement generative AI solutions using VLM/LLM models for zero-shot and few-shot inspection with minimal configuration via prompt engineering",
+          "Deploy and optimize local VLM/LLM models for data security and efficient edge inference for manufacturing inspection applications",
+          "Lead architecture design and guide junior engineers in developing a smart adaptive inspection system for optimal camera selection in diverse inspection scenarios",
+          "Lead projects on process automation and inspection systems using Robotics and Machine Intelligence for pharmaceutical and fast-moving consumer goods industries"
+        ]
+      },
+      {
         "title": "Application & Computer Vision Engineer",
         "company": "Augmentus Robotics",
         "years": "2024 – 2025",
         "responsibilities": [
-          "Spearheaded system integration of back-end server with multiple industrial robots (ABB, UR, KUKA, Fanuc) for automated toolpath generation.",
-          "Led technical troubleshooting and on-site support locally and overseas, managing stakeholder communication and resolving critical system-level issues.",
-          "Implemented project timelines and coordinated with cross-disciplinary teams to launch a deep learning defect detection system, automating aerospace remanufacturing processes."
+          "Spearheaded system integration of back-end server with multiple industrial robots (ABB, UR, KUKA) for automated toolpath generation",
+          "Led technical troubleshooting and on-site support locally and overseas, managing stakeholder communication and resolving critical system-level issues",
+          "Implemented project timelines and coordinated with cross-disciplinary teams to launch a deep learning defect detection system, automating aerospace remanufacturing processes"
         ]
       },
       {
         "title": "Research & Development Engineer",
-        "company": "ASTAR – Advanced Remanufacturing & Technology Centre",
+        "company": "Agency for Science, Technology and Research (A*STAR)",
         "years": "2021 – 2024",
         "responsibilities": [
-          "Managed end-to-end project lifecycles for large-area inspection solutions using collaborative robots and mobile platforms (ROS-based).",
-          "Oversaw integration of AI-driven vision systems and NDT technologies, ensuring seamless operation across mechanical, electrical, and software components.",
-          "Supervised junior engineers in developing an adaptive inspection system", 
-          "Published 2 papers and achieved 7 research inventions as main/co-inventor."
+          "Managed end-to-end project lifecycles for large-area inspection solutions using collaborative robots and mobile platforms (ROS-based)",
+          "Oversaw integration of AI-driven vision systems and NDT technologies, ensuring seamless operation across mechanical, electrical, and software components",
+          "Published 2 papers and achieved 7 research inventions as main/co-inventor in robotics and AI applications for manufacturing"
         ]
       },
       {
@@ -54,8 +64,8 @@
         "company": "BUMBLEBEE.SG, National University of Singapore",
         "years": "2018 – 2021",
         "responsibilities": [
-          "Directed a team of 30 engineers to design and build autonomous underwater vehicles, managing schedules, resource allocation, and risk assessments.",
-          "Coordinated simulation, system integration, and testing for competition-ready robotics systems, achieving international recognition."
+          "Directed a team of 30 engineers to design and build autonomous underwater vehicles, managing schedules, resource allocation, and risk assessments",
+          "Coordinated simulation, system integration, and testing for competition-ready robotics systems, achieving international recognition"
         ]
       }
     ],
@@ -66,7 +76,7 @@
         "years": "2018 – 2021",
         "specialization": "Robotics (Kinematics, Control & Soft Robotics)",
         "awards": [
-          "JTC-NUS Gold Medal (Most Innovative FYP)",
+          "JTC-NUS Gold Medal (Most Innovative FYP) – Robotic Eye Surgery",
           "First Place at NUS IEEE Hackathon"
         ]
       },
