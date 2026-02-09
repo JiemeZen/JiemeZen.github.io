@@ -1,0 +1,8 @@
+{
+  "name": "bazhi-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy for BaZhi Guru to secure API keys",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}

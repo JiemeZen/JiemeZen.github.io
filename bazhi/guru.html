@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>八字 Guru - BaZhi Consultation</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  
+  <!-- ================================ -->
+  <!-- LOGIN/REGISTER VIEW -->
+  <!-- ================================ -->
+  <div id="authView" class="view">
+    <div class="container">
+      <div class="card">
+        <div class="title-decoration">
+          <h1>八字 Guru</h1>
+          <p style="color: var(--stone-gray); margin-top: 10px;">Your Personal BaZhi Consultation</p>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="authStatusMessage" class="status-message"></div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-container">
+          <button class="tab active" data-tab="login">Login</button>
+          <button class="tab" data-tab="register">Register</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="form-content active">
+          <form id="loginFormElement">
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input 
+                type="email" 
+                id="loginEmail" 
+                placeholder="your@email.com" 
+                required
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input 
+                type="password" 
+                id="loginPassword" 
+                placeholder="Enter your password" 
+                required
+                minlength="6"
+              >
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%;">
+              Login
+            </button>
+          </form>
+
+          <div class="form-footer">
+            <p>Forgot your password? <a href="#" id="forgotPasswordLink">Reset it</a></p>
+          </div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="registerForm" class="form-content">
+          <form id="registerFormElement">
+            <div class="form-group">
+              <label for="registerEmail">Email</label>
+              <input 
+                type="email" 
+                id="registerEmail" 
+                placeholder="your@email.com" 
+                required
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="registerPassword">Password</label>
+              <input 
+                type="password" 
+                id="registerPassword" 
+                placeholder="At least 6 characters" 
+                required
+                minlength="6"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="registerPasswordConfirm">Confirm Password</label>
+              <input 
+                type="password" 
+                id="registerPasswordConfirm" 
+                placeholder="Re-enter your password" 
+                required
+                minlength="6"
+              >
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%;">
+              Create Account
+            </button>
+          </form>
+
+          <div class="form-footer">
+            <p style="font-size: 0.85rem; color: var(--stone-gray);">
+              By registering, you agree to receive personalized BaZhi consultations
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- BIRTH INFO SETUP VIEW -->
+  <!-- ================================ -->
+  <div id="birthInfoView" class="view hidden">
+    <div class="chat-container">
+      <!-- Header -->
+      <header>
+        <h1>🌸 八字 Guru</h1>
+        <div class="user-info">
+          <span class="user-email" id="headerUserEmail">Loading...</span>
+          <button class="btn-logout" id="headerLogoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <!-- Birth Info Setup Section -->
+      <div class="birth-info-section">
+        <h2 class="text-center mb-2">Welcome! Let's set up your BaZhi profile</h2>
+        <p class="text-center mb-3" style="color: var(--stone-gray);">
+          Please provide your birth information for accurate readings
+        </p>
+
+        <form id="birthInfoForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="birthYear">Birth Year</label>
+              <input 
+                type="number" 
+                id="birthYear" 
+                placeholder="e.g., 1990" 
+                min="1900" 
+                max="2026"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="birthMonth">Month</label>
+              <input 
+                type="number" 
+                id="birthMonth" 
+                placeholder="1-12" 
+                min="1" 
+                max="12"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="birthDay">Day</label>
+              <input 
+                type="number" 
+                id="birthDay" 
+                placeholder="1-31" 
+                min="1" 
+                max="31"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="birthHour">Hour (24h)</label>
+              <input 
+                type="number" 
+                id="birthHour" 
+                placeholder="0-23" 
+                min="0" 
+                max="23"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="form-row-full">
+            <div class="form-group">
+              <label for="birthPlace">Birth Place</label>
+              <input 
+                type="text" 
+                id="birthPlace" 
+                placeholder="Country, City (e.g., China, Beijing)" 
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="gender">Gender</label>
+              <select id="gender" required>
+                <option value="">Select...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn-primary">
+              Save & Start Consultation
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- LANDING PAGE VIEW -->
+  <!-- ================================ -->
+  <div id="landingView" class="view hidden">
+    <div class="chat-container">
+      <!-- Header -->
+      <header>
+        <h1>🌸 八字 Guru</h1>
+        <div class="user-info">
+          <span class="user-email" id="landingUserEmail">Loading...</span>
+          <button class="btn-logout" id="landingLogoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <!-- Landing Section -->
+      <div class="landing-section">
+        <div class="landing-welcome">
+          <h2>Unlock the Destiny Within</h2>
+          <p class="rotating-text" id="rotatingText">Know your elements. Master your life.</p>
+        </div>
+
+        <!-- Chat Sessions -->
+        <div class="chat-sessions">
+          <div class="session-card" data-chat-id="chat1">
+            <div class="session-icon">💬</div>
+            <div class="session-info">
+              <h3>Consultation 1</h3>
+              <p class="session-preview" id="chat1-preview">Start your first BaZhi consultation</p>
+            </div>
+            <div class="session-arrow">→</div>
+          </div>
+
+          <div class="session-card" data-chat-id="chat2">
+            <div class="session-icon">💬</div>
+            <div class="session-info">
+              <h3>Consultation 2</h3>
+              <p class="session-preview" id="chat2-preview">Start your second BaZhi consultation</p>
+            </div>
+            <div class="session-arrow">→</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- CHAT VIEW -->
+  <!-- ================================ -->
+  <div id="chatView" class="view hidden">
+    <div class="chat-container">
+      <!-- Header -->
+      <header>
+        <button class="btn-home" id="homeBtn" title="Back to home">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </button>
+        <h1>🌸 八字 Guru</h1>
+        <div class="user-info">
+          <span class="user-email" id="chatUserEmail">Loading...</span>
+          <button class="btn-logout" id="chatLogoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <!-- Chat Section -->
+      <div class="chat-section">
+        <!-- Messages Container -->
+        <div id="chatMessages"></div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading">
+          <span class="loading-spinner"></span>
+          <span id="loadingText">Processing...</span>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+          <input 
+            type="text" 
+            id="messageInput" 
+            placeholder="Ask the BaZhi Guru anything..."
+          >
+          <button class="btn-primary" id="sendMessageBtn">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase CDN -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <!-- App Scripts -->
+  <script src="src/config.js"></script>
+  <script src="src/auth.js"></script>
+  <script src="src/chat.js"></script>
+  <script src="src/main.js"></script>
+</body>
+</html>
