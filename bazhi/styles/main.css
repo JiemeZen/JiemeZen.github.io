@@ -1066,6 +1066,7 @@ canvas#inkCanvas {
   flex-direction: column;
   padding: 20px 0;
   overflow-y: auto;
+  opacity: 0.8;
   backdrop-filter: blur(10px);
 }
 

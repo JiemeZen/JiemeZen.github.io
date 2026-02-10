@@ -37,6 +37,8 @@ const ViewMapping = {
 // View Management
 // ============================================
 function showView(viewName, fromHash = false) {
+  console.log('[showView] Switching to:', viewName, 'fromHash:', fromHash);
+  
   // 1. Hide Top-Level Overlay Views (Auth, BirthInfo)
   document.querySelectorAll('.view').forEach(view => {
     view.classList.add('hidden');
@@ -57,13 +59,23 @@ function showView(viewName, fromHash = false) {
   };
   
   const targetId = viewMap[viewName];
-  if (!targetId) return;
+  if (!targetId) {
+    console.error('[showView] Invalid view name:', viewName);
+    return;
+  }
+
+  console.log('[showView] Target element ID:', targetId);
 
   if (viewName === 'auth' || viewName === 'birthInfo') {
     // Mode: Overlay View
     if(appShell) appShell.classList.add('hidden');
     const el = document.getElementById(targetId);
-    if(el) el.classList.remove('hidden');
+    if(el) {
+      el.classList.remove('hidden');
+      console.log('[showView] Showing overlay view:', targetId);
+    } else {
+      console.error('[showView] Element not found:', targetId);
+    }
   } else {
     // Mode: App Shell View
     if(appShell) appShell.classList.remove('hidden');
@@ -71,6 +83,9 @@ function showView(viewName, fromHash = false) {
     if(el) {
         el.classList.remove('hidden');
         el.classList.add('active');
+        console.log('[showView] Showing app view:', targetId);
+    } else {
+      console.error('[showView] Element not found:', targetId);
     }
   }
 
@@ -159,32 +174,43 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 function setupAuthStateListener() {
   auth.onAuthStateChanged(async (user) => {
+    console.log('[Auth State Change] User:', user ? user.email : 'null');
+    
     if (user) {
       // User is logged in
       AppState.currentUser = user;
       console.log('User authenticated:', user.email);
       
+      // Clear any auth status messages before navigating
+      hideAuthStatusMessage();
+      
       // Update user email displays
       updateUserEmailDisplays(user.email);
       
       // Check if user has birth info
+      console.log('[Auth State] Checking birth info for user:', user.uid);
       const hasBirthInfo = await loadUserBirthInfo(user.uid);
+      console.log('[Auth State] Has birth info:', hasBirthInfo);
       
       // Check current hash to determine view
       const hash = window.location.hash || '';
       const requestedView = ViewMapping[hash];
+      console.log('[Auth State] Current hash:', hash, 'Requested view:', requestedView);
       
       if (hasBirthInfo) {
         // User has completed setup
         if (requestedView === 'chat' || requestedView === 'landing') {
           // Honor the hash if it's valid for this state
+          console.log('[Auth State] Navigating to requested view:', requestedView);
           showView(requestedView);
         } else {
           // Default to landing page
+          console.log('[Auth State] Navigating to default landing view');
           showView('landing');
         }
       } else {
         // User needs to complete birth info setup
+        console.log('[Auth State] Navigating to birth info setup');
         showView('birthInfo');
       }
     } else {
@@ -336,7 +362,13 @@ async function handleLoginSubmit(event) {
   const result = await loginUser(email, password);
   
   if (result.success) {
+    console.log('[Login] Success - Auth state listener will handle navigation');
+    // Show brief success message, then clear it
     showAuthStatusMessage('Login successful!', 'success');
+    // Clear message after 500ms to ensure clean transition
+    setTimeout(() => {
+      hideAuthStatusMessage();
+    }, 500);
     // Auth state listener will handle view switching
   } else {
     showAuthStatusMessage(`Login failed: ${result.error}`, 'error');
@@ -366,7 +398,12 @@ async function handleRegisterSubmit(event) {
   const result = await registerUser(email, password);
   
   if (result.success) {
+    console.log('[Register] Success - Auth state listener will handle navigation');
     showAuthStatusMessage('Account created successfully!', 'success');
+    // Clear message after 500ms to ensure clean transition
+    setTimeout(() => {
+      hideAuthStatusMessage();
+    }, 500);
     // Auth state listener will handle view switching
   } else {
     showAuthStatusMessage(`Registration failed: ${result.error}`, 'error');
@@ -442,12 +479,19 @@ async function handleBirthInfoSubmit(event) {
 }
 
 async function loadUserBirthInfo(userId) {
-  const result = await loadBirthInfo(userId);
-  if (result.success) {
-    AppState.birthInfo = result.data;
-    return true;
+  try {
+    console.log('[loadUserBirthInfo] Loading for user:', userId);
+    const result = await loadBirthInfo(userId);
+    console.log('[loadUserBirthInfo] Result:', result);
+    if (result.success) {
+      AppState.birthInfo = result.data;
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('[loadUserBirthInfo] Error:', error);
+    return false;
   }
-  return false;
 }
 
 // ============================================
