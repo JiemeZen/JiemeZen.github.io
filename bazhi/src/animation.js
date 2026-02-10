@@ -8,7 +8,8 @@
     const config = {
         mountainLayers: 5,
         mistSpeed: 0.5,
-        birdCount: 15
+        birdCount: 15,
+        parallaxIntensity: 0.1 // How much the layers separate on scroll
     };
 
     // State
@@ -16,6 +17,8 @@
     let birds = [];
     let mistParticles = [];
     let bambooStalks = [];
+    let scrollOffset = 0;
+    let targetScrollOffset = 0;
 
     // Resize handling
     function resize() {
@@ -27,6 +30,16 @@
     }
 
     window.addEventListener('resize', resize);
+
+    // Parallax Scroll Handler
+    function setupParallaxScroll() {
+        const chatView = document.getElementById('chatView');
+        if (chatView) {
+            chatView.addEventListener('scroll', () => {
+                targetScrollOffset = chatView.scrollTop;
+            });
+        }
+    }
 
     // --- Utils ---
     function random(min, max) {
@@ -240,7 +253,13 @@
     function drawMountains() {
         for (let i = 0; i < config.mountainLayers; i++) {
             const layerFactor = i / config.mountainLayers; // 0 (back) to 1 (front)
-            const yBase = height * 0.4 + (i * height * 0.12);
+            
+            // Parallax effect: back layers move slower, front layers move faster
+            // The effect creates separation between layers when scrolling
+            const parallaxFactor = layerFactor * config.parallaxIntensity;
+            const parallaxOffset = scrollOffset * parallaxFactor;
+            
+            const yBase = height * 0.4 + (i * height * 0.12) + parallaxOffset;
             const colorValue = 200 - (i * 40); // Lighter at back, darker at front
             
             // Ink wash opacity logic: 
@@ -306,6 +325,10 @@
     }
 
     function animate() {
+        // Smooth scroll offset interpolation (lerp) for organic movement
+        const lerpFactor = 0.08; // Lower = smoother/slower, higher = snappier
+        scrollOffset += (targetScrollOffset - scrollOffset) * lerpFactor;
+        
         ctx.clearRect(0, 0, width, height);
 
         // 1. Draw Static/Slow Background Elements
@@ -380,12 +403,13 @@
                 // Much slower transition (12s) for a very deliberate, meditative writing effect
                 line.style.transition = 'height 12s cubic-bezier(0.2, 1, 0.3, 1)';
                 line.style.height = '250px'; // Ensure full height is cleared
-            }, 2500 + (index * 4000)); // Longer initial wait for fonts, and longer stagger between lines
+            }, 2000 + (index * 4000)); // Longer initial wait for fonts, and longer stagger between lines
         });
     }
 
     // Initialize
     resize();
+    setupParallaxScroll();
     animate();
     setInterval(spawnCharacter, 3000);
     animatePoem();

@@ -91,6 +91,12 @@ function showView(viewName, fromHash = false) {
 
   AppState.currentView = viewName;
   
+  // Update body class for view-specific styling (e.g., seal position)
+  document.body.className = document.body.className.replace(/view-\w+/g, '');
+  if (viewName) {
+    document.body.classList.add(`view-${viewName}`);
+  }
+  
   // Update home button visibility (hide on landing, show on chat)
   updateHomeButtonVisibility(viewName);
   
@@ -574,22 +580,22 @@ async function handleSendMessage() {
     
     hideLoading();
     
-    // Display guru response
-    displayMessage(englishResponse, 'guru');
-    
     // Update conversation history
     AppState.chineseConversationHistory.push(
       { role: 'user', content: chineseQuestion },
       { role: 'assistant', content: chineseResponse }
     );
     
-    // Save to Firebase with chat session ID
+    // Auto-save to Firebase immediately to preserve chat history
     await saveChatMessage(AppState.currentUser.uid, AppState.currentChatId, {
       userMessage_EN: message,
       userMessage_ZH: chineseQuestion,
       guruResponse_ZH: chineseResponse,
       guruResponse_EN: englishResponse
     });
+    
+    // Display guru response after saving
+    displayMessage(englishResponse, 'guru');
     
   } catch (error) {
     hideLoading();
@@ -760,7 +766,7 @@ function setupRotatingText() {
     "Know your elements. Master your life.",
     "The stars shape your tendencies; your choices shape your fate.",
     "Unlock your elemental balance. Begin your transformation.",
-    "Heaven gives the chart. Earth gives the stage. Human gives the action.",
+    "Heaven gives the chart. Earth gives the stage. Human to act.",
     "When Yin and Yang harmonize, your destiny follows."
   ];
   

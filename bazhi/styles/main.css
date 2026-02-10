@@ -512,27 +512,27 @@ button:disabled {
 
 #chatMessages {
   flex: 1;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   padding: 30px;
   background: transparent; /* Transparent to show texture/canvas behind */
   scroll-behavior: smooth;
 }
 
 /* Scrollbar styling */
-#chatMessages::-webkit-scrollbar {
+#chatView::-webkit-scrollbar {
   width: 8px;
 }
 
-#chatMessages::-webkit-scrollbar-track {
+#chatView::-webkit-scrollbar-track {
   background: var(--warm-beige);
 }
 
-#chatMessages::-webkit-scrollbar-thumb {
+#chatView::-webkit-scrollbar-thumb {
   background: var(--stone-gray);
   border-radius: 4px;
 }
 
-#chatMessages::-webkit-scrollbar-thumb:hover {
+#chatView::-webkit-scrollbar-thumb:hover {
   background: var(--charcoal);
 }
 
@@ -891,7 +891,8 @@ canvas#inkCanvas {
   position: relative;
   text-align: center;
   padding: 20px;
-  background: linear-gradient(to right, #e2c044, #f4d03f, #e2c044);
+  /* background: linear-gradient(to right, #e2c044, #f4d03f, #e2c044); */
+  background: #fdf5e6;
   backdrop-filter: blur(5px);
   color: #222;
   border-radius: 12px;
@@ -930,7 +931,7 @@ canvas#inkCanvas {
     transform: translateY(-20px);
   }
   to {
-    opacity: 0.8; /* Keeps it at 80% after animation ends */
+    opacity: 0.9; /* Keeps it at 80% after animation ends */
     transform: translateY(0);
   }
 }
@@ -949,8 +950,8 @@ canvas#inkCanvas {
 /* The Red Seal (Chop) */
 .seal {
   position: absolute;
-  bottom: 50px;
-  right: 50px;
+  bottom: 30px;
+  right: 30px;
   width: 60px;
   height: 60px;
   border: 3px solid var(--accent-red);
@@ -959,13 +960,19 @@ canvas#inkCanvas {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 34px;
   writing-mode: vertical-rl;
   z-index: 50;
   opacity: 0.8;
   box-shadow: 0 0 10px rgba(185, 43, 39, 0.2);
   font-family: 'Zhi Mang Xing', cursive;
   animation: fadeIn 3s ease-in forwards;
+  transition: bottom 0.3s ease;
+}
+
+/* Adjust seal position during chat view */
+body.view-chat .seal {
+  bottom: 100px;
 }
 
 @keyframes fadeIn {
@@ -1060,7 +1067,7 @@ canvas#inkCanvas {
 /* Sidebar - Web Only Styles (Default hidden on mobile via .web-only class) */
 .sidebar {
   width: 260px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
   border-right: 1px solid var(--sand);
   display: flex;
   flex-direction: column;
@@ -1351,28 +1358,28 @@ canvas#inkCanvas {
   height: 100%; /* Fill available space */
   padding: 0; /* Remove default padding, handle inside */
   padding-bottom: 0; /* Override previous */
+  overflow-y: auto; /* Scroll on full-width container */
 }
 
 #chatMessages {
-  flex: 1; /* Grow to fill space */
-  overflow-y: auto; /* Scroll messages */
   padding: 20px;
   width: 100%;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
+  overflow: visible; /* Static element, no scrolling */
 }
 
-/* Input Area Wrapper - Relative to Chat View now */
-/* Reset previous fixed positioning */
+/* Input Area Wrapper - Sticky at bottom */
 .input-area-wrapper {
-  position: relative; /* Normal flow inside chatView flex */
-  bottom: auto;
-  left: auto;
+  position: sticky;
+  bottom: 0;
+  left: 0;
   flex-shrink: 0; /* Don't shrink */
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--sand);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+  /* border-top: 1px solid var(--sand); */
   padding: 15px 20px;
+  z-index: 50;
 }
 
 /* Mobile Media Queries Updates */
