@@ -251,6 +251,10 @@
     }
 
     function drawMountains() {
+        // Detect mobile/portrait mode and adjust compression
+        const isPortrait = width < height || width < 768;
+        const compressionFactor = isPortrait ? 2.2 : 1; // Compress mountains more on mobile
+        
         for (let i = 0; i < config.mountainLayers; i++) {
             const layerFactor = i / config.mountainLayers; // 0 (back) to 1 (front)
             
@@ -282,12 +286,13 @@
             // Create rocky/hilly peaks
             for (let x = 0; x <= width; x += 5) {
                 // Combine frequencies for "ink stroke" unevenness
-                const frequency = 0.002 + (i * 0.001);
+                // Increase frequency on mobile to compress mountains horizontally
+                const frequency = (0.002 + (i * 0.001)) * compressionFactor;
                 const amp = 50 + (i * 30);
                 const noiseVal = noise(x, frequency) * amp;
                 
-                // Add secondary detail
-                const detail = noise(x, 0.02) * 10;
+                // Add secondary detail (also compressed on mobile)
+                const detail = noise(x, 0.02 * compressionFactor) * 10;
                 
                 ctx.lineTo(x, yBase - Math.abs(noiseVal) - detail);
             }

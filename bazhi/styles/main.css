@@ -966,13 +966,16 @@ canvas#inkCanvas {
   opacity: 0.8;
   box-shadow: 0 0 10px rgba(185, 43, 39, 0.2);
   font-family: 'Zhi Mang Xing', cursive;
-  animation: fadeIn 3s ease-in forwards;
+  animation: fadeIn 2s ease-in forwards;
   transition: bottom 0.3s ease;
 }
 
 /* Adjust seal position during chat view */
 body.view-chat .seal {
   bottom: 100px;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
 }
 
 @keyframes fadeIn {
