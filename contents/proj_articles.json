@@ -191,7 +191,7 @@
         "description": "Product Design Submission to Hyundai-NTU 3D Print challenge 2022. It was inspired by the Ioniq 5 grid headlight design, that allows for easy of reconfiguration and attachment system.",
         "link": "#article_16",
         "buttonText": "Find Out More",
-        "buttonLink": "/hyundai_challenge.html"
+        "buttonLink": "./hyundai_challenge.html"
     },
     {
         "title": "Pay Anything",

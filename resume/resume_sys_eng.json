@@ -1,5 +1,5 @@
 {
-    "professionalSummary": "Highly motivated Systems Engineer and Technical Project Manager with 4 years of experience integrating robotics, AI, and computer vision systems. Proven track record of leading cross-functional teams, coordinating complex automation projects, and delivering innovative solutions on time and under budget for high-tech manufacturing environments.",
+    "professionalSummary": "Highly motivated Systems Engineer and Technical Project Manager with more than 4 years of experience integrating robotics, AI, and computer vision systems. Proven track record of leading cross-functional teams, coordinating complex automation projects, and delivering innovative solutions on time and under budget for high-tech manufacturing environments.",
     "coreSkills": {
       "Engineering & Design:": [
         "Systems Engineering & Integration",
@@ -21,7 +21,8 @@
       "Technical Proficiencies": [
         "SolidWorks (CSWP)",
         "Python, C, C#, C++",
-        "Blender",
+        "Generative AI (VLM/LLM)",
+        "Multi-agent Systems",
         "Linux & ROS",
         "MATLAB/Simulink",
         "Git & JIRA"
@@ -34,9 +35,9 @@
         "years": "2025 – Present",
         "responsibilities": [
           "Develop and implement generative AI solutions using VLM/LLM models for zero-shot and few-shot inspection with minimal configuration via prompt engineering",
-          "Deploy and optimize local VLM/LLM models for data security and efficient edge inference for manufacturing inspection applications",
+          "Deploy multi-agentic workflow and optimize local VLM/LLM models for data security and efficient edge inference for manufacturing inspection applications",
           "Lead architecture design and guide junior engineers in developing a smart adaptive inspection system for optimal camera selection in diverse inspection scenarios",
-          "Lead projects on process automation and inspection systems using Robotics and Machine Intelligence for pharmaceutical and fast-moving consumer goods industries"
+          "Automate production processes and inspection systems using Robotics and Machine Intelligence for pharmaceutical and fast-moving consumer goods industries"
         ]
       },
       {
