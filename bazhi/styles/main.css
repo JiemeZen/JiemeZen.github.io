@@ -393,7 +393,7 @@ button:disabled {
   flex: 1;
   padding: 40px;
   overflow-y: auto;
-  background: linear-gradient(to bottom, var(--cream), var(--parchment));
+  background: transparent; /* Transparent to show texture/canvas behind */
 }
 
 .landing-welcome {
@@ -504,14 +504,14 @@ button:disabled {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--parchment);
+  background: transparent; /* Transparent to show texture/canvas behind */
 }
 
 #chatMessages {
   flex: 1;
   overflow-y: auto;
   padding: 30px;
-  background: linear-gradient(to bottom, var(--cream), var(--parchment));
+  background: transparent; /* Transparent to show texture/canvas behind */
   scroll-behavior: smooth;
 }
 
@@ -836,3 +836,583 @@ button:disabled {
 .mb-1 { margin-bottom: 10px; }
 .mb-2 { margin-bottom: 20px; }
 .mb-3 { margin-bottom: 30px; }
+
+/* =====================================
+   Dynamic Background Styles (Ink Wash)
+   Moved from guru.html
+   ===================================== */
+
+:root {
+  --paper-color: #fcfbf9;
+  --ink-color: #1a1a1a;
+  --accent-red: #b92b27;
+}
+
+/* Override main body background to let canvas show through */
+body {
+  background: var(--paper-color) !important;
+}
+
+/* Paper Texture Overlay */
+.paper-texture {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  z-index: 0; /* Behind content but above background */
+  mix-blend-mode: multiply;
+}
+
+/* Container for the background canvas */
+#scene-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* Behind content */
+}
+
+canvas#inkCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Yellow Scroll Title */
+.scroll-title {
+  position: relative;
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(to right, #e2c044, #f4d03f, #e2c044);
+  backdrop-filter: blur(5px);
+  color: #222;
+  border-radius: 12px;
+  border: 1px solid var(--sand);
+  box-shadow: 4px 4px 15px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.1);
+  z-index: 60;
+  /* letter-spacing: 8px; */
+  opacity: 0.5;
+  transform: translateY(-20px);
+  animation: scrollUnroll 2s ease-out forwards 0.5s;
+}
+
+.scroll-title h2 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+}
+
+/* Scroll handles (visual flourish) */
+.scroll-title::before, .scroll-title::after {
+    content: '';
+    position: absolute;
+    top: -5%; /* Center vertically relative to slightly taller height */
+    width: 12px;
+    height: 110%;
+    background: linear-gradient(to right, #3e2723, #5d4037, #3e2723);
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+    z-index: 61;
+}
+.scroll-title::before { left: -6px; }
+.scroll-title::after { right: -6px; }
+
+@keyframes scrollUnroll {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 0.8; /* Keeps it at 50% after animation ends */
+    transform: translateY(0);
+  }
+}
+
+/* Floating Calligraphy Styling */
+.floating-char {
+  position: absolute;
+  color: var(--ink-color);
+  pointer-events: none;
+  opacity: 0;
+  user-select: none;
+  mix-blend-mode: multiply;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* The Red Seal (Chop) */
+.seal {
+  position: absolute;
+  bottom: 50px;
+  right: 50px;
+  width: 60px;
+  height: 60px;
+  border: 3px solid var(--accent-red);
+  border-radius: 8px;
+  color: var(--accent-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  writing-mode: vertical-rl;
+  z-index: 50;
+  opacity: 0.8;
+  box-shadow: 0 0 10px rgba(185, 43, 39, 0.2);
+  font-family: 'Zhi Mang Xing', cursive;
+  animation: fadeIn 3s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 0.8; transform: scale(1); }
+}
+
+/* Vertical Poem Container */
+.poem-container {
+  position: absolute;
+  top: 15%;
+  right: 10%;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 20px;
+  z-index: 40;
+}
+
+.poem-line {
+  writing-mode: vertical-rl;
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 2.5rem;
+  color: #333;
+  height: 0; /* Animated */
+  overflow: hidden;
+  opacity: 0.9;
+  border-left: 1px solid rgba(0,0,0,0.05); /* Guide line simulation */
+  padding-left: 10px;
+  white-space: nowrap; /* Ensure no wrapping weirdness */
+}
+
+/* =====================================
+   APP SHELL LAYOUT (GRID/FLEX)
+   ===================================== */
+
+/* Base App Layout - Hidden by default until App Ready */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 10; /* Above background */
+}
+
+/* Header - Full Width Top */
+.main-header {
+  height: 60px;
+  background: linear-gradient(135deg, var(--ink-black) 0%, var(--charcoal) 100%);
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  flex-shrink: 0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.main-header h1 {
+  font-size: 1.4rem;
+  margin: 0;
+  text-shadow: none;
+  font-family: inherit;
+}
+
+/* Home button tweak for header */
+.main-header .btn-home {
+  margin: 0;
+  border-color: rgba(255,255,255,0.3);
+}
+
+.user-info {
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Main Body - Sidebar + Content */
+.main-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden; /* Prevent scrolling on body, scroll inside components */
+}
+
+/* Sidebar - Web Only Styles (Default hidden on mobile via .web-only class) */
+.sidebar {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid var(--sand);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 0;
+  overflow-y: auto;
+  backdrop-filter: blur(10px);
+}
+
+.session-nav h3 {
+  padding: 0 20px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  color: var(--stone-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.session-card-mini {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.session-card-mini:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.session-card-mini.active {
+  background: rgba(214, 123, 136, 0.1);
+  border-left-color: var(--cherry-blossom);
+}
+
+.session-card-mini span {
+  font-weight: 600;
+  color: var(--ink-black);
+}
+
+.session-card-mini small {
+  color: var(--mist-gray);
+  font-size: 0.75rem;
+}
+
+.btn-new-session {
+  margin: 15px 20px;
+  background: transparent;
+  border: 1px dashed var(--stone-gray);
+  color: var(--stone-gray);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.btn-new-session:hover {
+  border-color: var(--cherry-blossom);
+  color: var(--cherry-blossom);
+}
+
+/* Content Wrapper - Right Side */
+.content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* View Content Areas */
+.view-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  padding-bottom: 100px; /* Space for input area */
+  display: none; /* Hidden by default */
+  flex-direction: column;
+}
+
+.view-content.active {
+  display: flex;
+}
+
+/* LANDING VIEW STYLES */
+.landing-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-top: 40px;
+}
+
+.quotes-section {
+  text-align: center;
+  padding: 40px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 12px;
+  border: 1px solid var(--sand);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.quotes-section h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.mobile-nav-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.btn-session-mobile {
+  padding: 15px;
+  background: white;
+  border: 1px solid var(--sand);
+  border-radius: 8px;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  cursor: pointer;
+  text-align: center;
+}
+
+.scroll-instruction {
+  text-align: center;
+  color: var(--stone-gray);
+  margin-top: 20px;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+  40% {transform: translateY(-10px);}
+  60% {transform: translateY(-5px);}
+}
+
+.elemental-chart-placeholder {
+  min-height: 300px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(5px);
+  /* border: 2px dashed var(--mist-gray); */
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.chart-content {
+  text-align: center;
+  color: var(--stone-gray);
+}
+
+/* CHAT MESSAGES TWEAK */
+#chatMessages {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* INPUT AREA - Shared Fixed Bottom */
+.input-area-wrapper {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid var(--sand);
+  backdrop-filter: blur(5px);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+}
+
+.input-area-wrapper .input-area {
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+/* RESPONSIVE UTILITIES */
+.mobile-only { display: none !important; }
+.web-only { display: flex !important; }
+
+/* MEDIA QUERIES */
+@media (max-width: 768px) {
+  .web-only { display: none !important; }
+  .mobile-only { display: flex !important; }
+  
+  .app-layout {
+    height: 100dvh; /* Mobile viewport fix */
+  }
+
+  .main-header {
+    padding: 0 15px;
+  }
+  
+  .main-header h1 {
+    font-size: 1.2rem;
+  }
+  
+  .view-content {
+    padding: 15px;
+    padding-bottom: 90px;
+  }
+  
+  .landing-inner {
+    padding-top: 10px;
+    gap: 30px;
+  }
+  
+  .quotes-section {
+    padding: 20px;
+  }
+  
+  .quotes-section h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* =====================================
+   Layout Refinements (Header & Chat Input)
+   ===================================== */
+
+/* Updated Header Layout for Centering */
+.main-header {
+  position: relative; /* Allows absolute positioning relative to header */
+  justify-content: space-between; /* Keeps left and right items apart */
+}
+
+/* Center Title Absolute */
+.header-title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.4rem;
+  margin: 0;
+  text-shadow: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+/* Clean up Left/Right Containers */
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  z-index: 10; /* Ensure buttons click above centered title if overlap (rare) */
+}
+
+.header-right {
+  gap: 15px;
+}
+
+/* Minimal Logout Button on Mobile */
+.btn-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+}
+
+.btn-logout svg {
+  display: block;
+}
+
+/* Updated Chat View Layout */
+/* Make chatView a flex container to push input to bottom */
+#chatView {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill available space */
+  padding: 0; /* Remove default padding, handle inside */
+  padding-bottom: 0; /* Override previous */
+}
+
+#chatMessages {
+  flex: 1; /* Grow to fill space */
+  overflow-y: auto; /* Scroll messages */
+  padding: 20px;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Input Area Wrapper - Relative to Chat View now */
+/* Reset previous fixed positioning */
+.input-area-wrapper {
+  position: relative; /* Normal flow inside chatView flex */
+  bottom: auto;
+  left: auto;
+  flex-shrink: 0; /* Don't shrink */
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--sand);
+  padding: 15px 20px;
+}
+
+/* Mobile Media Queries Updates */
+@media (max-width: 768px) {
+  .header-title {
+    font-size: 1.2rem;
+  }
+  
+  .btn-logout {
+    padding: 8px; /* Square button for icon */
+    border: none; /* Cleaner look */
+  }
+  
+  .btn-logout:hover {
+    background: rgba(255,255,255,0.1);
+  }
+}
+
+
+/* Refined Header Mobile Layout */
+@media (max-width: 768px) {
+  .main-header {
+     /* Force row direction to override global header column style */
+     flex-direction: row !important;
+     /* Ensure the header logic for left/right remains flexible */
+     justify-content: space-between;
+     align-items: center;
+     /* Reset height/padding if needed */
+     height: 60px; 
+  }
+
+  .header-left {
+     /* Ensure left aligns strictly to start */
+     justify-content: flex-start;
+     /* Reset potential grow settings */
+     flex: 0 0 auto;
+     /* Reset any centering from column align-items */
+     width: auto;
+  }
+
+  .btn-home {
+     /* Explicitly reset margins to avoid unexpected spacing issues */
+     margin: 0 !important; 
+     /* Ensure it aligns well vertically */
+     align-self: center;
+  }
+}

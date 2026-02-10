@@ -5,8 +5,141 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>八字 Guru - BaZhi Consultation</title>
   <link rel="stylesheet" href="styles/main.css">
+  
+  <!-- Dynamic Background Styles -->
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="paper-texture"></div>
+
+    <div id="scene-container">
+        <canvas id="inkCanvas"></canvas>
+        
+        <!-- Poem from the image: "One day I will mount the highest peak, and look down on all the small mountains." -->
+        <div class="poem-container">
+            <div class="poem-line" id="line1">会当凌绝顶</div>
+            <div class="poem-line" id="line2">一览众山小</div>
+        </div>
+
+        <!-- Artistic Seal -->
+        <div class="seal">静<br>山</div>
+    </div>
+
+  
+  <!-- ================================ -->
+  <!-- APP SHELL (Layout for Landing & Chat) -->
+  <!-- ================================ -->
+  <div id="appShell" class="app-layout hidden">
+      
+      <!-- Top Header (Full width) -->
+      <header class="main-header">
+        <div class="header-left">
+            <button class="btn-home" id="homeBtn" title="Back to home">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </button>
+        </div>
+        
+        <h1 class="header-title">🌸 八字 Guru</h1>
+        
+        <div class="header-right user-info">
+            <span class="user-email web-only" id="appUserEmail">Loading...</span>
+            <button class="btn-logout" id="appLogoutBtn">
+                <span class="web-only">Logout</span>
+                <span class="mobile-only">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </span>
+            </button>
+        </div>
+      </header>
+
+      <!-- Main Body (Sidebar + Content) -->
+      <div class="main-body">
+          
+          <!-- Sidebar (Web Only) -->
+          <aside class="sidebar web-only">
+              <nav class="session-nav">
+                  <h3>Consultations</h3>
+                  <div class="session-list">
+                      <div class="session-card-mini" data-chat-id="chat1">
+                          <span>Consultation 1</span>
+                          <small>Date...</small>
+                      </div>
+                      <div class="session-card-mini" data-chat-id="chat2">
+                          <span>Consultation 2</span>
+                          <small>Date...</small>
+                      </div>
+                      <!-- Add New Session Button -->
+                      <!-- <button class="btn-new-session">+ New Consultation</button> -->
+                  </div>
+              </nav>
+          </aside>
+          
+          <!-- Content Wrapper (Right Side) -->
+          <main class="content-wrapper">
+              
+              <!-- LANDING CONTENT -->
+              <div id="landingView" class="view-content active">
+                  <div class="landing-inner">
+                      <!-- Quotes Section -->
+                      <div class="scroll-title">
+                          <h2>Unlock Destiny Within</h2>
+                          <p class="rotating-text" id="rotatingText">Know your elements. Master your life.</p>
+                      </div>
+
+                      <!-- Mobile Nav Buttons (Mobile Only) -->
+                      <div class="mobile-nav-buttons mobile-only">
+                          <button class="btn-session-mobile" data-chat-id="chat1">
+                              Consultation 1
+                          </button>
+                          <button class="btn-session-mobile" data-chat-id="chat2">
+                              Consultation 2
+                          </button>
+                          <!-- <button class="btn-new-session-mobile">+ New Consultation</button> -->
+                      </div>
+
+                      <!-- <div class="elemental-chart-placeholder">
+                          <div class="chart-content">
+                              <h3>Elemental Chart</h3>
+                              <p>&lt;To be Developed&gt;</p>
+                          </div>
+                      </div> -->
+                  </div>
+              </div>
+
+              <!-- CHAT CONTENT -->
+              <div id="chatView" class="view-content hidden">
+                  <div id="chatMessages"></div>
+                  <!-- Loading Indicator -->
+                  <div id="loadingIndicator" class="loading">
+                      <span class="loading-spinner"></span>
+                      <span id="loadingText">Processing...</span>
+                  </div>
+                  
+                  <!-- INPUT AREA (Now inside chatView) -->
+                  <div class="input-area-wrapper">
+                      <div class="input-area">
+                          <input 
+                            type="text" 
+                            id="messageInput" 
+                            placeholder="Ask the BaZhi Guru anything..."
+                          >
+                          <button class="btn-primary" id="sendMessageBtn">
+                            Send
+                          </button>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- SHARED INPUT AREA REMOVED FROM HERE -->
+
+          </main>
+      </div>
+  </div>
+
+  <!-- Note: Keeping Auth and BirthInfo separate overlay views as they are pre-app -->
   
   <!-- ================================ -->
   <!-- LOGIN/REGISTER VIEW -->
@@ -116,18 +249,6 @@
   <!-- BIRTH INFO SETUP VIEW -->
   <!-- ================================ -->
   <div id="birthInfoView" class="view hidden">
-    <div class="chat-container">
-      <!-- Header -->
-      <header>
-        <h1>🌸 八字 Guru</h1>
-        <div class="user-info">
-          <span class="user-email" id="headerUserEmail">Loading...</span>
-          <button class="btn-logout" id="headerLogoutBtn">Logout</button>
-        </div>
-      </header>
-
-      <!-- Birth Info Setup Section -->
-      <div class="birth-info-section">
         <h2 class="text-center mb-2">Welcome! Let's set up your BaZhi profile</h2>
         <p class="text-center mb-3" style="color: var(--stone-gray);">
           Please provide your birth information for accurate readings
@@ -216,96 +337,6 @@
   </div>
 
   <!-- ================================ -->
-  <!-- LANDING PAGE VIEW -->
-  <!-- ================================ -->
-  <div id="landingView" class="view hidden">
-    <div class="chat-container">
-      <!-- Header -->
-      <header>
-        <h1>🌸 八字 Guru</h1>
-        <div class="user-info">
-          <span class="user-email" id="landingUserEmail">Loading...</span>
-          <button class="btn-logout" id="landingLogoutBtn">Logout</button>
-        </div>
-      </header>
-
-      <!-- Landing Section -->
-      <div class="landing-section">
-        <div class="landing-welcome">
-          <h2>Unlock the Destiny Within</h2>
-          <p class="rotating-text" id="rotatingText">Know your elements. Master your life.</p>
-        </div>
-
-        <!-- Chat Sessions -->
-        <div class="chat-sessions">
-          <div class="session-card" data-chat-id="chat1">
-            <div class="session-icon">💬</div>
-            <div class="session-info">
-              <h3>Consultation 1</h3>
-              <p class="session-preview" id="chat1-preview">Start your first BaZhi consultation</p>
-            </div>
-            <div class="session-arrow">→</div>
-          </div>
-
-          <div class="session-card" data-chat-id="chat2">
-            <div class="session-icon">💬</div>
-            <div class="session-info">
-              <h3>Consultation 2</h3>
-              <p class="session-preview" id="chat2-preview">Start your second BaZhi consultation</p>
-            </div>
-            <div class="session-arrow">→</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================================ -->
-  <!-- CHAT VIEW -->
-  <!-- ================================ -->
-  <div id="chatView" class="view hidden">
-    <div class="chat-container">
-      <!-- Header -->
-      <header>
-        <button class="btn-home" id="homeBtn" title="Back to home">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-        </button>
-        <h1>🌸 八字 Guru</h1>
-        <div class="user-info">
-          <span class="user-email" id="chatUserEmail">Loading...</span>
-          <button class="btn-logout" id="chatLogoutBtn">Logout</button>
-        </div>
-      </header>
-
-      <!-- Chat Section -->
-      <div class="chat-section">
-        <!-- Messages Container -->
-        <div id="chatMessages"></div>
-
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" class="loading">
-          <span class="loading-spinner"></span>
-          <span id="loadingText">Processing...</span>
-        </div>
-
-        <!-- Input Area -->
-        <div class="input-area">
-          <input 
-            type="text" 
-            id="messageInput" 
-            placeholder="Ask the BaZhi Guru anything..."
-          >
-          <button class="btn-primary" id="sendMessageBtn">
-            Send
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -316,5 +347,6 @@
   <script src="src/auth.js"></script>
   <script src="src/chat.js"></script>
   <script src="src/main.js"></script>
+  <script src="src/animation.js"></script>
 </body>
 </html>

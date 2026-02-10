@@ -18,12 +18,18 @@ const AppState = {
 // View Management
 // ============================================
 function showView(viewName) {
-  // Hide all views
+  // 1. Hide Top-Level Overlay Views (Auth, BirthInfo)
   document.querySelectorAll('.view').forEach(view => {
     view.classList.add('hidden');
   });
+
+  // 2. Hide Internal App Views (Landing, Chat inside Shell)
+  document.querySelectorAll('.view-content').forEach(vc => {
+    vc.classList.remove('active');
+    vc.classList.add('hidden');
+  });
   
-  // Show requested view
+  const appShell = document.getElementById('appShell');
   const viewMap = {
     'auth': 'authView',
     'birthInfo': 'birthInfoView',
@@ -31,12 +37,26 @@ function showView(viewName) {
     'chat': 'chatView'
   };
   
-  const viewId = viewMap[viewName];
-  if (viewId) {
-    document.getElementById(viewId).classList.remove('hidden');
-    AppState.currentView = viewName;
-    console.log('Switched to view:', viewName);
+  const targetId = viewMap[viewName];
+  if (!targetId) return;
+
+  if (viewName === 'auth' || viewName === 'birthInfo') {
+    // Mode: Overlay View
+    if(appShell) appShell.classList.add('hidden');
+    const el = document.getElementById(targetId);
+    if(el) el.classList.remove('hidden');
+  } else {
+    // Mode: App Shell View
+    if(appShell) appShell.classList.remove('hidden');
+    const el = document.getElementById(targetId);
+    if(el) {
+        el.classList.remove('hidden');
+        el.classList.add('active');
+    }
   }
+
+  AppState.currentView = viewName;
+  console.log('Switched to view:', viewName);
 }
 
 // ============================================
@@ -91,9 +111,12 @@ function setupAuthStateListener() {
 }
 
 function updateUserEmailDisplays(email) {
-  document.getElementById('headerUserEmail').textContent = email;
-  document.getElementById('landingUserEmail').textContent = email;
-  document.getElementById('chatUserEmail').textContent = email;
+  const headerEmail = document.getElementById('headerUserEmail');
+  if(headerEmail) headerEmail.textContent = email;
+  
+  // App Shell Email
+  const appEmail = document.getElementById('appUserEmail');
+  if(appEmail) appEmail.textContent = email;
 }
 
 // ============================================
@@ -121,34 +144,53 @@ function setupEventListeners() {
   document.getElementById('birthInfoForm').addEventListener('submit', handleBirthInfoSubmit);
   
   // Birth Info View - Logout
-  document.getElementById('headerLogoutBtn').addEventListener('click', handleLogout);
+  const headerLogout = document.getElementById('headerLogoutBtn');
+  if(headerLogout) headerLogout.addEventListener('click', handleLogout);
   
-  // Landing View - Logout
-  document.getElementById('landingLogoutBtn').addEventListener('click', handleLogout);
+  // App Shell - Logout (Replaces Landing/Chat logout)
+  const appLogout = document.getElementById('appLogoutBtn');
+  if(appLogout) appLogout.addEventListener('click', handleLogout);
   
-  // Landing View - Chat Session Cards
-  document.querySelectorAll('.session-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const chatId = card.getAttribute('data-chat-id');
-      handleChatSessionClick(chatId);
+  // App Shell - Session Navigation (Sidebar & Mobile)
+  const sessionButtons = document.querySelectorAll('.session-card-mini, .btn-session-mobile');
+  sessionButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Highlight active session in sidebar
+        document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
+        if(btn.classList.contains('session-card-mini')) btn.classList.add('active'); // Only works if clicking sidebar link
+        
+        const chatId = btn.getAttribute('data-chat-id');
+        handleChatSessionClick(chatId);
     });
   });
   
-  // Chat View - Home Button
-  document.getElementById('homeBtn').addEventListener('click', handleHomeClick);
-  
-  // Chat View - Send Message
-  document.getElementById('sendMessageBtn').addEventListener('click', handleSendMessage);
-  
-  // Chat View - Enter key in input
-  document.getElementById('messageInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      handleSendMessage();
-    }
+  // New Session Buttons
+  document.querySelectorAll('.btn-new-session, .btn-new-session-mobile').forEach(btn => {
+      btn.addEventListener('click', () => {
+          if(confirm("Start a new consultation session?")) {
+              // Logic to create new session ID or clear current
+              handleChatSessionClick('new'); // Placeholder logic
+          }
+      });
   });
   
-  // Chat View - Logout
-  document.getElementById('chatLogoutBtn').addEventListener('click', handleLogout);
+  // Chat View - Home Button
+  const homeBtn = document.getElementById('homeBtn');
+  if(homeBtn) homeBtn.addEventListener('click', handleHomeClick);
+  
+  // Chat View - Send Message
+  const sendBtn = document.getElementById('sendMessageBtn');
+  if(sendBtn) sendBtn.addEventListener('click', handleSendMessage);
+  
+  // Chat View - Enter key in input
+  const msgInput = document.getElementById('messageInput');
+  if(msgInput) {
+      msgInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          handleSendMessage();
+        }
+      });
+  }
 }
 
 // ============================================
@@ -325,11 +367,23 @@ async function loadUserBirthInfo(userId) {
 async function handleChatSessionClick(chatId) {
   console.log('Loading chat session:', chatId);
   
+  if (chatId === 'new') {
+      // Create a temporary ID or handle new session logic
+      chatId = 'chat' + (Math.floor(Math.random() * 1000));
+      AppState.chineseConversationHistory = [];
+      document.getElementById('chatMessages').innerHTML = '';
+      displaySystemMessage('Starting a new consultation...');
+      AppState.currentChatId = chatId;
+      showView('chat');
+      return;
+  }
+
   AppState.currentChatId = chatId;
   AppState.chineseConversationHistory = [];
   
   // Clear chat messages
-  document.getElementById('chatMessages').innerHTML = '';
+  const chatMsgContainer = document.getElementById('chatMessages');
+  if(chatMsgContainer) chatMsgContainer.innerHTML = '';
   
   // Load chat history for this session
   await loadChatSession(AppState.currentUser.uid, chatId);
