@@ -248,7 +248,13 @@
             // Front mountains are darker but still have transparency
             const opacity = 0.2 + (i * 0.15); 
 
-            ctx.fillStyle = `rgba(${colorValue - 20}, ${colorValue - 20}, ${colorValue}, ${opacity})`;
+            // Create a linear gradient for the mountain itself to fade into the mist at the bottom
+            // This prevents the harsh line at the base
+            const mountainGrad = ctx.createLinearGradient(0, yBase - 100, 0, height);
+            mountainGrad.addColorStop(0, `rgba(${colorValue - 20}, ${colorValue - 20}, ${colorValue}, ${opacity})`);
+            mountainGrad.addColorStop(0.8, `rgba(${colorValue - 20}, ${colorValue - 20}, ${colorValue}, 0)`);
+
+            ctx.fillStyle = mountainGrad;
             
             ctx.beginPath();
             ctx.moveTo(0, height);
@@ -373,7 +379,7 @@
             setTimeout(() => {
                 // Much slower transition (12s) for a very deliberate, meditative writing effect
                 line.style.transition = 'height 12s cubic-bezier(0.2, 1, 0.3, 1)';
-                line.style.height = '600px'; // Ensure full height is cleared
+                line.style.height = '250px'; // Ensure full height is cleared
             }, 2500 + (index * 4000)); // Longer initial wait for fonts, and longer stagger between lines
         });
     }

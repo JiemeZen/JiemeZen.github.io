@@ -114,6 +114,9 @@ h4 {
   box-shadow: 0 8px 24px var(--shadow-medium);
   border: 1px solid var(--sand);
   width: 100%;
+  z-index: 10;
+  opacity: 0.9;
+  backdrop-filter: blur(50px);
   max-width: 450px;
 }
 
@@ -755,7 +758,7 @@ button:disabled {
 
 .title-decoration::before,
 .title-decoration::after {
-  content: "🌸";
+  /* content: "🌸"; */
   margin: 0 15px;
   opacity: 0.6;
 }
@@ -927,7 +930,7 @@ canvas#inkCanvas {
     transform: translateY(-20px);
   }
   to {
-    opacity: 0.8; /* Keeps it at 50% after animation ends */
+    opacity: 0.8; /* Keeps it at 80% after animation ends */
     transform: translateY(0);
   }
 }
@@ -989,7 +992,7 @@ canvas#inkCanvas {
   height: 0; /* Animated */
   overflow: hidden;
   opacity: 0.9;
-  border-left: 1px solid rgba(0,0,0,0.05); /* Guide line simulation */
+  /* border-left: 4px solid rgba(0,0,0,0.5); Guide line simulation */
   padding-left: 10px;
   white-space: nowrap; /* Ensure no wrapping weirdness */
 }
@@ -1148,7 +1151,7 @@ canvas#inkCanvas {
 
 /* LANDING VIEW STYLES */
 .landing-inner {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
   width: 100%;
   display: flex;

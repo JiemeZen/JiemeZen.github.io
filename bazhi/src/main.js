@@ -11,13 +11,32 @@ const AppState = {
   currentUser: null,
   birthInfo: null,
   currentChatId: null, // Track which chat session is active
-  chineseConversationHistory: []
+  chineseConversationHistory: [],
+  isNavigatingFromHash: false // Prevent hash update loops
+};
+
+// ============================================
+// Hash Routing Configuration
+// ============================================
+const HashMapping = {
+  'auth': '#login',
+  'birthInfo': '#setup',
+  'landing': '#home',
+  'chat': '#chat'
+};
+
+const ViewMapping = {
+  '#login': 'auth',
+  '#register': 'auth', // Alias for auth view
+  '#setup': 'birthInfo',
+  '#home': 'landing',
+  '#chat': 'chat'
 };
 
 // ============================================
 // View Management
 // ============================================
-function showView(viewName) {
+function showView(viewName, fromHash = false) {
   // 1. Hide Top-Level Overlay Views (Auth, BirthInfo)
   document.querySelectorAll('.view').forEach(view => {
     view.classList.add('hidden');
@@ -56,7 +75,61 @@ function showView(viewName) {
   }
 
   AppState.currentView = viewName;
+  
+  // Update home button visibility (hide on landing, show on chat)
+  updateHomeButtonVisibility(viewName);
+  
+  // Update URL hash (but not if we're already navigating from a hash change)
+  if (!fromHash && HashMapping[viewName]) {
+    AppState.isNavigatingFromHash = true;
+    window.location.hash = HashMapping[viewName];
+    // Reset flag after a short delay
+    setTimeout(() => {
+      AppState.isNavigatingFromHash = false;
+    }, 100);
+  }
+  
   console.log('Switched to view:', viewName);
+}
+
+function updateHomeButtonVisibility(viewName) {
+  const homeBtn = document.getElementById('homeBtn');
+  if (!homeBtn) return;
+  
+  // Hide home button on landing page, show on chat page
+  if (viewName === 'landing') {
+    homeBtn.style.display = 'none';
+  } else if (viewName === 'chat') {
+    homeBtn.style.display = 'block';
+  } else {
+    homeBtn.style.display = 'none';
+  }
+}
+
+function handleHashChange() {
+  // Prevent infinite loops
+  if (AppState.isNavigatingFromHash) {
+    return;
+  }
+  
+  const hash = window.location.hash || '#login';
+  const viewName = ViewMapping[hash];
+  
+  if (viewName && viewName !== AppState.currentView) {
+    console.log('Hash changed to:', hash, '-> View:', viewName);
+    showView(viewName, true);
+  }
+}
+
+function initializeFromHash() {
+  const hash = window.location.hash || '#login';
+  const viewName = ViewMapping[hash];
+  
+  // If there's a valid hash, it will be used by the auth state listener
+  // Store it for later use
+  if (viewName) {
+    console.log('Initial hash:', hash, '-> View:', viewName);
+  }
 }
 
 // ============================================
@@ -64,6 +137,12 @@ function showView(viewName) {
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
   console.log('BaZhi Guru App Initialized');
+  
+  // Initialize from hash
+  initializeFromHash();
+  
+  // Set up hash change listener
+  window.addEventListener('hashchange', handleHashChange);
   
   // Set up auth state listener
   setupAuthStateListener();
@@ -91,11 +170,21 @@ function setupAuthStateListener() {
       // Check if user has birth info
       const hasBirthInfo = await loadUserBirthInfo(user.uid);
       
+      // Check current hash to determine view
+      const hash = window.location.hash || '';
+      const requestedView = ViewMapping[hash];
+      
       if (hasBirthInfo) {
-        // Show landing page with chat sessions
-        showView('landing');
+        // User has completed setup
+        if (requestedView === 'chat' || requestedView === 'landing') {
+          // Honor the hash if it's valid for this state
+          showView(requestedView);
+        } else {
+          // Default to landing page
+          showView('landing');
+        }
       } else {
-        // Show birth info setup
+        // User needs to complete birth info setup
         showView('birthInfo');
       }
     } else {
