@@ -264,6 +264,19 @@ function setupEventListeners() {
   // Birth Info View - Form Submit
   document.getElementById('birthInfoForm').addEventListener('submit', handleBirthInfoSubmit);
   
+  // Birth Info View - Gender Button Selection
+  const genderButtons = document.querySelectorAll('.gender-btn');
+  genderButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+      // Remove active from all buttons
+      genderButtons.forEach(b => b.classList.remove('active'));
+      // Add active to clicked button
+      this.classList.add('active');
+      // Set hidden input value
+      document.getElementById('gender').value = this.getAttribute('data-value');
+    });
+  });
+  
   // Birth Info View - Logout
   const headerLogout = document.getElementById('headerLogoutBtn');
   if(headerLogout) headerLogout.addEventListener('click', handleLogout);

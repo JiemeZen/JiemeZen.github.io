@@ -249,81 +249,84 @@
   <!-- BIRTH INFO SETUP VIEW -->
   <!-- ================================ -->
   <div id="birthInfoView" class="view hidden">
-        <h2 class="text-center mb-2">Welcome! Let's set up your BaZhi profile</h2>
+    <div class="container">
+      <div class="card">
+        <h2 class="text-center mb-2">Welcome! <br> Let's see BaZhi</h2>
         <p class="text-center mb-3" style="color: var(--stone-gray);">
           Please provide your birth information for accurate readings
         </p>
 
         <form id="birthInfoForm">
-          <div class="form-row">
-            <div class="form-group">
-              <label for="birthYear">Birth Year</label>
-              <input 
-                type="number" 
-                id="birthYear" 
-                placeholder="e.g., 1990" 
-                min="1900" 
-                max="2026"
-                required
-              >
-            </div>
-
-            <div class="form-group">
-              <label for="birthMonth">Month</label>
-              <input 
-                type="number" 
-                id="birthMonth" 
-                placeholder="1-12" 
-                min="1" 
-                max="12"
-                required
-              >
-            </div>
-
-            <div class="form-group">
-              <label for="birthDay">Day</label>
-              <input 
-                type="number" 
-                id="birthDay" 
-                placeholder="1-31" 
-                min="1" 
-                max="31"
-                required
-              >
-            </div>
-
-            <div class="form-group">
-              <label for="birthHour">Hour (24h)</label>
-              <input 
-                type="number" 
-                id="birthHour" 
-                placeholder="0-23" 
-                min="0" 
-                max="23"
-                required
-              >
-            </div>
+        <!-- Mobile: Day|Month, Year|Hour, Web: Day|Month|Year, Hour|Gender -->
+        <div class="birth-form-grid">
+          <div class="form-group">
+            <label for="birthDay">Day</label>
+            <input 
+              type="number" 
+              id="birthDay" 
+              placeholder="1-31" 
+              min="1" 
+              max="31"
+              required
+            >
           </div>
 
-          <div class="form-row-full">
-            <div class="form-group">
-              <label for="birthPlace">Birth Place</label>
-              <input 
-                type="text" 
-                id="birthPlace" 
-                placeholder="Country, City (e.g., China, Beijing)" 
-                required
-              >
-            </div>
+          <div class="form-group">
+            <label for="birthMonth">Month</label>
+            <input 
+              type="number" 
+              id="birthMonth" 
+              placeholder="1-12" 
+              min="1" 
+              max="12"
+              required
+            >
+          </div>
 
-            <div class="form-group">
-              <label for="gender">Gender</label>
-              <select id="gender" required>
-                <option value="">Select...</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
+          <div class="form-group">
+            <label for="birthYear">Birth Year</label>
+            <input 
+              type="number" 
+              id="birthYear" 
+              placeholder="e.g., 1990" 
+              min="1900" 
+              max="2026"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="birthHour">Hour (24h)</label>
+            <input 
+              type="number" 
+              id="birthHour" 
+              placeholder="0-23" 
+              min="0" 
+              max="23"
+              required
+            >
+          </div>
+
+          <div class="form-group form-group-gender">
+            <label>Gender</label>
+            <div class="gender-buttons">
+              <button type="button" class="gender-btn" data-value="Male">Male</button>
+              <button type="button" class="gender-btn" data-value="Female">Female</button>
             </div>
+            <input type="hidden" id="gender" required>
+          </div>
+        </div>
+
+        <!-- Full width birth place -->
+        <div class="birth-form-full">
+          <div class="form-group">
+            <label for="birthPlace">Birth Place (Country, City)</label>
+            <input 
+              type="text" 
+              id="birthPlace" 
+              placeholder="e.g., China, Beijing" 
+              required
+            >
           </div>
 
           <div class="text-center">
