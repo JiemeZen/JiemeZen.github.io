@@ -266,12 +266,22 @@ function setupEventListeners() {
   
   // Birth Info View - Gender Button Selection
   const genderButtons = document.querySelectorAll('.gender-btn');
+  const genderButtonsContainer = document.querySelector('.gender-buttons');
+  
   genderButtons.forEach(btn => {
     btn.addEventListener('click', function() {
       // Remove active from all buttons
       genderButtons.forEach(b => b.classList.remove('active'));
       // Add active to clicked button
       this.classList.add('active');
+      
+      // Update container class for sliding indicator
+      if (this.getAttribute('data-value') === 'Female') {
+        genderButtonsContainer.classList.add('female-active');
+      } else {
+        genderButtonsContainer.classList.remove('female-active');
+      }
+      
       // Set hidden input value
       document.getElementById('gender').value = this.getAttribute('data-value');
     });
@@ -546,6 +556,13 @@ async function handleChatSessionClick(chatId) {
 
 function handleHomeClick() {
   if (confirm('Return to home? Current chat session will remain saved.')) {
+    // Clear active state from all sidebar sessions
+    document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
+    
+    // Reset current chat ID
+    AppState.currentChatId = null;
+    
+    // Show landing view
     showView('landing');
   }
 }

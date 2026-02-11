@@ -104,26 +104,32 @@ async function saveChatMessage(userId, chatId, chatData) {
     };
     
     console.log('Saving chat message to userId:', userId, 'chatId:', chatId);
+    console.log('Chat entry:', chatEntry);
     
-    // Get current document to check structure
+    // Get current document
     const docRef = db.collection('users').doc(userId);
     const doc = await docRef.get();
     
-    let updateData = {};
+    // Get existing chat sessions or create new object
+    const existingData = doc.exists ? doc.data() : {};
+    const chatSessions = existingData.chatSessions || {};
     
-    if (doc.exists && doc.data().chatSessions && doc.data().chatSessions[chatId]) {
-      // Chat session exists, append to array
-      updateData[`chatSessions.${chatId}`] = firebase.firestore.FieldValue.arrayUnion(chatEntry);
-    } else {
-      // Chat session doesn't exist, create new array
-      const chatSessions = doc.exists && doc.data().chatSessions ? { ...doc.data().chatSessions } : {};
-      chatSessions[chatId] = [chatEntry];
-      updateData.chatSessions = chatSessions;
-    }
+    // Get existing chat array for this chatId or create new array
+    const existingChats = chatSessions[chatId] || [];
     
-    await docRef.set(updateData, { merge: true });
+    // Append new chat entry to the array
+    const updatedChats = [...existingChats, chatEntry];
     
-    console.log('Chat saved to Firebase for session:', chatId);
+    // Update the chat sessions object
+    chatSessions[chatId] = updatedChats;
+    
+    // Save back to Firestore
+    await docRef.set({
+      chatSessions: chatSessions
+    }, { merge: true });
+    
+    console.log('Chat saved successfully to Firebase for session:', chatId);
+    console.log('Total messages in this session:', updatedChats.length);
     return { success: true };
   } catch (error) {
     console.error('Error saving chat:', error);

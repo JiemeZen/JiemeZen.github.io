@@ -126,7 +126,7 @@
                             id="messageInput" 
                             placeholder="Ask the BaZhi Guru anything..."
                           >
-                          <button class="btn-primary" id="sendMessageBtn">
+                          <button class="btn-chat" id="sendMessageBtn">
                             Send
                           </button>
                       </div>
@@ -251,7 +251,7 @@
   <div id="birthInfoView" class="view hidden">
     <div class="container">
       <div class="card">
-        <h2 class="text-center mb-2">Welcome! <br> Let's see BaZhi</h2>
+        <h2 class="text-center mb-1">Let's explore BaZhi</h2>
         <p class="text-center mb-3" style="color: var(--stone-gray);">
           Please provide your birth information for accurate readings
         </p>
@@ -260,7 +260,7 @@
         <!-- Mobile: Day|Month, Year|Hour, Web: Day|Month|Year, Hour|Gender -->
         <div class="birth-form-grid">
           <div class="form-group">
-            <label for="birthDay">Day</label>
+            <label for="birthDay">Birth Day</label>
             <input 
               type="number" 
               id="birthDay" 
@@ -284,11 +284,11 @@
           </div>
 
           <div class="form-group">
-            <label for="birthYear">Birth Year</label>
+            <label for="birthYear">Year</label>
             <input 
               type="number" 
               id="birthYear" 
-              placeholder="e.g., 1990" 
+              placeholder="e.g. 1995" 
               min="1900" 
               max="2026"
               required
@@ -310,28 +310,28 @@
           <div class="form-group form-group-gender">
             <label>Gender</label>
             <div class="gender-buttons">
-              <button type="button" class="gender-btn" data-value="Male">Male</button>
-              <button type="button" class="gender-btn" data-value="Female">Female</button>
+              <button type="button" class="gender-btn active" data-value="Male">Male 男</button>
+              <button type="button" class="gender-btn" data-value="Female">Female 女</button>
             </div>
-            <input type="hidden" id="gender" required>
+            <input type="hidden" id="gender" value="Male" required>
           </div>
         </div>
 
         <!-- Full width birth place -->
         <div class="birth-form-full">
           <div class="form-group">
-            <label for="birthPlace">Birth Place (Country, City)</label>
+            <label for="birthPlace">Birth Place (City, Country)</label>
             <input 
               type="text" 
               id="birthPlace" 
-              placeholder="e.g., China, Beijing" 
+              placeholder="e.g., Beijing, China" 
               required
             >
           </div>
 
           <div class="text-center">
             <button type="submit" class="btn-primary">
-              Save & Start Consultation
+              Save & Start
             </button>
           </div>
         </form>

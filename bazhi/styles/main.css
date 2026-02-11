@@ -266,6 +266,20 @@ button {
   box-shadow: 0 6px 16px rgba(214, 123, 136, 0.4);
 }
 
+.btn-chat {
+  padding: 10px 24px !important;
+  margin-top: 0 !important;
+  background: linear-gradient(135deg, var(--cherry-blossom) 0%, var(--deep-rose) 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(214, 123, 136, 0.3);
+}
+
+.btn-chat:hover {
+  background: linear-gradient(135deg, var(--deep-rose) 0%, var(--cherry-blossom) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(214, 123, 136, 0.4);
+}
+
 .btn-secondary {
   background: var(--stone-gray);
   color: white;
@@ -393,22 +407,23 @@ button:disabled {
 /* ===================================== */
 /*    COMPACT BIRTH INFO FORM LAYOUT     */
 /* ===================================== */
-
-/* Mobile Layout: 
-   Row 1: Day | Month
-   Row 2: Year | Hour
-   Row 3: Gender (full width)
-*/
 .birth-form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   margin-bottom: 15px;
 }
 
-/* Gender spans full width on mobile */
+/* Hour starts on row 2, column 1 */
+.birth-form-grid .form-group:nth-child(4) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+/* Gender on row 2, columns 2-3 (spans 2 columns) */
 .birth-form-grid .form-group-gender {
-  grid-column: 1 / -1;
+  grid-column: 2 / 4;
+  grid-row: 2;
 }
 
 /* Full width for Birth Place */
@@ -416,56 +431,60 @@ button:disabled {
   margin-bottom: 15px;
 }
 
-/* Gender Button Styles */
+/* Gender Button Styles - Connected Toggle */
 .gender-buttons {
+  position: relative;
   display: flex;
-  gap: 8px;
+  gap: 0;
+  background: white;
+  border: 2px solid var(--sand);
+  border-radius: 8px;
+  padding: 4px;
+  overflow: hidden;
+}
+
+/* Sliding indicator background */
+.gender-buttons::before {
+  content: '';
+  position: absolute;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: linear-gradient(135deg, var(--cherry-blossom), var(--deep-rose));
+  border-radius: 6px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+/* Move indicator to right when female is active */
+.gender-buttons.female-active::before {
+  transform: translateX(calc(100%));
 }
 
 .gender-btn {
   flex: 1;
-  padding: 10px 16px;
-  background: white;
-  border: 2px solid var(--sand);
-  border-radius: 8px;
+  padding: 5px 10px;
+  background: transparent;
+  border: none;
   color: var(--charcoal);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 1;
+  outline: none; /* Remove blue focus outline */
+}
+
+.gender-btn:focus {
+  outline: none; /* Remove blue focus outline on click */
 }
 
 .gender-btn:hover {
-  border-color: var(--cherry-blossom);
-  background: var(--parchment);
+  color: var(--ink-black);
 }
 
 .gender-btn.active {
-  background: linear-gradient(135deg, var(--cherry-blossom), var(--deep-rose));
   color: white;
-  border-color: var(--cherry-blossom);
-}
-
-/* Web Layout:
-   Row 1: Day | Month | Year
-   Row 2: Hour | Gender
-*/
-@media (min-width: 769px) {
-  .birth-form-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  /* Hour starts on row 2, column 1 */
-  .birth-form-grid .form-group:nth-child(4) {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  
-  /* Gender on row 2, column 2-3 (spans 2 columns) */
-  .birth-form-grid .form-group-gender {
-    grid-column: 2 / 4;
-    grid-row: 2;
-  }
 }
 
 /* ===================================== */
@@ -751,7 +770,7 @@ button:disabled {
 
 .input-area input[type="text"] {
   flex: 1;
-  padding: 14px 18px;
+  padding: 10px 15px;
   border: 2px solid var(--sand);
   border-radius: 24px;
   font-size: 0.8rem;
@@ -1328,7 +1347,7 @@ body.view-chat .seal {
   bottom: 0;
   left: 0;
   width: 100%;
-  padding: 15px 20px;
+  padding: 5px 20px;
   background: rgba(255, 255, 255, 0.9);
   border-top: 1px solid var(--sand);
   backdrop-filter: blur(5px);
@@ -1461,7 +1480,7 @@ body.view-chat .seal {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(5px);
   /* border-top: 1px solid var(--sand); */
-  padding: 15px 20px;
+  padding: 10px 20px;
   z-index: 50;
 }
 
