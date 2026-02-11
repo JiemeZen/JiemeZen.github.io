@@ -9,13 +9,15 @@
         mountainLayers: 5,
         mistSpeed: 0.5,
         birdCount: 15,
-        parallaxIntensity: 0.1 // How much the layers separate on scroll
+        parallaxIntensity: 0.1, // How much the layers separate on scroll
+        mountainMistCount: 30 // Clouds at mountain base
     };
 
     // State
     let time = 0;
     let birds = [];
     let mistParticles = [];
+    let mountainMist = [];
     let bambooStalks = [];
     let scrollOffset = 0;
     let targetScrollOffset = 0;
@@ -125,6 +127,41 @@
             const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
             gradient.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
             gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    // Mountain Mist - Clouds floating at mountain base (not affected by parallax)
+    class MountainMist {
+        constructor() {
+            this.reset();
+        }
+
+        reset() {
+            this.x = Math.random() * (width + 400) - 200;
+            this.y = random(height * 0.65, height * 0.85);
+            this.radius = random(80, 250);
+            this.speed = random(0.2, 0.8);
+            this.opacity = random(0.3, 0.6);
+        }
+
+        update() {
+            this.x -= this.speed;
+            if (this.x < -this.radius - 100) {
+                this.x = width + this.radius + 100;
+                this.y = random(height * 0.65, height * 0.85);
+            }
+        }
+
+        draw() {
+            const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+            gradient.addColorStop(0, `rgba(252, 251, 249, ${this.opacity})`);
+            gradient.addColorStop(0.4, `rgba(252, 251, 249, ${this.opacity * 0.6})`);
+            gradient.addColorStop(1, 'rgba(252, 251, 249, 0)');
             
             ctx.fillStyle = gradient;
             ctx.beginPath();
@@ -271,13 +308,7 @@
             // Front mountains are darker but still have transparency
             const opacity = 0.2 + (i * 0.15); 
 
-            // Create a linear gradient for the mountain itself to fade into the mist at the bottom
-            // This prevents the harsh line at the base
-            const mountainGrad = ctx.createLinearGradient(0, yBase - 100, 0, height);
-            mountainGrad.addColorStop(0, `rgba(${colorValue - 20}, ${colorValue - 20}, ${colorValue}, ${opacity})`);
-            mountainGrad.addColorStop(0.8, `rgba(${colorValue - 20}, ${colorValue - 20}, ${colorValue}, 0)`);
-
-            ctx.fillStyle = mountainGrad;
+            ctx.fillStyle = `rgba(${colorValue - 20}, ${colorValue - 20}, ${colorValue}, ${opacity})`;
             
             ctx.beginPath();
             ctx.moveTo(0, height);
@@ -300,13 +331,6 @@
             ctx.lineTo(width, height);
             ctx.closePath();
             ctx.fill();
-
-            // Add "Mist" at the base of each mountain layer (simulating the white space in ink paintings)
-            const mistGrad = ctx.createLinearGradient(0, height, 0, yBase);
-            mistGrad.addColorStop(0, 'rgba(252, 251, 249, 0.8)'); // Paper color
-            mistGrad.addColorStop(0.5, 'rgba(252, 251, 249, 0)');
-            ctx.fillStyle = mistGrad;
-            ctx.fillRect(0, yBase - 100, width, height - yBase + 100);
         }
     }
 
@@ -318,6 +342,9 @@
         
         mistParticles = [];
         for(let i=0; i<10; i++) mistParticles.push(new Mist());
+
+        mountainMist = [];
+        for(let i=0; i<config.mountainMistCount; i++) mountainMist.push(new MountainMist());
 
         bambooStalks = [];
         // Bottom left clump
@@ -340,7 +367,13 @@
         drawSun();
         drawMountains();
 
-        // 2. Draw Animated Elements
+        // 2. Draw Mountain Mist (not affected by parallax)
+        mountainMist.forEach(m => {
+            m.update();
+            m.draw();
+        });
+
+        // 3. Draw Animated Elements
         mistParticles.forEach(m => {
             m.update();
             m.draw();
