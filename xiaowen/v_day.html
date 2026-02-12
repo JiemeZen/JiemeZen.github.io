@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Will You Be My Valentine?</title>
+    <!-- Google Fonts for a romantic feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden; /* Prevent scrolling */
+            background-color: #fcfcfc; /* Paper-like off-white */
+            font-family: 'Quicksand', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        /* The Canvas acts as the dynamic background */
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            touch-action: none; /* Better touch handling */
+        }
+
+        /* UI Overlay */
+        #ui-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+            pointer-events: none; /* Let clicks pass through to canvas... */
+        }
+
+        /* Enable pointer events on interactive elements specifically */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(5px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 105, 135, 0.15);
+            pointer-events: auto; 
+            border: 1px solid rgba(255, 255, 255, 0.9);
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5rem;
+            color: #d64a68;
+            margin-bottom: 2rem;
+            line-height: 1.2;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            min-height: 60px; /* Space for moving button */
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+        }
+
+        #yes-btn {
+            background-color: #ff8fa3;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 143, 163, 0.4);
+        }
+
+        #yes-btn:hover {
+            transform: scale(1.05);
+            background-color: #ff758f;
+            box-shadow: 0 6px 20px rgba(255, 143, 163, 0.6);
+        }
+
+        #no-btn {
+            background-color: #e0e0e0;
+            color: #555;
+            position: relative; /* Needed for movement */
+            transition: all 0.5s ease-out; /* Smooth getaway */
+            z-index: 20;
+        }
+
+        /* Character Sticker in Bottom Right */
+        .character-sticker {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 350px;
+            z-index: 0;
+            pointer-events: none; /* Don't block canvas clicks */
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .character-sticker img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Success Message Overlay */
+        #success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 240, 245, 0.7);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #success-overlay.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        #success-overlay h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 4rem;
+            color: #d64a68;
+            animation: bounce 2s infinite;
+        }
+
+        #reset-btn {
+            margin-top: 2rem;
+            background-color: #ff8fa3;
+            color: white;
+            font-size: 1rem;
+            padding: 10px 25px;
+            box-shadow: 0 4px 10px rgba(255, 143, 163, 0.3);
+        }
+        
+        #reset-btn:hover {
+            background-color: #ff758f;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-20px);}
+            60% {transform: translateY(-10px);}
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.5rem; }
+            .buttons { flex-direction: column; gap: 15px; align-items: center;}
+            button { width: 100%; max-width: 200px; }
+            #no-btn { position: relative; } 
+            .character-sticker { width: 100px; height: 100px; bottom: 10px; right: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <div id="ui-container">
+        <div class="card">
+            <h1>Will you be my Valentine?</h1>
+            <div class="buttons">
+                <button id="yes-btn">Yes! ❤️</button>
+                <button id="no-btn">No</button>
+            </div>
+        </div>
+        <div style="margin-top: 0.5rem; font-size: 1rem; color: #d64a68; font-family: 'Quicksand', sans-serif; text-align: center;">
+            click to shake the tree
+        </div>
+    </div>
+
+    <!-- Bubu and Dudu Sticker -->
+    <div class="character-sticker">
+        <img src="./bubu_dudu.png" alt="Cute characters">
+    </div>
+
+    <div id="success-overlay">
+        <h2>Yay! I love you so so much bb! ❤️</h2>
+        <img src="./baby.gif" alt="Celebration" style="width: 400px; height: auto; margin-top: 1rem;">
+        <p style="font-size: 1.2rem; color: #888; margin-top: 1rem;">(I knew you'd say yes :>)</p>
+        <button id="reset-btn">Play Again ↺</button>
+        <p style="position: absolute; bottom: 10px; font-size: 1.5rem; color: #aaa;">As a reward for my bb: <a href="https://www.jimmyzeng.tech/bazhi/guru.html">Link</a></p>
+    </div>
+
+    <script>
+        /**
+         * CANVAS & ANIMATION LOGIC
+         */
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let treeBranchPoints = [];
+
+        const colors = [
+            'rgba(255, 183, 178, 0.9)', 
+            'rgba(255, 218, 193, 0.9)', 
+            'rgba(255, 154, 162, 0.9)', 
+            'rgba(255, 255, 255, 0.8)',
+            'rgba(226, 149, 120, 0.9)'
+        ];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            initTree();
+        }
+
+        class Petal {
+            constructor(x, y, isStatic = false) {
+                this.x = x || Math.random() * width;
+                this.y = y || (isStatic ? Math.random() * (height/2) : -10);
+                this.size = Math.random() * 12 + 10;
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.speedX = Math.random() * 2 - 1;
+                this.speedY = Math.random() * 1.5 + 0.5;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 2 - 1;
+                this.angle = 0; 
+                this.swing = Math.random() * 0.02; 
+                this.isStatic = isStatic;
+            }
+
+            update() {
+                if (this.isStatic) return;
+                this.x += this.speedX + Math.sin(this.angle) * 0.5;
+                this.y += this.speedY;
+                this.rotation += this.rotationSpeed;
+                this.angle += this.swing;
+                if (this.y > height + 10) {
+                    this.y = -10;
+                    this.x = Math.random() * width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(this.size / 2, -this.size / 2, this.size, 0, 0, this.size);
+                ctx.bezierCurveTo(-this.size, 0, -this.size / 2, -this.size / 2, 0, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initTree() {
+            treeBranchPoints = [];
+            particles = [];
+            const canopyCenterX = width * 0.3;
+            const canopyCenterY = height * 0.4;
+            const canopyRadius = Math.min(width, height) * 0.35;
+
+            for (let i = 0; i < 300; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const r = Math.sqrt(Math.random()) * canopyRadius;
+                const tx = canopyCenterX + r * Math.cos(angle);
+                const ty = canopyCenterY + r * Math.sin(angle);
+                particles.push(new Petal(tx, ty, true));
+            }
+
+            for (let i = 0; i < 40; i++) {
+                particles.push(new Petal(null, null, false));
+            }
+        }
+
+        function drawTreeTrunk() {
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = '#2c2c2c';
+            const startX = width * 0.3;
+            const startY = height;
+            const trunkHeight = height * 0.6;
+            ctx.lineWidth = 25;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.bezierCurveTo(startX - 20, startY - trunkHeight * 0.3, startX + 60, startY - trunkHeight * 0.6, startX + 20, startY - trunkHeight);
+            ctx.stroke();
+            treeBranchPoints = { x: startX, y: startY - trunkHeight / 2, radius: 200 };
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+            ctx.moveTo(startX + 20, startY - trunkHeight);
+            ctx.lineTo(startX - 40, startY - trunkHeight - 40);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(startX + 20, startY - trunkHeight);
+            ctx.lineTo(startX + 80, startY - trunkHeight - 20);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            drawTreeTrunk();
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animate);
+        }
+
+        function burstPetals(x, y) {
+            for (let i = 0; i < 15; i++) {
+                const p = new Petal(x, y, false);
+                p.speedX = (Math.random() - 0.5) * 10;
+                p.speedY = (Math.random() - 0.5) * 10;
+                particles.push(p);
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if (e.target.tagName === 'CANVAS') {
+                burstPetals(e.clientX, e.clientY);
+                const dist = Math.hypot(e.clientX - treeBranchPoints.x, e.clientY - treeBranchPoints.y);
+                if (dist < 300) {
+                    particles.forEach(p => {
+                        if (p.isStatic && Math.random() > 0.8) p.isStatic = false;
+                    });
+                }
+            }
+        });
+
+        window.addEventListener('resize', resize);
+        resize();
+        animate();
+
+        /**
+         * UI LOGIC
+         */
+        const noBtn = document.getElementById('no-btn');
+        const yesBtn = document.getElementById('yes-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const successOverlay = document.getElementById('success-overlay');
+        let celebrationInterval;
+        let hasMovedButton = false;
+        let lastMoveTime = 0;
+        const moveCooldown = 100; // ms
+        const triggerDistance = 50; // Distance at which button flees
+
+        function moveButtonAway(clientX, clientY) {
+            const btnRect = noBtn.getBoundingClientRect();
+            const btnCenterX = btnRect.left + btnRect.width / 2;
+            const btnCenterY = btnRect.top + btnRect.height / 2;
+
+            // Calculate distance from cursor to button center
+            const dx = clientX - btnCenterX;
+            const dy = clientY - btnCenterY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            // Only move if cursor is close enough
+            if (distance < triggerDistance && distance > 0) {
+                // Set button to fixed positioning if first move
+                if (!hasMovedButton) {
+                    noBtn.style.position = 'fixed';
+                    noBtn.style.left = btnRect.left + 'px';
+                    noBtn.style.top = btnRect.top + 'px';
+                    hasMovedButton = true;
+                }
+
+                const now = Date.now();
+                if (now - lastMoveTime < moveCooldown) {
+                    return; // Still in cooldown
+                }
+                lastMoveTime = now;
+
+                // Get window dimensions
+                const btnWidth = btnRect.width;
+                const btnHeight = btnRect.height;
+                const winWidth = window.innerWidth;
+                const winHeight = window.innerHeight;
+
+                // Define boundary margin
+                const boundaryMargin = 10;
+
+                // Calculate max/min left/top so button never leaves the viewport
+                let minLeft = boundaryMargin;
+                let maxLeft = winWidth - btnWidth - boundaryMargin;
+                let minTop = boundaryMargin;
+                let maxTop = winHeight - btnHeight - boundaryMargin;
+
+                // If button is too big for the window, clamp to 0
+                if (maxLeft < minLeft) {
+                    minLeft = maxLeft = Math.max(0, (winWidth - btnWidth) / 2);
+                }
+                if (maxTop < minTop) {
+                    minTop = maxTop = Math.max(0, (winHeight - btnHeight) / 2);
+                }
+
+                // Random position
+                const newLeft = Math.floor(Math.random() * (maxLeft - minLeft + 1)) + minLeft;
+                const newTop = Math.floor(Math.random() * (maxTop - minTop + 1)) + minTop;
+
+                // Apply new position
+                noBtn.style.left = newLeft + 'px';
+                noBtn.style.top = newTop + 'px';
+            }
+        }
+
+        // Track mouse movement globally
+        document.addEventListener('mousemove', (e) => {
+            if (successOverlay.classList.contains('visible')) return;
+            moveButtonAway(e.clientX, e.clientY);
+        });
+
+        // Handle touch events
+        document.addEventListener('touchmove', (e) => {
+            if (successOverlay.classList.contains('visible')) return;
+            if (e.touches.length > 0) {
+                moveButtonAway(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            if (successOverlay.classList.contains('visible')) return;
+            if (e.touches.length > 0) {
+                moveButtonAway(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+
+
+        yesBtn.addEventListener('click', () => {
+            successOverlay.classList.add('visible');
+            // Find the center of the GIF image
+            const gifImg = document.querySelector('#success-overlay img');
+            let burstX = width / 2;
+            let burstY = height / 2;
+            if (gifImg) {
+                const rect = gifImg.getBoundingClientRect();
+                // Calculate center of GIF relative to viewport, then to canvas
+                burstX = rect.left + rect.width / 2 - window.scrollX;
+                burstY = rect.top + rect.height / 2 - window.scrollY;
+            }
+            celebrationInterval = setInterval(() => {
+                burstPetals(burstX, burstY);
+            }, 200);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            successOverlay.classList.remove('visible');
+            if (celebrationInterval) clearInterval(celebrationInterval);
+            noBtn.style.position = '';
+            noBtn.style.left = '';
+            noBtn.style.top = '';
+            hasMovedButton = false;
+            lastMoveTime = 0;
+            initTree();
+        });
+
+    </script>
+</body>
+</html>
