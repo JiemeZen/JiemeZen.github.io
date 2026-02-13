@@ -326,6 +326,24 @@ button {
   letter-spacing: 0.5px;
 }
 
+.btn-logout {
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid var(--mist-gray);
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-logout:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -1511,6 +1529,18 @@ body.view-chat .seal {
 @media (max-width: 768px) {
   .header-title {
     font-size: 1.2rem;
+  }
+  
+  /* Hide logout button in chat view on mobile */
+  #chatView.active ~ .main-header .btn-logout,
+  body:has(#chatView:not(.hidden)) .btn-logout {
+    display: none;
+  }
+  
+  /* Hide language switch button in landing view on mobile */
+  #landingView.active ~ .main-header .btn-lang-switch,
+  body:has(#landingView:not(.hidden)) .btn-lang-switch {
+    display: none;
   }
   
   .btn-logout {

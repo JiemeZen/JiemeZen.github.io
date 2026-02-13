@@ -305,6 +305,10 @@ function setupEventListeners() {
   const headerLogout = document.getElementById('headerLogoutBtn');
   if(headerLogout) headerLogout.addEventListener('click', handleLogout);
   
+  // App Shell - Logout Button
+  const logoutBtn = document.getElementById('logoutBtn');
+  if(logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+  
   // App Shell - Language Switch Button
   const langSwitch = document.getElementById('langSwitchBtn');
   if(langSwitch) langSwitch.addEventListener('click', handleLanguageSwitch);
