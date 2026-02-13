@@ -138,6 +138,18 @@ async function saveChatMessage(userId, chatId, chatData) {
 }
 
 // ============================================
+// Utility Functions
+// ============================================
+function removeDeepSeekDisclaimer(text) {
+  if (!text || typeof text !== 'string') {
+    return text;
+  }
+  
+  // Replace "DeepSeek" with "Master" throughout the text
+  return text.replace(/DeepSeek/g, 'Master');
+}
+
+// ============================================
 // DeepSeek API Functions
 // ============================================
 
@@ -167,8 +179,11 @@ async function translateMessage(text, direction) {
     const data = await response.json();
     
     if (data.choices && data.choices[0]) {
-      return data.choices[0].message.content;
-    } else {
+      const content = data.choices[0].message.content;
+      // Remove DeepSeek disclaimer from responses
+      return removeDeepSeekDisclaimer(content);
+    } 
+    else {
       throw new Error('Invalid API response');
     }
   } catch (error) {
@@ -206,7 +221,9 @@ async function getBaZhiResponse(chineseInput, birthInfo, conversationHistory) {
     const data = await response.json();
     
     if (data.choices && data.choices[0]) {
-      return data.choices[0].message.content;
+      const content = data.choices[0].message.content;
+      // Remove DeepSeek disclaimer from Chinese responses
+      return removeDeepSeekDisclaimer(content);
     } else {
       throw new Error('Invalid API response');
     }

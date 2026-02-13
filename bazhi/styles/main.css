@@ -303,6 +303,29 @@ button {
   color: var(--ink-black);
 }
 
+.btn-lang-switch {
+  background: transparent;
+  color: var(--cream);
+  border: 1px solid var(--mist-gray);
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-lang-switch:hover {
+  background: var(--mist-gray);
+  color: var(--ink-black);
+  border-color: var(--stone-gray);
+}
+
+.btn-lang-switch .lang-display {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 0.5px;
+}
+
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -1497,6 +1520,12 @@ body.view-chat .seal {
   
   .btn-logout:hover {
     background: rgba(255,255,255,0.1);
+  }
+  
+  .btn-lang-switch {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    min-width: 45px;
   }
 }
 

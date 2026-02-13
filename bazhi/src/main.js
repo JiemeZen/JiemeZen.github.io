@@ -4,6 +4,18 @@
 // ============================================
 
 // ============================================
+// Utility Functions
+// ============================================
+function removeDeepSeekDisclaimer(text) {
+  if (!text || typeof text !== 'string') {
+    return text;
+  }
+  
+  // Replace "DeepSeek" with "Guru" throughout the text
+  return text.replace(/DeepSeek/g, 'Guru');
+}
+
+// ============================================
 // Application State
 // ============================================
 const AppState = {
@@ -12,7 +24,9 @@ const AppState = {
   birthInfo: null,
   currentChatId: null, // Track which chat session is active
   chineseConversationHistory: [],
-  isNavigatingFromHash: false // Prevent hash update loops
+  isNavigatingFromHash: false, // Prevent hash update loops
+  currentLanguage: 'EN', // 'EN' or 'ZN'
+  messageData: [] // Store messages with both EN and ZN versions
 };
 
 // ============================================
@@ -291,9 +305,9 @@ function setupEventListeners() {
   const headerLogout = document.getElementById('headerLogoutBtn');
   if(headerLogout) headerLogout.addEventListener('click', handleLogout);
   
-  // App Shell - Logout (Replaces Landing/Chat logout)
-  const appLogout = document.getElementById('appLogoutBtn');
-  if(appLogout) appLogout.addEventListener('click', handleLogout);
+  // App Shell - Language Switch Button
+  const langSwitch = document.getElementById('langSwitchBtn');
+  if(langSwitch) langSwitch.addEventListener('click', handleLanguageSwitch);
   
   // App Shell - Session Navigation (Sidebar & Mobile)
   const sessionButtons = document.querySelectorAll('.session-card-mini, .btn-session-mobile');
@@ -559,12 +573,54 @@ function handleHomeClick() {
     // Clear active state from all sidebar sessions
     document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
     
-    // Reset current chat ID
+    // Reset current chat ID and message data
     AppState.currentChatId = null;
+    AppState.messageData = [];
     
     // Show landing view
     showView('landing');
   }
+}
+
+// ============================================
+// Language Switch Handler
+// ============================================
+function handleLanguageSwitch() {
+  // Toggle language
+  AppState.currentLanguage = AppState.currentLanguage === 'EN' ? 'ZN' : 'EN';
+  
+  // Update button display
+  const langBtn = document.getElementById('langSwitchBtn');
+  const langDisplay = langBtn.querySelector('.lang-display');
+  langDisplay.textContent = AppState.currentLanguage === 'ZN' ? '中文' : 'EN';
+  
+  // Refresh chat display with new language
+  refreshChatDisplay();
+}
+
+function refreshChatDisplay() {
+  const messagesDiv = document.getElementById('chatMessages');
+  if (!messagesDiv) return;
+  
+  // Clear current messages
+  messagesDiv.innerHTML = '';
+  
+  // Redisplay all messages in the new language
+  AppState.messageData.forEach(msg => {
+    if (msg.type === 'user') {
+      const text = AppState.currentLanguage === 'EN' ? msg.textEN : msg.textZN;
+      displayMessage(text, 'user', false);
+    } else if (msg.type === 'guru') {
+      let text = AppState.currentLanguage === 'EN' ? msg.textEN : msg.textZN;
+      // Remove disclaimer from Chinese responses
+      if (AppState.currentLanguage === 'ZN') {
+        text = removeDeepSeekDisclaimer(text);
+      }
+      displayMessage(text, 'guru', false);
+    } else if (msg.type === 'system') {
+      displaySystemMessage(msg.text);
+    }
+  });
 }
 
 // ============================================
@@ -586,7 +642,8 @@ async function handleSendMessage() {
   input.disabled = true;
   document.getElementById('sendMessageBtn').disabled = true;
   
-  // Display user message
+  // Display user message in current language
+  const displayText = AppState.currentLanguage === 'EN' ? message : null; // Will be translated
   displayMessage(message, 'user');
   
   // Clear input
@@ -616,6 +673,13 @@ async function handleSendMessage() {
       { role: 'assistant', content: chineseResponse }
     );
     
+    // Store user message with both languages
+    AppState.messageData[AppState.messageData.length - 1] = {
+      type: 'user',
+      textEN: message,
+      textZN: chineseQuestion
+    };
+    
     // Auto-save to Firebase immediately to preserve chat history
     await saveChatMessage(AppState.currentUser.uid, AppState.currentChatId, {
       userMessage_EN: message,
@@ -624,8 +688,9 @@ async function handleSendMessage() {
       guruResponse_EN: englishResponse
     });
     
-    // Display guru response after saving
-    displayMessage(englishResponse, 'guru');
+    // Display guru response in current language with both versions stored
+    const displayResponse = AppState.currentLanguage === 'EN' ? englishResponse : chineseResponse;
+    displayMessage(displayResponse, 'guru', true, englishResponse, chineseResponse);
     
   } catch (error) {
     hideLoading();
@@ -647,9 +712,31 @@ async function loadChatSession(userId, chatId) {
   
   if (result.success && result.chats && result.chats.length > 0) {
     // Display previous messages
+    // Clear message data
+    AppState.messageData = [];
+    
     result.chats.forEach(chat => {
-      displayMessage(chat.userMessage_EN, 'user', false);
-      displayMessage(chat.guruResponse_EN, 'guru', false);
+      // Store message data
+      AppState.messageData.push({
+        type: 'user',
+        textEN: chat.userMessage_EN,
+        textZN: chat.userMessage_ZH
+      });
+      AppState.messageData.push({
+        type: 'guru',
+        textEN: chat.guruResponse_EN,
+        textZN: chat.guruResponse_ZH
+      });
+      
+      // Display messages in current language
+      const userText = AppState.currentLanguage === 'EN' ? chat.userMessage_EN : chat.userMessage_ZH;
+      let guruText = AppState.currentLanguage === 'EN' ? chat.guruResponse_EN : chat.guruResponse_ZH;
+      // Remove disclaimer from Chinese responses
+      if (AppState.currentLanguage === 'ZN') {
+        guruText = removeDeepSeekDisclaimer(guruText);
+      }
+      displayMessage(userText, 'user', false);
+      displayMessage(guruText, 'guru', false);
       
       // Rebuild Chinese conversation history
       AppState.chineseConversationHistory.push(
@@ -714,7 +801,7 @@ function parseMarkdown(text) {
   return html;
 }
 
-function displayMessage(text, sender, animate = true) {
+function displayMessage(text, sender, animate = true, textEN = null, textZN = null) {
   const messagesDiv = document.getElementById('chatMessages');
   const messageDiv = document.createElement('div');
   
@@ -733,6 +820,15 @@ function displayMessage(text, sender, animate = true) {
   
   messagesDiv.appendChild(messageDiv);
   
+  // Store message data with both languages if provided (for new messages only)
+  if (animate && textEN && textZN) {
+    AppState.messageData.push({
+      type: sender,
+      textEN: textEN,
+      textZN: textZN
+    });
+  }
+  
   // Scroll to bottom
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
@@ -746,6 +842,12 @@ function displaySystemMessage(text) {
   
   messagesDiv.appendChild(messageDiv);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  
+  // Store system message
+  AppState.messageData.push({
+    type: 'system',
+    text: text
+  });
 }
 
 // ============================================
