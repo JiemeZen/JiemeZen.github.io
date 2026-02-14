@@ -104,12 +104,49 @@
                           <!-- <button class="btn-new-session-mobile">+ New Consultation</button> -->
                       </div>
 
-                      <!-- <div class="elemental-chart-placeholder">
-                          <div class="chart-content">
-                              <h3>Elemental Chart</h3>
-                              <p>&lt;To be Developed&gt;</p>
+                      <div class="elemental-chart-container" id="elementalChartContainer">
+                          <h3 class="chart-title">Your Elemental Profile</h3>
+                          <div class="elemental-chart">
+                              <canvas id="elementalCanvas" width="400" height="400"></canvas>
+                              <div class="element-labels">
+                                  <div class="element-label fire" data-element="fire">
+                                      <span class="element-icon">火</span>
+                                      <span class="element-name">Fire</span>
+                                      <span class="element-count" id="fireCount">0</span>
+                                  </div>
+                                  <div class="element-label earth" data-element="earth">
+                                      <span class="element-icon">土</span>
+                                      <span class="element-name">Earth</span>
+                                      <span class="element-count" id="earthCount">0</span>
+                                  </div>
+                                  <div class="element-label metal" data-element="metal">
+                                      <span class="element-icon">金</span>
+                                      <span class="element-name">Metal</span>
+                                      <span class="element-count" id="metalCount">0</span>
+                                  </div>
+                                  <div class="element-label water" data-element="water">
+                                      <span class="element-icon">水</span>
+                                      <span class="element-name">Water</span>
+                                      <span class="element-count" id="waterCount">0</span>
+                                  </div>
+                                  <div class="element-label wood" data-element="wood">
+                                      <span class="element-icon">木</span>
+                                      <span class="element-name">Wood</span>
+                                      <span class="element-count" id="woodCount">0</span>
+                                  </div>
+                              </div>
                           </div>
-                      </div> -->
+                          <div class="element-description" id="elementDescription">
+                              <p class="loading-text">Calculating your elemental balance...</p>
+                          </div>
+                          <h3 class="chart-title" id="elementalAnalysisTitle" style="display: none; padding-top: 20px;">Your BaZhi Analysis</h3>
+                          <div class="element-summary" id="elementSummary" style="display: none;">
+                              <p class="loading-text">Loading analysis...</p>
+                          </div>                          
+                          <div class="element-full-analysis" id="elementFullAnalysis" style="display: none;">
+                              <div class="analysis-content" id="analysisContent"></div>
+                          </div>
+                          <button class="btn-show-more" id="btnShowMore" style="display: none;">Show Full Analysis</button>                      </div>
                   </div>
               </div>
 

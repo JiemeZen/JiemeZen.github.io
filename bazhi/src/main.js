@@ -16,6 +16,202 @@ function removeDeepSeekDisclaimer(text) {
 }
 
 // ============================================
+// BaZhi Calculation Functions
+// ============================================
+async function performInitialBaZhiCalculation(userId, birthInfo) {
+  try {
+    console.log('[BaZhi Calc] Starting calculation for user:', userId);
+    
+    // Step 1: Get the comprehensive BaZhi reading (in Chinese)
+    const bazhiPrompt = buildBaZhiPrompt(birthInfo);
+    const bazhiAnalysis_zn = await callBaZhiAPI(bazhiPrompt);
+    
+    console.log('[BaZhi Calc] Analysis received (Chinese), length:', bazhiAnalysis_zn.length);
+    
+    // Step 2: Start translation to English (async, don't wait)
+    const translationPromise = translateMessage(bazhiAnalysis_zn, 'ZH-to-EN')
+      .then(bazhiAnalysis_en => {
+        console.log('[BaZhi Calc] Translation complete, length:', bazhiAnalysis_en.length);
+        AppState.fullBaZhiAnalysis_en = bazhiAnalysis_en;
+        
+        // Update Firestore with English version
+        saveBaZhiProfile(userId, {
+          fullAnalysis_en: bazhiAnalysis_en
+        }).catch(err => console.error('[BaZhi Calc] Error saving English translation:', err));
+        
+        return bazhiAnalysis_en;
+      })
+      .catch(err => {
+        console.error('[BaZhi Calc] Translation error:', err);
+        return null;
+      });
+    
+    // Step 3: Extract elemental information from the Chinese analysis (parallel to translation)
+    const extractionPrompt = buildElementExtractionPrompt(bazhiAnalysis_zn);
+    const elementalDataJSON = await callBaZhiAPI(extractionPrompt, 0.3);
+    
+    console.log('[BaZhi Calc] Elemental data extracted:', elementalDataJSON);
+    
+    // Step 4: Parse the JSON response
+    const elementalData = parseElementalJSON(elementalDataJSON);
+    
+    if (!elementalData) {
+      console.error('[BaZhi Calc] Failed to parse elemental data');
+      return;
+    }
+    
+    // Step 5: Save the BaZhi profile to Firestore (Chinese version + elemental data)
+    await saveBaZhiProfile(userId, {
+      fullAnalysis_zn: bazhiAnalysis_zn,
+      elementalData: elementalData,
+      calculatedAt: new Date().toISOString()
+    });
+    
+    // Step 6: Store Chinese analysis and display the elemental chart
+    AppState.fullBaZhiAnalysis_zn = bazhiAnalysis_zn;
+    displayElementalChart(elementalData);
+    
+    // Show the "Show Full Analysis" button
+    const showMoreBtn = document.getElementById('btnShowMore');
+    if (showMoreBtn) {
+      showMoreBtn.style.display = 'block';
+    }
+    
+    console.log('[BaZhi Calc] Calculation complete and saved');
+    console.log('[BaZhi Calc] Translation running in background...');
+    
+  } catch (error) {
+    console.error('[BaZhi Calc] Error during calculation:', error);
+    // Don't block the UI, just log the error
+  }
+}
+
+async function callBaZhiAPI(systemPrompt, temperature = 0.7) {
+  try {
+    const response = await fetch(BACKEND_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: '请开始分析' }
+        ],
+        temperature: temperature,
+        max_tokens: 3000
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.choices && data.choices[0]) {
+      return removeDeepSeekDisclaimer(data.choices[0].message.content);
+    } else {
+      throw new Error('Invalid API response');
+    }
+  } catch (error) {
+    console.error('[BaZhi API] Error:', error);
+    throw error;
+  }
+}
+
+function buildElementExtractionPrompt(bazhiAnalysis) {
+  return `Based on the following BaZhi (八字) analysis, extract the Five Elements (五行) count and provide a figurative description of the person's elemental profile.
+
+BaZhi Analysis:
+${bazhiAnalysis}
+
+Please respond with ONLY a JSON object in this exact format (no markdown, no code blocks, just raw JSON):
+{
+  "elements": {
+    "Wood": <number>,
+    "Fire": <number>,
+    "Earth": <number>,
+    "Metal": <number>,
+    "Water": <number>
+  },
+  "description_en": "A brief 2-3 sentence figurative description in English of the person based on their elemental composition. Use metaphors related to nature and the elements.",
+  "description_zh": "简短的2-3句中文比喻性描述，基于五行组成。使用与自然和元素相关的隐喻。",
+  "summary_en": "A concise English summary of the analysis and the person's core characteristics and tendencies. Include yearly breakdowns.",
+  "summary_zh": "简洁的中文分析总结，包括此人的核心特征和倾向。包括流年分析。"
+}
+
+Count each element stem and branch in the four pillars (year, month, day, hour). The total should be 8.`;
+}
+
+function parseElementalJSON(jsonString) {
+  try {
+    // Remove markdown code blocks if present
+    let cleaned = jsonString.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
+    // Try to extract JSON if there's extra text
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleaned = jsonMatch[0];
+    }
+    
+    const data = JSON.parse(cleaned);
+    
+    // Validate structure
+    if (data.elements) {
+      // Normalize element names to match our system
+      const normalized = {
+        wood: data.elements.Wood || data.elements.wood || 0,
+        fire: data.elements.Fire || data.elements.fire || 0,
+        earth: data.elements.Earth || data.elements.earth || 0,
+        metal: data.elements.Metal || data.elements.metal || 0,
+        water: data.elements.Water || data.elements.water || 0,
+        description_en: data.description_en || data.description || '',
+        description_zh: data.description_zh || data.description || '',
+        summary_en: data.summary_en || data.summary || '',
+        summary_zh: data.summary_zh || data.summary || ''
+      };
+      
+      console.log('[JSON Parse] Normalized elemental data:', normalized);
+      return normalized;
+    }
+    
+    console.error('[JSON Parse] Invalid structure:', data);
+    return null;
+    
+  } catch (error) {
+    console.error('[JSON Parse] Error parsing JSON:', error);
+    console.error('[JSON Parse] Input string:', jsonString);
+    return null;
+  }
+}
+
+async function saveBaZhiProfile(userId, profileData) {
+  try {
+    await db.collection('users').doc(userId).set({
+      bazhiProfile: profileData
+    }, { merge: true });
+    
+    console.log('[BaZhi Save] Profile saved successfully');
+    return { success: true };
+  } catch (error) {
+    console.error('[BaZhi Save] Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function loadBaZhiProfile(userId) {
+  try {
+    const doc = await db.collection('users').doc(userId).get();
+    
+    if (doc.exists && doc.data().bazhiProfile) {
+      return { success: true, data: doc.data().bazhiProfile };
+    }
+    
+    return { success: false };
+  } catch (error) {
+    console.error('[BaZhi Load] Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ============================================
 // Application State
 // ============================================
 const AppState = {
@@ -26,7 +222,11 @@ const AppState = {
   chineseConversationHistory: [],
   isNavigatingFromHash: false, // Prevent hash update loops
   currentLanguage: 'EN', // 'EN' or 'ZN'
-  messageData: [] // Store messages with both EN and ZN versions
+  messageData: [], // Store messages with both EN and ZN versions
+  elementalData: null, // Store elemental chart data for language switching
+  fullBaZhiAnalysis_zn: null, // Store Chinese version of full BaZhi analysis
+  fullBaZhiAnalysis_en: null, // Store English version of full BaZhi analysis
+  showingFullAnalysis: false // Track if showing full analysis
 };
 
 // ============================================
@@ -353,6 +553,12 @@ function setupEventListeners() {
         }
       });
   }
+  
+  // Elemental Chart - Show More Button
+  const showMoreBtn = document.getElementById('btnShowMore');
+  if(showMoreBtn) {
+    showMoreBtn.addEventListener('click', handleShowMoreAnalysis);
+  }
 }
 
 // ============================================
@@ -510,18 +716,23 @@ async function handleBirthInfoSubmit(event) {
   // Disable submit button to prevent double-submission
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Saving...';
+  submitBtn.textContent = 'Calculating your BaZhi...';
   
   const result = await saveBirthInfo(currentUser.uid, birthData);
   
   if (result.success) {
     AppState.birthInfo = birthData;
+    
+    // Perform BaZhi calculation immediately after saving birth info
+    console.log('[BirthInfo] Triggering BaZhi calculation...');
+    await performInitialBaZhiCalculation(currentUser.uid, birthData);
+    
     showView('landing');
   } else {
     console.error('Failed to save birth info:', result.error);
     alert('Failed to save birth info: ' + result.error + '\n\nPlease check the browser console for more details.');
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Save & Start Consultation';
+    submitBtn.textContent = 'Save & Start';
   }
 }
 
@@ -600,6 +811,56 @@ function handleLanguageSwitch() {
   
   // Refresh chat display with new language
   refreshChatDisplay();
+  
+  // Refresh elemental chart if available
+  if (AppState.elementalData && AppState.currentView === 'landing') {
+    displayElementalChart(AppState.elementalData);
+  }
+  
+  // Update full analysis display if currently showing
+  const analysisTitle = document.getElementById('elementalAnalysisTitle');
+  
+  if (AppState.showingFullAnalysis) {
+    const analysisContent = document.getElementById('analysisContent');
+    const showMoreBtn = document.getElementById('btnShowMore');
+    
+    const fullAnalysis = AppState.currentLanguage === 'EN' 
+      ? AppState.fullBaZhiAnalysis_en 
+      : AppState.fullBaZhiAnalysis_zn;
+    
+    if (fullAnalysis && analysisContent) {
+      // Parse markdown for proper formatting
+      analysisContent.innerHTML = parseMarkdown(fullAnalysis);
+    } else if (!fullAnalysis && analysisContent) {
+      analysisContent.textContent = AppState.currentLanguage === 'EN' 
+        ? 'Translation in progress, please wait...' 
+        : '正在翻译中，请稍候...';
+    }
+    
+    if (showMoreBtn) {
+      showMoreBtn.textContent = AppState.currentLanguage === 'EN' ? 'Show Summary' : '显示摘要';
+    }
+    
+    // Update title for full analysis
+    if (analysisTitle) {
+      analysisTitle.textContent = AppState.currentLanguage === 'EN' 
+        ? 'Complete BaZhi Analysis' 
+        : '完整八字分析';
+    }
+  } else {
+    // Update button text and title when showing summary
+    const showMoreBtn = document.getElementById('btnShowMore');
+    if (showMoreBtn && showMoreBtn.style.display === 'block') {
+      showMoreBtn.textContent = AppState.currentLanguage === 'EN' ? 'Show Full Analysis' : '显示完整分析';
+    }
+    
+    // Update title for summary
+    if (analysisTitle && analysisTitle.style.display === 'block') {
+      analysisTitle.textContent = AppState.currentLanguage === 'EN' 
+        ? 'Your BaZhi Analysis' 
+        : '您的八字分析';
+    }
+  }
 }
 
 function refreshChatDisplay() {
@@ -647,8 +908,7 @@ async function handleSendMessage() {
   document.getElementById('sendMessageBtn').disabled = true;
   
   // Display user message in current language
-  const displayText = AppState.currentLanguage === 'EN' ? message : null; // Will be translated
-  displayMessage(message, 'user');
+  displayMessage(message, 'user', false);
   
   // Clear input
   input.value = '';
@@ -678,11 +938,18 @@ async function handleSendMessage() {
     );
     
     // Store user message with both languages
-    AppState.messageData[AppState.messageData.length - 1] = {
+    AppState.messageData.push({
       type: 'user',
       textEN: message,
       textZN: chineseQuestion
-    };
+    });
+    
+    // Store guru response with both languages
+    AppState.messageData.push({
+      type: 'guru',
+      textEN: englishResponse,
+      textZN: chineseResponse
+    });
     
     // Auto-save to Firebase immediately to preserve chat history
     await saveChatMessage(AppState.currentUser.uid, AppState.currentChatId, {
@@ -692,9 +959,9 @@ async function handleSendMessage() {
       guruResponse_EN: englishResponse
     });
     
-    // Display guru response in current language with both versions stored
+    // Display guru response in current language (don't store again, already stored above)
     const displayResponse = AppState.currentLanguage === 'EN' ? englishResponse : chineseResponse;
-    displayMessage(displayResponse, 'guru', true, englishResponse, chineseResponse);
+    displayMessage(displayResponse, 'guru', false);
     
   } catch (error) {
     hideLoading();
@@ -935,6 +1202,7 @@ showView = function(viewName) {
     setTimeout(() => {
       setupRotatingText();
       setupSessionCardFade();
+      loadAndDisplayBaZhiProfile();
     }, 100);
   }
 };
@@ -963,4 +1231,276 @@ function setupSessionCardFade() {
     }, 2000); // Stay faded for 2 seconds (half of 4 seconds)
     
   }, 4000); // Cycle every 4 seconds
+}
+
+// ============================================
+// Elemental Chart Visualization
+// ============================================
+function handleShowMoreAnalysis() {
+  const summaryElement = document.getElementById('elementSummary');
+  const fullAnalysisElement = document.getElementById('elementFullAnalysis');
+  const analysisContent = document.getElementById('analysisContent');
+  const showMoreBtn = document.getElementById('btnShowMore');
+  const analysisTitle = document.getElementById('elementalAnalysisTitle');
+  
+  if (!AppState.showingFullAnalysis) {
+    // Show full analysis in the current language
+    const fullAnalysis = AppState.currentLanguage === 'EN' 
+      ? AppState.fullBaZhiAnalysis_en 
+      : AppState.fullBaZhiAnalysis_zn;
+    
+    if (fullAnalysis && analysisContent) {
+      // Parse markdown for proper formatting
+      analysisContent.innerHTML = parseMarkdown(fullAnalysis);
+      summaryElement.style.display = 'none';
+      fullAnalysisElement.style.display = 'block';
+      showMoreBtn.textContent = AppState.currentLanguage === 'EN' ? 'Show Summary' : '显示摘要';
+      
+      // Update title for full analysis
+      if (analysisTitle) {
+        analysisTitle.textContent = AppState.currentLanguage === 'EN' 
+          ? 'Complete BaZhi Analysis' 
+          : '完整八字分析';
+      }
+      
+      AppState.showingFullAnalysis = true;
+    } else if (!fullAnalysis && analysisContent) {
+      // If translation not ready yet for EN, show loading message
+      analysisContent.textContent = AppState.currentLanguage === 'EN' 
+        ? 'Translation in progress, please wait...' 
+        : '正在翻译中，请稍候...';
+      summaryElement.style.display = 'none';
+      fullAnalysisElement.style.display = 'block';
+      showMoreBtn.textContent = AppState.currentLanguage === 'EN' ? 'Show Summary' : '显示摘要';
+      
+      // Update title for full analysis
+      if (analysisTitle) {
+        analysisTitle.textContent = AppState.currentLanguage === 'EN' 
+          ? 'Complete BaZhi Analysis' 
+          : '完整八字分析';
+      }
+      
+      AppState.showingFullAnalysis = true;
+    }
+  } else {
+    // Show summary
+    summaryElement.style.display = 'block';
+    fullAnalysisElement.style.display = 'none';
+    showMoreBtn.textContent = AppState.currentLanguage === 'EN' ? 'Show Full Analysis' : '显示完整分析';
+    
+    // Update title for summary
+    if (analysisTitle) {
+      analysisTitle.textContent = AppState.currentLanguage === 'EN' 
+        ? 'Your BaZhi Analysis' 
+        : '您的八字分析';
+    }
+    
+    AppState.showingFullAnalysis = false;
+  }
+}
+
+async function loadAndDisplayBaZhiProfile() {
+  if (!AppState.currentUser) return;
+  
+  const result = await loadBaZhiProfile(AppState.currentUser.uid);
+  
+  if (result.success && result.data.elementalData) {
+    displayElementalChart(result.data.elementalData);
+    
+    // Store full analysis (both versions) and show button if available
+    if (result.data.fullAnalysis_zn) {
+      AppState.fullBaZhiAnalysis_zn = result.data.fullAnalysis_zn;
+    }
+    if (result.data.fullAnalysis_en) {
+      AppState.fullBaZhiAnalysis_en = result.data.fullAnalysis_en;
+    }
+    // Legacy support for old data structure
+    if (result.data.fullAnalysis && !result.data.fullAnalysis_zn) {
+      AppState.fullBaZhiAnalysis_zn = result.data.fullAnalysis;
+    }
+    
+    if (AppState.fullBaZhiAnalysis_zn || AppState.fullBaZhiAnalysis_en) {
+      const showMoreBtn = document.getElementById('btnShowMore');
+      if (showMoreBtn) {
+        showMoreBtn.style.display = 'block';
+      }
+    }
+  }
+}
+
+function displayElementalChart(elementalData) {
+  console.log('[Display Chart] Showing elemental data:', elementalData);
+  
+  // Store in AppState for language switching
+  AppState.elementalData = elementalData;
+  
+  // Show the container
+  const container = document.getElementById('elementalChartContainer');
+  if (container) {
+    container.style.display = 'block';
+  }
+  
+  // Update element counts
+  document.getElementById('fireCount').textContent = elementalData.fire || 0;
+  document.getElementById('earthCount').textContent = elementalData.earth || 0;
+  document.getElementById('metalCount').textContent = elementalData.metal || 0;
+  document.getElementById('waterCount').textContent = elementalData.water || 0;
+  document.getElementById('woodCount').textContent = elementalData.wood || 0;
+  
+  // Update description based on current language
+  const descElement = document.getElementById('elementDescription');
+  if (descElement) {
+    const description = AppState.currentLanguage === 'EN' 
+      ? (elementalData.description_en || elementalData.description || '')
+      : (elementalData.description_zh || elementalData.description || '');
+    if (description) {
+      descElement.innerHTML = `<p>${description}</p>`;
+    }
+  }
+  
+  // Update summary if available based on current language
+  const summaryElement = document.getElementById('elementSummary');
+  const analysisTitle = document.getElementById('elementalAnalysisTitle');
+  
+  if (summaryElement) {
+    const summary = AppState.currentLanguage === 'EN'
+      ? (elementalData.summary_en || elementalData.summary || '')
+      : (elementalData.summary_zh || elementalData.summary || '');
+    if (summary) {
+      summaryElement.innerHTML = `<p>${summary}</p>`;
+      summaryElement.style.display = 'block';
+      
+      // Show and set analysis title
+      if (analysisTitle) {
+        analysisTitle.textContent = AppState.currentLanguage === 'EN' 
+          ? 'Your BaZhi Analysis' 
+          : '您的八字分析';
+        analysisTitle.style.display = 'block';
+      }
+    }
+  }
+  
+  // Draw the circular strength diagram
+  drawElementalCircle(elementalData);
+}
+
+function drawElementalCircle(elementalData) {
+  const canvas = document.getElementById('elementalCanvas');
+  if (!canvas) {
+    console.error('[Draw Circle] Canvas not found');
+    return;
+  }
+  
+  const ctx = canvas.getContext('2d');
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height / 2;
+  const maxRadius = 150;
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Element configuration matching the image
+  const elements = [
+    { name: 'fire', value: elementalData.fire || 0, color: '#d65745', angle: -90, label: '火\nFire' },
+    { name: 'earth', value: elementalData.earth || 0, color: '#8b6f47', angle: -18, label: '土\nEarth' },
+    { name: 'metal', value: elementalData.metal || 0, color: '#a8a8a8', angle: 54, label: '金\nMetal' },
+    { name: 'water', value: elementalData.water || 0, color: '#5b9bd5', angle: 126, label: '水\nWater' },
+    { name: 'wood', value: elementalData.wood || 0, color: '#7fb08e', angle: 198, label: '木\nWood' }
+  ];
+  
+  // Find max value for scaling
+  const maxValue = Math.max(...elements.map(e => e.value), 1);
+  
+  // Draw background circles (grid)
+  ctx.strokeStyle = '#e0e0e0';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, (maxRadius / 4) * i, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  // Draw radial lines
+  elements.forEach(element => {
+    const angleRad = (element.angle * Math.PI) / 180;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(
+      centerX + Math.cos(angleRad) * maxRadius,
+      centerY + Math.sin(angleRad) * maxRadius
+    );
+    ctx.stroke();
+  });
+  
+  // Draw the elemental strength polygon
+  ctx.beginPath();
+  elements.forEach((element, index) => {
+    const angleRad = (element.angle * Math.PI) / 180;
+    const radius = (element.value / maxValue) * maxRadius;
+    const x = centerX + Math.cos(angleRad) * radius;
+    const y = centerY + Math.sin(angleRad) * radius;
+    
+    if (index === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  });
+  ctx.closePath();
+  
+  // Fill with gradient
+  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, maxRadius);
+  gradient.addColorStop(0, 'rgba(212, 175, 55, 0.4)');
+  gradient.addColorStop(1, 'rgba(212, 175, 55, 0.1)');
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  
+  // Stroke the polygon
+  ctx.strokeStyle = '#d4af37';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  // Draw element points and labels
+  elements.forEach(element => {
+    const angleRad = (element.angle * Math.PI) / 180;
+    const radius = (element.value / maxValue) * maxRadius;
+    const x = centerX + Math.cos(angleRad) * radius;
+    const y = centerY + Math.sin(angleRad) * radius;
+    
+    // Draw point
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = element.color;
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Draw label at outer edge
+    const labelRadius = maxRadius + 30;
+    const labelX = centerX + Math.cos(angleRad) * labelRadius;
+    const labelY = centerY + Math.sin(angleRad) * labelRadius;
+    
+    ctx.fillStyle = element.color;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    const lines = element.label.split('\n');
+    lines.forEach((line, i) => {
+      // Chinese characters use Ma Shan Zheng, English uses Times New Roman
+      if (i === 0) {
+        ctx.font = "bold 24px 'Ma Shan Zheng', cursive";
+      } else {
+        ctx.font = 'bold 14px Times New Roman, Times, serif';
+      }
+      ctx.fillText(line, labelX, labelY + (i - 0.5) * 16);
+    });
+  });
+  
+  // Draw center symbol
+  ctx.fillStyle = '#d4af37';
+  ctx.font = "bold 24px 'Ma Shan Zheng', cursive";
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('宁', centerX, centerY);
 }
