@@ -66,17 +66,8 @@
           <aside class="sidebar web-only">
               <nav class="session-nav">
                   <h3>Consultations</h3>
-                  <div class="session-list">
-                      <div class="session-card-mini" data-chat-id="chat1">
-                          <span>Consultation 1</span>
-                          <small>Date...</small>
-                      </div>
-                      <div class="session-card-mini" data-chat-id="chat2">
-                          <span>Consultation 2</span>
-                          <small>Date...</small>
-                      </div>
-                      <!-- Add New Session Button -->
-                      <!-- <button class="btn-new-session">+ New Consultation</button> -->
+                  <div class="session-list" id="sessionList">
+                      <!-- Sessions will be dynamically generated here -->
                   </div>
               </nav>
           </aside>
@@ -94,19 +85,16 @@
                       </div>
 
                       <!-- Mobile Nav Buttons (Mobile Only) -->
-                      <div class="mobile-nav-buttons mobile-only">
-                          <button class="btn-session-mobile" data-chat-id="chat1">
-                              Consultation 1
-                          </button>
-                          <button class="btn-session-mobile" data-chat-id="chat2">
-                              Consultation 2
-                          </button>
-                          <!-- <button class="btn-new-session-mobile">+ New Consultation</button> -->
+                      <div class="mobile-nav-buttons mobile-only" id="mobileSessionList">
+                          <!-- Mobile sessions will be dynamically generated here -->
                       </div>
 
                       <div class="elemental-chart-container" id="elementalChartContainer">
                           <h3 class="chart-title">Your Elemental Profile</h3>
                           <div class="elemental-chart">
+                              <button class="info-icon" id="elementInfoBtn" title="Learn about Five Elements">
+                                  i
+                              </button>
                               <canvas id="elementalCanvas" width="400" height="400"></canvas>
                               <div class="element-labels">
                                   <div class="element-label fire" data-element="fire">
@@ -149,9 +137,23 @@
                           <button class="btn-show-more" id="btnShowMore" style="display: none;">Show Full Analysis</button>                      
                         </div>
 
+                        <!-- Five Elements Info Popup -->
+                        <div class="element-info-popup" id="elementInfoPopup">
+                            <div class="popup-content">
+                                <h3>The Five Elements Cycle</h3>
+                                <div class="popup-body">
+                                    <img src="./src/5elements.png" alt="Five Elements Cycle" class="elements-diagram">
+                                    <div class="elements-explanation">
+                                        <p>The Five Elements theory describes the interactions and relationships between fundamental energies in nature and how they influence your BaZhi chart.</p>
+                                    </div>
+                                </div>
+                                <button class="btn-close-popup" id="closePopupBtn">Close</button>
+                            </div>
+                        </div>
+
                         <!-- Support Card -->
                         <div class="support-card">
-                            <h3 class="support-title">Enjoying the Guru? <br> Buy me a coffee!</h3>
+                            <h3 class="support-title">Enjoying the Guru? <br> Buy me a coffee! ☕️</h3>
                             <div class="support-image-wrapper">
                                 <img src="./src/paynow.jpeg" alt="PayNow QR Code" class="support-qr">
                             </div>
@@ -172,6 +174,46 @@
                   
                   <!-- INPUT AREA (Now inside chatView) -->
                   <div class="input-area-wrapper">
+                      <!-- SUGGESTED QUESTIONS -->
+                      <div class="suggested-questions-container">
+                          <div class="suggested-questions-scroll">
+                              <button class="suggestion-bubble" data-question="Explain my BaZhi in plain language">
+                                  Explain my BaZhi in plain language
+                              </button>
+                              <button class="suggestion-bubble" data-question="What is my luck for 2026?">
+                                  What is my luck for 2026?
+                              </button>
+                              <button class="suggestion-bubble" data-question="What are my strengths and weaknesses?">
+                                  What are my strengths and weaknesses?
+                              </button>
+                              <button class="suggestion-bubble" data-question="Describe me and my personality?">
+                                  Describe me and my personality?
+                              </button>
+                              <button class="suggestion-bubble" data-question="What career path suits me best?">
+                                  What career path suits me best?
+                              </button>
+                              <button class="suggestion-bubble" data-question="How can I improve my relationships?">
+                                  How can I improve my relationships?
+                              </button>
+                              <!-- Duplicate for seamless loop -->
+                              <button class="suggestion-bubble" data-question="Explain my BaZhi in plain language">
+                                  Explain my BaZhi in plain language
+                              </button>
+                              <button class="suggestion-bubble" data-question="What is my luck for 2026?">
+                                  What is my luck for 2026?
+                              </button>
+                              <button class="suggestion-bubble" data-question="What are my strengths and weaknesses?">
+                                  What are my strengths and weaknesses?
+                              </button>
+                              <button class="suggestion-bubble" data-question="Describe me and my personality?">
+                                  Describe me and my personality?
+                              </button>
+                              <button class="suggestion-bubble" data-question="What career path suits me best?">
+                                  What career path suits me best?
+                              </button>
+                          </div>
+                      </div>
+                      
                       <div class="input-area">
                           <input 
                             type="text" 

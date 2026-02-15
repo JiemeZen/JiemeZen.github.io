@@ -226,7 +226,8 @@ const AppState = {
   elementalData: null, // Store elemental chart data for language switching
   fullBaZhiAnalysis_zn: null, // Store Chinese version of full BaZhi analysis
   fullBaZhiAnalysis_en: null, // Store English version of full BaZhi analysis
-  showingFullAnalysis: false // Track if showing full analysis
+  showingFullAnalysis: false, // Track if showing full analysis
+  userSessions: [] // Track user's chat sessions [{ chatId: 'chat1', hasMessages: false, createdAt: timestamp }]
 };
 
 // ============================================
@@ -419,6 +420,9 @@ function setupAuthStateListener() {
       
       if (hasBirthInfo) {
         // User has completed setup
+        // Load user sessions
+        await loadUserSessions();
+        
         if (requestedView === 'chat' || requestedView === 'landing') {
           // Honor the hash if it's valid for this state
           console.log('[Auth State] Navigating to requested view:', requestedView);
@@ -513,28 +517,8 @@ function setupEventListeners() {
   const langSwitch = document.getElementById('langSwitchBtn');
   if(langSwitch) langSwitch.addEventListener('click', handleLanguageSwitch);
   
-  // App Shell - Session Navigation (Sidebar & Mobile)
-  const sessionButtons = document.querySelectorAll('.session-card-mini, .btn-session-mobile');
-  sessionButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Highlight active session in sidebar
-        document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
-        if(btn.classList.contains('session-card-mini')) btn.classList.add('active'); // Only works if clicking sidebar link
-        
-        const chatId = btn.getAttribute('data-chat-id');
-        handleChatSessionClick(chatId);
-    });
-  });
-  
-  // New Session Buttons
-  document.querySelectorAll('.btn-new-session, .btn-new-session-mobile').forEach(btn => {
-      btn.addEventListener('click', () => {
-          if(confirm("Start a new consultation session?")) {
-              // Logic to create new session ID or clear current
-              handleChatSessionClick('new'); // Placeholder logic
-          }
-      });
-  });
+  // Initialize session list (will be populated dynamically)
+  renderSessionList();
   
   // Chat View - Home Button
   const homeBtn = document.getElementById('homeBtn');
@@ -554,10 +538,54 @@ function setupEventListeners() {
       });
   }
   
+  // Suggested Questions - Click handler
+  const suggestionBubbles = document.querySelectorAll('.suggestion-bubble');
+  suggestionBubbles.forEach(bubble => {
+    bubble.addEventListener('click', () => {
+      const question = bubble.getAttribute('data-question');
+      const messageInput = document.getElementById('messageInput');
+      if (messageInput && question) {
+        messageInput.value = question;
+        messageInput.focus();
+      }
+    });
+  });
+  
   // Elemental Chart - Show More Button
   const showMoreBtn = document.getElementById('btnShowMore');
   if(showMoreBtn) {
     showMoreBtn.addEventListener('click', handleShowMoreAnalysis);
+  }
+  
+  // Elements Info Popup
+  const infoBtn = document.getElementById('elementInfoBtn');
+  const closePopupBtn = document.getElementById('closePopupBtn');
+  const popup = document.getElementById('elementInfoPopup');
+  
+  if (infoBtn) {
+    infoBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (popup) {
+        popup.classList.add('active');
+      }
+    });
+  }
+  
+  if (closePopupBtn) {
+    closePopupBtn.addEventListener('click', () => {
+      if (popup) {
+        popup.classList.remove('active');
+      }
+    });
+  }
+  
+  // Close popup when clicking outside
+  if (popup) {
+    popup.addEventListener('click', (e) => {
+      if (e.target === popup) {
+        popup.classList.remove('active');
+      }
+    });
   }
 }
 
@@ -716,19 +744,49 @@ async function handleBirthInfoSubmit(event) {
   // Disable submit button to prevent double-submission
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Calculating your BaZhi...';
+  
+  // Rotating loading messages
+  const loadingMessages = [
+    'Calculating your BaZhi...',
+    'Charting your elements...',
+    'Reading heavenly stems...',
+    'Analyzing earthly branches...',
+    'Checking the cosmics...',
+    'Mapping your destiny...'
+  ];
+  let messageIndex = 0;
+  submitBtn.textContent = loadingMessages[0];
+  
+  // Cycle through messages every 1 second
+  const loadingInterval = setInterval(() => {
+    messageIndex = (messageIndex + 1) % loadingMessages.length;
+    submitBtn.textContent = loadingMessages[messageIndex];
+  }, 1000);
   
   const result = await saveBirthInfo(currentUser.uid, birthData);
   
   if (result.success) {
     AppState.birthInfo = birthData;
     
-    // Perform BaZhi calculation immediately after saving birth info
-    console.log('[BirthInfo] Triggering BaZhi calculation...');
-    await performInitialBaZhiCalculation(currentUser.uid, birthData);
+    // Check if BaZhi profile already exists
+    const profileResult = await loadBaZhiProfile(currentUser.uid);
+    
+    if (!profileResult.success || !profileResult.data || !profileResult.data.elementalData) {
+      // No existing profile, perform initial calculation
+      console.log('[BirthInfo] No existing BaZhi profile found. Triggering calculation...');
+      await performInitialBaZhiCalculation(currentUser.uid, birthData);
+    } else {
+      console.log('[BirthInfo] Existing BaZhi profile found. Skipping calculation.');
+    }
+    
+    // Clear the loading interval
+    clearInterval(loadingInterval);
     
     showView('landing');
   } else {
+    // Clear the loading interval
+    clearInterval(loadingInterval);
+    
     console.error('Failed to save birth info:', result.error);
     alert('Failed to save birth info: ' + result.error + '\n\nPlease check the browser console for more details.');
     submitBtn.disabled = false;
@@ -753,22 +811,170 @@ async function loadUserBirthInfo(userId) {
 }
 
 // ============================================
+// Session Management Functions
+// ============================================
+async function loadUserSessions() {
+  if (!AppState.currentUser) return;
+  
+  try {
+    const doc = await db.collection('users').doc(AppState.currentUser.uid).get();
+    
+    if (doc.exists) {
+      const data = doc.data();
+      const chatSessions = data.chatSessions || {};
+      
+      // Build session list from Firebase data
+      AppState.userSessions = Object.keys(chatSessions).map(chatId => ({
+        chatId: chatId,
+        hasMessages: chatSessions[chatId] && chatSessions[chatId].length > 0,
+        createdAt: chatSessions[chatId] && chatSessions[chatId].length > 0 
+          ? chatSessions[chatId][0].timestamp 
+          : new Date().toISOString()
+      }));
+      
+      // Sort sessions by creation time
+      AppState.userSessions.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      
+      console.log('Loaded user sessions:', AppState.userSessions);
+    }
+    
+    renderSessionList();
+  } catch (error) {
+    console.error('Error loading user sessions:', error);
+  }
+}
+
+function renderSessionList() {
+  const sessionListDesktop = document.getElementById('sessionList');
+  const sessionListMobile = document.getElementById('mobileSessionList');
+  
+  if (!sessionListDesktop || !sessionListMobile) return;
+  
+  // Clear existing content
+  sessionListDesktop.innerHTML = '';
+  sessionListMobile.innerHTML = '';
+  
+  // If no sessions exist, show the initial placeholder
+  if (AppState.userSessions.length === 0) {
+    renderPlaceholderSession(sessionListDesktop, sessionListMobile);
+    return;
+  }
+  
+  // Render existing sessions
+  AppState.userSessions.forEach((session, index) => {
+    renderSession(session, index + 1, sessionListDesktop, sessionListMobile);
+  });
+  
+  // Always add a placeholder for the next session
+  renderPlaceholderSession(sessionListDesktop, sessionListMobile);
+}
+
+function renderSession(session, sessionNumber, desktopContainer, mobileContainer) {
+  // Desktop version
+  const desktopCard = document.createElement('div');
+  desktopCard.className = 'session-card-mini';
+  desktopCard.setAttribute('data-chat-id', session.chatId);
+  
+  const sessionName = document.createElement('span');
+  sessionName.textContent = `Session ${sessionNumber}`;
+  
+  const sessionDate = document.createElement('small');
+  const date = new Date(session.createdAt);
+  sessionDate.textContent = date.toLocaleDateString();
+  
+  desktopCard.appendChild(sessionName);
+  desktopCard.appendChild(sessionDate);
+  
+  desktopCard.addEventListener('click', () => {
+    document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
+    desktopCard.classList.add('active');
+    handleChatSessionClick(session.chatId);
+  });
+  
+  desktopContainer.appendChild(desktopCard);
+  
+  // Mobile version
+  const mobileBtn = document.createElement('button');
+  mobileBtn.className = 'btn-session-mobile';
+  mobileBtn.setAttribute('data-chat-id', session.chatId);
+  mobileBtn.textContent = `Session ${sessionNumber}`;
+  
+  mobileBtn.addEventListener('click', () => {
+    handleChatSessionClick(session.chatId);
+  });
+  
+  mobileContainer.appendChild(mobileBtn);
+}
+
+function renderPlaceholderSession(desktopContainer, mobileContainer) {
+  const nextSessionNumber = AppState.userSessions.length + 1;
+  const placeholderText = AppState.userSessions.length === 0 
+    ? 'Start Consultation' 
+    : '+ New Session';
+  
+  // Desktop placeholder
+  const desktopCard = document.createElement('div');
+  desktopCard.className = 'session-card-mini placeholder';
+  desktopCard.setAttribute('data-chat-id', 'new');
+  
+  const sessionName = document.createElement('span');
+  sessionName.textContent = placeholderText;
+  
+  desktopCard.appendChild(sessionName);
+  
+  desktopCard.addEventListener('click', () => {
+    createNewSession();
+  });
+  
+  desktopContainer.appendChild(desktopCard);
+  
+  // Mobile placeholder
+  const mobileBtn = document.createElement('button');
+  mobileBtn.className = 'btn-session-mobile placeholder';
+  mobileBtn.setAttribute('data-chat-id', 'new');
+  mobileBtn.textContent = placeholderText;
+  
+  mobileBtn.addEventListener('click', () => {
+    createNewSession();
+  });
+  
+  mobileContainer.appendChild(mobileBtn);
+}
+
+async function createNewSession() {
+  // Generate new chat ID
+  const newChatId = 'chat' + (AppState.userSessions.length + 1);
+  
+  // Add to user sessions
+  AppState.userSessions.push({
+    chatId: newChatId,
+    hasMessages: false,
+    createdAt: new Date().toISOString()
+  });
+  
+  // Re-render session list
+  renderSessionList();
+  
+  // Navigate to the new session
+  handleChatSessionClick(newChatId);
+}
+
+function markSessionAsActive(chatId) {
+  // Find the session and mark it as having messages
+  const session = AppState.userSessions.find(s => s.chatId === chatId);
+  if (session && !session.hasMessages) {
+    session.hasMessages = true;
+    renderSessionList();
+  }
+}
+
+// ============================================
 // Landing Page Handlers
 // ============================================
 async function handleChatSessionClick(chatId) {
   console.log('Loading chat session:', chatId);
   
-  if (chatId === 'new') {
-      // Create a temporary ID or handle new session logic
-      chatId = 'chat' + (Math.floor(Math.random() * 1000));
-      AppState.chineseConversationHistory = [];
-      document.getElementById('chatMessages').innerHTML = '';
-      displaySystemMessage('Starting a new consultation...');
-      AppState.currentChatId = chatId;
-      showView('chat');
-      return;
-  }
-
+  // Set current chat ID
   AppState.currentChatId = chatId;
   AppState.chineseConversationHistory = [];
   
@@ -791,6 +997,9 @@ function handleHomeClick() {
     // Reset current chat ID and message data
     AppState.currentChatId = null;
     AppState.messageData = [];
+    
+    // Reload sessions to reflect any changes
+    loadUserSessions();
     
     // Show landing view
     showView('landing');
@@ -976,6 +1185,9 @@ async function handleSendMessage() {
       guruResponse_ZH: chineseResponse,
       guruResponse_EN: englishResponse
     });
+    
+    // Mark session as active (has messages)
+    markSessionAsActive(AppState.currentChatId);
     
     // Display guru response in current language (don't store again, already stored above)
     const displayResponse = AppState.currentLanguage === 'EN' ? englishResponse : chineseResponse;

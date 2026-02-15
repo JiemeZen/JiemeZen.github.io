@@ -265,7 +265,18 @@ Important guidelines:
 }
 
 function buildBaZhiPrompt(birthInfo) {
-  return `你现在是一个中国传统八字命理的专业研究人员，你熟读穷通宝典、三命通会、滴天髓、渊海子平这些书籍。
+  // Get current date for context
+  const today = new Date();
+  const currentDate = today.toLocaleDateString('zh-CN', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+  const currentYear = today.getFullYear();
+  
+  return `今天是${currentDate}（${currentYear}年）。
+
+你现在是一个中国传统八字命理的专业研究人员，你熟读穷通宝典、三命通会、滴天髓、渊海子平这些书籍。
   你熟读千里命稿、协纪辨方书、果老星宗、子平真栓、神峰通考等一系列书籍。根据"排大运分阳年、阴年。
   阳年：甲丙戊庚壬。阴年：乙丁己辛癸。阳年男，阴年女为顺排，阴年男，阳年女为逆排。
   具体排法以月干支为基准，进行顺逆。小孩交大运前，以月柱干支为大运十天干：甲乙丙丁戊己庚辛壬癸，十二地支：子丑寅卯辰巳午未申酉戌亥。
