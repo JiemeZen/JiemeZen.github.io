@@ -819,6 +819,8 @@ function handleLanguageSwitch() {
   
   // Update full analysis display if currently showing
   const analysisTitle = document.getElementById('elementalAnalysisTitle');
+  const summaryElement = document.getElementById('elementSummary');
+  const fullAnalysisElement = document.getElementById('elementFullAnalysis');
   
   if (AppState.showingFullAnalysis) {
     const analysisContent = document.getElementById('analysisContent');
@@ -844,8 +846,16 @@ function handleLanguageSwitch() {
     // Update title for full analysis
     if (analysisTitle) {
       analysisTitle.textContent = AppState.currentLanguage === 'EN' 
-        ? 'Complete BaZhi Analysis' 
-        : '完整八字分析';
+        ? 'Full Analysis' 
+        : '完整分析';
+    }
+    
+    // Ensure summary is hidden and full analysis is shown
+    if (summaryElement) {
+      summaryElement.style.display = 'none';
+    }
+    if (fullAnalysisElement) {
+      fullAnalysisElement.style.display = 'block';
     }
   } else {
     // Update button text and title when showing summary
@@ -857,8 +867,16 @@ function handleLanguageSwitch() {
     // Update title for summary
     if (analysisTitle && analysisTitle.style.display === 'block') {
       analysisTitle.textContent = AppState.currentLanguage === 'EN' 
-        ? 'Your BaZhi Analysis' 
-        : '您的八字分析';
+      ? 'Summarized Analysis' 
+      : '摘要分析';
+    }
+    
+    // Ensure full analysis is hidden and summary is shown
+    if (fullAnalysisElement) {
+      fullAnalysisElement.style.display = 'none';
+    }
+    if (summaryElement) {
+      summaryElement.style.display = 'block';
     }
   }
 }
@@ -1259,8 +1277,8 @@ function handleShowMoreAnalysis() {
       // Update title for full analysis
       if (analysisTitle) {
         analysisTitle.textContent = AppState.currentLanguage === 'EN' 
-          ? 'Complete BaZhi Analysis' 
-          : '完整八字分析';
+          ? 'Full Analysis' 
+          : '完整分析';
       }
       
       AppState.showingFullAnalysis = true;
@@ -1276,8 +1294,8 @@ function handleShowMoreAnalysis() {
       // Update title for full analysis
       if (analysisTitle) {
         analysisTitle.textContent = AppState.currentLanguage === 'EN' 
-          ? 'Complete BaZhi Analysis' 
-          : '完整八字分析';
+          ? 'Full Analysis' 
+          : '完整分析';
       }
       
       AppState.showingFullAnalysis = true;
@@ -1291,8 +1309,8 @@ function handleShowMoreAnalysis() {
     // Update title for summary
     if (analysisTitle) {
       analysisTitle.textContent = AppState.currentLanguage === 'EN' 
-        ? 'Your BaZhi Analysis' 
-        : '您的八字分析';
+        ? 'Summarized Analysis' 
+        : '摘要分析';
     }
     
     AppState.showingFullAnalysis = false;
@@ -1373,8 +1391,8 @@ function displayElementalChart(elementalData) {
       // Show and set analysis title
       if (analysisTitle) {
         analysisTitle.textContent = AppState.currentLanguage === 'EN' 
-          ? 'Your BaZhi Analysis' 
-          : '您的八字分析';
+          ? 'Summarized Analysis' 
+          : '摘要分析';
         analysisTitle.style.display = 'block';
       }
     }

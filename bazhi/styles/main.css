@@ -1922,11 +1922,57 @@ body.view-chat .seal {
   }
 }
 
+/* ===================================== */
+/*     SUPPORT CARD STYLES               */
+/* ===================================== */
+
+.support-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(250, 247, 242, 0.9));
+  border-radius: 20px;
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 900px;
+  box-shadow: 0 8px 32px var(--shadow-light);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+}
+
+.support-title {
+  color: var(--ink-black);
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+.support-image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.support-qr {
+  max-width: 250px;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--shadow-medium);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+}
+
+.support-description {
+  color: var(--charcoal);
+  font-size: 1rem;
+  margin-top: 15px;
+  font-style: italic;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .elemental-chart-container {
     padding: 20px;
-    margin: 20px 10px;
+    /* margin: 20px 10px; */
     max-width: 600px;
   }
   
