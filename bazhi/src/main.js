@@ -227,7 +227,8 @@ const AppState = {
   fullBaZhiAnalysis_zn: null, // Store Chinese version of full BaZhi analysis
   fullBaZhiAnalysis_en: null, // Store English version of full BaZhi analysis
   showingFullAnalysis: false, // Track if showing full analysis
-  userSessions: [] // Track user's chat sessions [{ chatId: 'chat1', hasMessages: false, createdAt: timestamp }]
+  userSessions: [], // Track user's chat sessions [{ chatId: 'chat1', hasMessages: false, createdAt: timestamp }]
+  chartLoadingInterval: null // Track chart loading message interval
 };
 
 // ============================================
@@ -743,54 +744,23 @@ async function handleBirthInfoSubmit(event) {
   
   // Disable submit button to prevent double-submission
   const submitBtn = event.target.querySelector('button[type="submit"]');
+  const originalText = submitBtn.textContent;
   submitBtn.disabled = true;
-  
-  // Rotating loading messages
-  const loadingMessages = [
-    'Calculating your BaZhi...',
-    'Charting your elements...',
-    'Reading heavenly stems...',
-    'Analyzing earthly branches...',
-    'Checking the cosmics...',
-    'Mapping your destiny...'
-  ];
-  let messageIndex = 0;
-  submitBtn.textContent = loadingMessages[0];
-  
-  // Cycle through messages every 1 second
-  const loadingInterval = setInterval(() => {
-    messageIndex = (messageIndex + 1) % loadingMessages.length;
-    submitBtn.textContent = loadingMessages[messageIndex];
-  }, 1000);
+  submitBtn.textContent = 'Saving...';
   
   const result = await saveBirthInfo(currentUser.uid, birthData);
   
   if (result.success) {
     AppState.birthInfo = birthData;
     
-    // Check if BaZhi profile already exists
-    const profileResult = await loadBaZhiProfile(currentUser.uid);
-    
-    if (!profileResult.success || !profileResult.data || !profileResult.data.elementalData) {
-      // No existing profile, perform initial calculation
-      console.log('[BirthInfo] No existing BaZhi profile found. Triggering calculation...');
-      await performInitialBaZhiCalculation(currentUser.uid, birthData);
-    } else {
-      console.log('[BirthInfo] Existing BaZhi profile found. Skipping calculation.');
-    }
-    
-    // Clear the loading interval
-    clearInterval(loadingInterval);
-    
+    // Navigate to landing page immediately
+    // The loading animation will happen on the landing page
     showView('landing');
   } else {
-    // Clear the loading interval
-    clearInterval(loadingInterval);
-    
     console.error('Failed to save birth info:', result.error);
     alert('Failed to save birth info: ' + result.error + '\n\nPlease check the browser console for more details.');
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Save & Start';
+    submitBtn.textContent = originalText;
   }
 }
 
@@ -1466,6 +1436,76 @@ function setupSessionCardFade() {
 // ============================================
 // Elemental Chart Visualization
 // ============================================
+function restoreChartHTML() {
+  const container = document.getElementById('elementalChartContainer');
+  if (!container) return;
+  
+  container.innerHTML = `
+    <h3 class="chart-title">Your Elemental Profile</h3>
+    <div class="elemental-chart">
+        <button class="info-icon" id="elementInfoBtn" title="Learn about Five Elements">
+            i
+        </button>
+        <canvas id="elementalCanvas" width="400" height="400"></canvas>
+        <div class="element-labels">
+            <div class="element-label fire" data-element="fire">
+                <span class="element-icon">火</span>
+                <span class="element-name">Fire</span>
+                <span class="element-count" id="fireCount">0</span>
+            </div>
+            <div class="element-label earth" data-element="earth">
+                <span class="element-icon">土</span>
+                <span class="element-name">Earth</span>
+                <span class="element-count" id="earthCount">0</span>
+            </div>
+            <div class="element-label metal" data-element="metal">
+                <span class="element-icon">金</span>
+                <span class="element-name">Metal</span>
+                <span class="element-count" id="metalCount">0</span>
+            </div>
+            <div class="element-label water" data-element="water">
+                <span class="element-icon">水</span>
+                <span class="element-name">Water</span>
+                <span class="element-count" id="waterCount">0</span>
+            </div>
+            <div class="element-label wood" data-element="wood">
+                <span class="element-icon">木</span>
+                <span class="element-name">Wood</span>
+                <span class="element-count" id="woodCount">0</span>
+            </div>
+        </div>
+    </div>
+    <div class="element-description" id="elementDescription">
+        <p class="loading-text">Calculating your elemental balance...</p>
+    </div>
+    <h3 class="chart-title" id="elementalAnalysisTitle" style="display: none; padding-top: 20px;">Your BaZhi Analysis</h3>
+    <div class="element-summary" id="elementSummary" style="display: none;">
+        <p class="loading-text">Loading analysis...</p>
+    </div>                          
+    <div class="element-full-analysis" id="elementFullAnalysis" style="display: none;">
+        <div class="analysis-content" id="analysisContent"></div>
+    </div>
+    <button class="btn-show-more" id="btnShowMore" style="display: none;">Show Full Analysis</button>
+  `;
+  
+  // Re-attach event listeners that were lost when HTML was replaced
+  const infoBtn = document.getElementById('elementInfoBtn');
+  const popup = document.getElementById('elementInfoPopup');
+  
+  if (infoBtn && popup) {
+    infoBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      popup.classList.add('active');
+    });
+  }
+  
+  // Re-attach Show More button listener
+  const showMoreBtn = document.getElementById('btnShowMore');
+  if (showMoreBtn) {
+    showMoreBtn.addEventListener('click', handleShowMoreAnalysis);
+  }
+}
+
 function handleShowMoreAnalysis() {
   const summaryElement = document.getElementById('elementSummary');
   const fullAnalysisElement = document.getElementById('elementFullAnalysis');
@@ -1535,6 +1575,7 @@ async function loadAndDisplayBaZhiProfile() {
   const result = await loadBaZhiProfile(AppState.currentUser.uid);
   
   if (result.success && result.data.elementalData) {
+    // Profile exists, display it
     displayElementalChart(result.data.elementalData);
     
     // Store full analysis (both versions) and show button if available
@@ -1555,6 +1596,130 @@ async function loadAndDisplayBaZhiProfile() {
         showMoreBtn.style.display = 'block';
       }
     }
+  } else {
+    // Profile doesn't exist or is incomplete, generate it
+    console.log('[loadAndDisplayBaZhiProfile] Profile missing or incomplete, generating...');
+    
+    // Check if birth info is available
+    if (!AppState.birthInfo) {
+      // Try to load birth info
+      const hasBirthInfo = await loadUserBirthInfo(AppState.currentUser.uid);
+      if (!hasBirthInfo) {
+        console.error('[loadAndDisplayBaZhiProfile] No birth info available');
+        return;
+      }
+    }
+    
+    // Show loading message with compass animation
+    const container = document.getElementById('elementalChartContainer');
+    if (container) {
+      // Create loading container
+      const loadingDiv = document.createElement('div');
+      loadingDiv.style.cssText = 'text-align: center; padding: 40px; color: var(--stone-gray);';
+      
+      // Create compass
+      const compassContainer = document.createElement('div');
+      compassContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; margin-bottom: 20px;';
+      
+      const compass = document.createElement('div');
+      compass.id = 'chartLoadingCompass';
+      compass.style.cssText = `
+        width: 50px;
+        height: 50px;
+        border: 4px solid var(--cherry-blossom);
+        border-top-color: var(--gold);
+        border-radius: 50%;
+        animation: compassCalibrate 2s ease-in-out infinite;
+        position: relative;
+      `;
+      
+      // Add compass needle
+      const needle = document.createElement('div');
+      needle.style.cssText = `
+        position: absolute;
+        width: 3px;
+        height: 20px;
+        background: var(--gold);
+        top: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        transform-origin: center 22px;
+      `;
+      
+      compass.appendChild(needle);
+      compassContainer.appendChild(compass);
+      
+      // Create message text
+      const messageText = document.createElement('p');
+      messageText.id = 'chartLoadingMessage';
+      messageText.style.cssText = 'font-size: 1.1em; margin: 10px 0; min-height: 30px;';
+      
+      const subText = document.createElement('p');
+      subText.style.cssText = 'font-size: 0.9em; margin-top: 10px; opacity: 0.7;';
+      subText.textContent = 'This may take a moment';
+      
+      loadingDiv.appendChild(compassContainer);
+      loadingDiv.appendChild(messageText);
+      loadingDiv.appendChild(subText);
+      
+      container.innerHTML = '';
+      container.appendChild(loadingDiv);
+      container.style.display = 'block';
+      
+      // Cycle through loading messages
+      const loadingMessages = [
+        'Calculating your BaZhi...',
+        'Charting your elements...',
+        'Reading heavenly stems...',
+        'Analyzing earthly branches...',
+        'Checking the cosmics...',
+        'Mapping your destiny...'
+      ];
+      let messageIndex = 0;
+      messageText.textContent = loadingMessages[0];
+      
+      // Store interval in AppState so we can clear it later
+      AppState.chartLoadingInterval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        messageText.textContent = loadingMessages[messageIndex];
+      }, 1000);
+    }
+    
+    // Generate the profile
+    await performInitialBaZhiCalculation(AppState.currentUser.uid, AppState.birthInfo);
+    
+    // Clear the loading interval
+    if (AppState.chartLoadingInterval) {
+      clearInterval(AppState.chartLoadingInterval);
+      AppState.chartLoadingInterval = null;
+    }
+    
+    // Restore the chart HTML structure
+    restoreChartHTML();
+    
+    // Load and display the newly generated profile
+    const newResult = await loadBaZhiProfile(AppState.currentUser.uid);
+    if (newResult.success && newResult.data.elementalData) {
+      displayElementalChart(newResult.data.elementalData);
+      
+      // Store full analysis
+      if (newResult.data.fullAnalysis_zn) {
+        AppState.fullBaZhiAnalysis_zn = newResult.data.fullAnalysis_zn;
+      }
+      if (newResult.data.fullAnalysis_en) {
+        AppState.fullBaZhiAnalysis_en = newResult.data.fullAnalysis_en;
+      }
+      if (newResult.data.fullAnalysis && !newResult.data.fullAnalysis_zn) {
+        AppState.fullBaZhiAnalysis_zn = newResult.data.fullAnalysis;
+      }
+      
+      if (AppState.fullBaZhiAnalysis_zn || AppState.fullBaZhiAnalysis_en) {
+        const showMoreBtn = document.getElementById('btnShowMore');
+        if (showMoreBtn) {
+          showMoreBtn.style.display = 'block';
+        }
+      }
+    }
   }
 }
 
@@ -1570,12 +1735,23 @@ function displayElementalChart(elementalData) {
     container.style.display = 'block';
   }
   
-  // Update element counts
-  document.getElementById('fireCount').textContent = elementalData.fire || 0;
-  document.getElementById('earthCount').textContent = elementalData.earth || 0;
-  document.getElementById('metalCount').textContent = elementalData.metal || 0;
-  document.getElementById('waterCount').textContent = elementalData.water || 0;
-  document.getElementById('woodCount').textContent = elementalData.wood || 0;
+  // Update element counts - check if elements exist first
+  const fireCount = document.getElementById('fireCount');
+  const earthCount = document.getElementById('earthCount');
+  const metalCount = document.getElementById('metalCount');
+  const waterCount = document.getElementById('waterCount');
+  const woodCount = document.getElementById('woodCount');
+  
+  if (!fireCount || !earthCount || !metalCount || !waterCount || !woodCount) {
+    console.warn('[Display Chart] Chart elements not found in DOM, skipping display');
+    return;
+  }
+  
+  fireCount.textContent = elementalData.fire || 0;
+  earthCount.textContent = elementalData.earth || 0;
+  metalCount.textContent = elementalData.metal || 0;
+  waterCount.textContent = elementalData.water || 0;
+  woodCount.textContent = elementalData.wood || 0;
   
   // Update description based on current language
   const descElement = document.getElementById('elementDescription');
