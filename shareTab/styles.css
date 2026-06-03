@@ -1,0 +1,103 @@
+/* ============================================
+   ShareTab — Custom Styles
+   ============================================ */
+
+/* Dark mode transitions */
+body, .bg-white, .dark\:bg-dark-card {
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Loading spinner */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Toast animation */
+#toast {
+    animation: slideIn 0.3s ease;
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Modal animation */
+.modal-content {
+    animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+    from { transform: translateY(20px) scale(0.97); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Mobile bottom sheet modal */
+@media (max-width: 639px) {
+    #modal-add-expense .modal-content {
+        animation: sheetUp 0.25s ease;
+    }
+    @keyframes sheetUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+}
+
+/* Expense card hover */
+.expense-card {
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.expense-card:active {
+    transform: scale(0.98);
+}
+
+/* Type button selected state */
+.type-btn.border-primary {
+    background: rgba(91, 197, 167, 0.1);
+    border-color: #5BC5A7;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+/* Tab transitions */
+.group-tab {
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+/* Chip member selection */
+#expense-split-members label {
+    transition: all 0.1s ease;
+}
+#expense-split-members label:active {
+    transform: scale(0.95);
+}
+
+/* Bar chart animation */
+#chart-bars > div .h-2 > div {
+    transition: width 0.5s ease;
+}
+
+/* Hide loading overlay with transition */
+#loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+#loading-overlay {
+    transition: opacity 0.3s ease;
+}

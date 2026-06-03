@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShareTab — Split Expenses Simply</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5BC5A7',
+                        'primary-dark': '#4AB396',
+                        secondary: '#FF652F',
+                        dark: '#1C1C1E',
+                        'dark-card': '#2C2C2E',
+                        'dark-input': '#3A3A3C',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-dark min-h-screen transition-colors">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 z-[100] hidden">
+        <div class="px-4 py-3 rounded-lg shadow-lg text-white text-sm font-medium max-w-sm"></div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header id="app-header" class="hidden bg-white dark:bg-dark-card shadow-sm border-b border-gray-100 dark:border-gray-700 sticky top-0 z-50">
+        <nav class="max-w-4xl mx-auto px-4 h-12 flex items-center justify-between">
+            <a href="#dashboard" class="text-lg font-bold text-primary">ShareTab</a>
+            <div class="flex items-center gap-2">
+                <span id="user-display-name" class="text-xs text-gray-600 dark:text-gray-300 hidden sm:inline"></span>
+                <!-- Dark Mode Toggle -->
+                <button id="btn-dark-mode" class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-input transition-colors" title="Toggle dark mode">
+                    <svg id="icon-sun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg id="icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+                <!-- Settings -->
+                <button id="btn-settings" class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-input transition-colors" title="Settings">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </button>
+                <!-- Logout (Exit icon) -->
+                <button id="btn-logout" class="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 transition-colors" title="Sign Out">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-4">
+
+        <!-- Login View -->
+        <section id="view-login" class="view hidden">
+            <div class="min-h-[80vh] flex items-center justify-center">
+                <div class="w-full max-w-sm">
+                    <div class="text-center mb-6">
+                        <h1 class="text-3xl font-bold text-primary mb-1">ShareTab</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Split expenses with friends, simply.</p>
+                    </div>
+                    <div class="bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Log In</h2>
+                        <form id="form-login" class="space-y-3">
+                            <input type="email" id="login-email" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="Email">
+                            <input type="password" id="login-password" required minlength="6" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="Password">
+                            <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 rounded-lg text-sm transition-colors">Log In</button>
+                        </form>
+                        <p class="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">No account? <a href="#signup" class="text-primary font-medium hover:underline">Sign Up</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sign Up View -->
+        <section id="view-signup" class="view hidden">
+            <div class="min-h-[80vh] flex items-center justify-center">
+                <div class="w-full max-w-sm">
+                    <div class="text-center mb-6">
+                        <h1 class="text-3xl font-bold text-primary mb-1">ShareTab</h1>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Create your free account.</p>
+                    </div>
+                    <div class="bg-white dark:bg-dark-card rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Sign Up</h2>
+                        <form id="form-signup" class="space-y-3">
+                            <input type="text" id="signup-name" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="Display Name">
+                            <input type="email" id="signup-email" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="Email">
+                            <input type="password" id="signup-password" required minlength="6" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="Password (min 6 chars)">
+                            <select id="signup-currency" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                                <option value="SGD" selected>SGD — Singapore Dollar</option>
+                                <option value="USD">USD — US Dollar</option>
+                                <option value="EUR">EUR — Euro</option>
+                                <option value="GBP">GBP — British Pound</option>
+                                <option value="AUD">AUD — Australian Dollar</option>
+                                <option value="CAD">CAD — Canadian Dollar</option>
+                                <option value="JPY">JPY — Japanese Yen</option>
+                                <option value="CNY">CNY — Chinese Yuan</option>
+                                <option value="MYR">MYR — Malaysian Ringgit</option>
+                                <option value="THB">THB — Thai Baht</option>
+                            </select>
+                            <button type="submit" class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 rounded-lg text-sm transition-colors">Create Account</button>
+                        </form>
+                        <p class="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">Already have an account? <a href="#login" class="text-primary font-medium hover:underline">Log In</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings View -->
+        <section id="view-settings" class="view hidden">
+            <div class="flex items-center gap-3 mb-4">
+                <button id="btn-back-from-settings" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">Settings</h2>
+            </div>
+            <div class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Name</label>
+                    <input type="text" id="settings-name" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Default Currency</label>
+                    <select id="settings-currency" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="SGD">SGD — Singapore Dollar</option>
+                        <option value="USD">USD — US Dollar</option>
+                        <option value="EUR">EUR — Euro</option>
+                        <option value="GBP">GBP — British Pound</option>
+                        <option value="AUD">AUD — Australian Dollar</option>
+                        <option value="CAD">CAD — Canadian Dollar</option>
+                        <option value="JPY">JPY — Japanese Yen</option>
+                        <option value="CNY">CNY — Chinese Yuan</option>
+                        <option value="MYR">MYR — Malaysian Ringgit</option>
+                        <option value="THB">THB — Thai Baht</option>
+                    </select>
+                </div>
+                <button id="btn-save-settings" class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2 rounded-lg text-sm transition-colors">Save Settings</button>
+            </div>
+        </section>
+
+        <!-- Dashboard View -->
+        <section id="view-dashboard" class="view hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800 dark:text-gray-100">My Groups</h2>
+                <button id="btn-create-group" class="bg-primary hover:bg-primary-dark text-white font-medium px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    New Group
+                </button>
+            </div>
+            <div id="overall-balance" class="bg-white dark:bg-dark-card rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-3 mb-4">
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">You are owed</p>
+                        <p id="total-owed" class="text-base font-bold text-primary">$0.00</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">You owe</p>
+                        <p id="total-owe" class="text-base font-bold text-secondary">$0.00</p>
+                    </div>
+                </div>
+            </div>
+            <div id="group-list" class="space-y-2"></div>
+            <div id="empty-groups" class="hidden text-center py-12">
+                <div class="text-5xl mb-3">💸</div>
+                <h3 class="text-base font-semibold text-gray-700 dark:text-gray-300 mb-1">No groups yet</h3>
+                <p class="text-gray-500 dark:text-gray-400 text-xs">Create a group to start splitting expenses.</p>
+            </div>
+        </section>
+
+        <!-- Group Detail View -->
+        <section id="view-group" class="view hidden">
+            <div class="flex items-center gap-2 mb-4">
+                <button id="btn-back-dashboard" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="flex-1 min-w-0">
+                    <h2 id="group-name" class="text-lg font-bold text-gray-800 dark:text-gray-100 truncate"></h2>
+                    <p id="group-members-count" class="text-xs text-gray-500 dark:text-gray-400"></p>
+                </div>
+                <button id="btn-group-settings" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors" title="Group Settings">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                </button>
+                <button id="btn-add-member" class="text-primary hover:text-primary-dark transition-colors" title="Add Member">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                </button>
+            </div>
+
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-3 overflow-x-auto">
+                <button class="group-tab active-tab px-3 py-1.5 text-xs font-medium border-b-2 border-primary text-primary whitespace-nowrap" data-tab="expenses">Expenses</button>
+                <button class="group-tab px-3 py-1.5 text-xs font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-tab="balances">Balances</button>
+                <button class="group-tab px-3 py-1.5 text-xs font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-tab="chart">Chart</button>
+                <button class="group-tab px-3 py-1.5 text-xs font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap" data-tab="history">History</button>
+            </div>
+
+            <!-- Tab: Expenses -->
+            <div id="tab-expenses" class="tab-content">
+                <div class="flex items-center gap-2 mb-3">
+                    <button id="btn-add-expense" class="bg-primary hover:bg-primary-dark text-white font-medium px-3 py-1.5 rounded-lg text-xs transition-colors flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        Add
+                    </button>
+                    <div class="flex-1"></div>
+                    <select id="expense-sort" class="text-xs px-2 py-1.5 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg outline-none">
+                        <option value="date-desc">Newest</option>
+                        <option value="date-asc">Oldest</option>
+                        <option value="amount-desc">Highest $</option>
+                        <option value="amount-asc">Lowest $</option>
+                        <option value="type">By Type</option>
+                    </select>
+                </div>
+                <div id="expense-list" class="space-y-1.5"></div>
+                <div id="empty-expenses" class="hidden text-center py-10">
+                    <p class="text-gray-400 dark:text-gray-500 text-xs">No expenses yet. Add one to get started!</p>
+                </div>
+            </div>
+
+            <!-- Tab: Balances -->
+            <div id="tab-balances" class="tab-content hidden">
+                <div id="balance-list" class="space-y-2"></div>
+                <div id="empty-balances" class="hidden text-center py-10">
+                    <p class="text-gray-400 dark:text-gray-500 text-xs">All settled up!</p>
+                </div>
+            </div>
+
+            <!-- Tab: Chart -->
+            <div id="tab-chart" class="tab-content hidden">
+                <div id="chart-container" class="bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-gray-700 p-4">
+                    <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Spending by Category</h3>
+                    <div id="chart-bars" class="space-y-2"></div>
+                    <div id="empty-chart" class="hidden text-center py-8">
+                        <p class="text-gray-400 dark:text-gray-500 text-xs">Add expenses to see the breakdown.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: History -->
+            <div id="tab-history" class="tab-content hidden">
+                <div id="history-list" class="space-y-1.5"></div>
+                <div id="empty-history" class="hidden text-center py-10">
+                    <p class="text-gray-400 dark:text-gray-500 text-xs">No transaction history yet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODALS -->
+
+    <!-- Create Group Modal -->
+    <div id="modal-create-group" class="modal-overlay hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card rounded-2xl w-full max-w-sm p-5 modal-content">
+            <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-3">Create New Group</h3>
+            <form id="form-create-group" class="space-y-3">
+                <input type="text" id="group-name-input" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="Group name (e.g., Trip to Japan)">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Group Default Currency</label>
+                    <select id="group-currency-input" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="SGD">SGD</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="AUD">AUD</option><option value="CAD">CAD</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="MYR">MYR</option><option value="THB">THB</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" class="modal-cancel flex-1 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-dark-input transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Group Settings Modal -->
+    <div id="modal-group-settings" class="modal-overlay hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card rounded-2xl w-full max-w-sm p-5 modal-content">
+            <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-3">Group Settings</h3>
+            <form id="form-group-settings" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Default Currency</label>
+                    <select id="group-settings-currency" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all">
+                        <option value="SGD">SGD</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="AUD">AUD</option><option value="CAD">CAD</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="MYR">MYR</option><option value="THB">THB</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" class="modal-cancel flex-1 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-dark-input transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div id="modal-add-member" class="modal-overlay hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card rounded-2xl w-full max-w-sm p-5 modal-content">
+            <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-3">Add Member</h3>
+            <form id="form-add-member" class="space-y-3">
+                <div>
+                    <input type="email" id="member-email-input" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all" placeholder="friend@example.com">
+                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Must have a ShareTab account.</p>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" class="modal-cancel flex-1 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-dark-input transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add/Edit Expense Modal -->
+    <div id="modal-add-expense" class="modal-overlay hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card rounded-2xl w-full max-w-sm p-4 modal-content max-h-[85vh] overflow-y-auto overflow-x-hidden">
+            <div class="flex items-center justify-between mb-3">
+                <h3 id="expense-modal-title" class="text-base font-semibold text-gray-800 dark:text-gray-100">Add Expense</h3>
+                <button type="button" class="modal-cancel text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="form-add-expense" class="space-y-2.5">
+                <input type="text" id="expense-desc" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none" placeholder="Description (e.g., Dinner)">
+                <div class="flex gap-2">
+                    <input type="number" id="expense-amount" required min="0.01" step="0.01" class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none" placeholder="Amount">
+                    <select id="expense-currency" class="w-20 px-2 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none">
+                        <option value="SGD">SGD</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="AUD">AUD</option><option value="CAD">CAD</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="MYR">MYR</option><option value="THB">THB</option>
+                    </select>
+                </div>
+                <!-- Expense Type Grid -->
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Type</label>
+                    <div id="expense-type-grid" class="flex gap-1 overflow-x-auto pb-1">
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="food"><span class="text-base">🍔</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Food</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="transport"><span class="text-base">🚕</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Ride</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="ticket"><span class="text-base">🎫</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Ticket</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="shopping"><span class="text-base">🛍️</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Shop</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="stay"><span class="text-base">🏨</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Stay</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="drinks"><span class="text-base">🍺</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Drinks</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="grocery"><span class="text-base">🛒</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Grocery</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="bills"><span class="text-base">📄</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Bills</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="health"><span class="text-base">💊</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Health</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="entertainment"><span class="text-base">🎬</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Fun</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="gift"><span class="text-base">🎁</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Gift</span></button>
+                        <button type="button" class="type-btn flex-shrink-0 flex flex-col items-center px-2 py-1 rounded-lg border-2 border-transparent hover:border-primary/30 transition-all" data-type="other"><span class="text-base">📌</span><span class="text-[8px] text-gray-500 dark:text-gray-400">Other</span></button>
+                    </div>
+                    <input type="hidden" id="expense-type" value="other">
+                </div>
+                <!-- Date + Paid By -->
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date</label>
+                        <input type="date" id="expense-date" class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none h-[38px]">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Paid By</label>
+                        <select id="expense-paid-by" required class="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none h-[38px]"></select>
+                    </div>
+                </div>
+                <!-- Split Between -->
+                <div>
+                    <label class="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Split Between</label>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button type="button" id="btn-for-me" class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors select-none" style="background:rgba(255,101,47,0.15);color:#FF652F;">For Me</button>
+                        <div id="expense-split-members" class="contents"></div>
+                    </div>
+                </div>
+                <!-- Split Type -->
+                <div class="flex gap-1.5">
+                    <button type="button" id="split-equal" class="flex-1 py-1.5 border-2 border-primary bg-primary/10 text-primary rounded-lg text-xs font-medium transition-colors">Equal</button>
+                    <button type="button" id="split-unequal" class="flex-1 py-1.5 border-2 border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 rounded-lg text-xs font-medium hover:border-gray-300 transition-colors">Unequal</button>
+                </div>
+                <div id="unequal-split-inputs" class="hidden space-y-1.5"></div>
+                <input type="hidden" id="expense-edit-id" value="">
+                <button type="submit" id="expense-submit-btn" class="w-full py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors mt-1">Save Expense</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settle Up Modal -->
+    <div id="modal-settle" class="modal-overlay hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-dark-card rounded-2xl w-full max-w-sm p-5 modal-content">
+            <h3 class="text-base font-semibold text-gray-800 dark:text-gray-100 mb-3">Settle Up</h3>
+            <form id="form-settle" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">From</label>
+                        <select id="settle-from" required class="w-full px-2 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none"></select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase mb-1">To</label>
+                        <select id="settle-to" required class="w-full px-2 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none"></select>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <input type="number" id="settle-amount" required min="0.01" step="0.01" class="flex-1 px-3 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none" placeholder="Amount">
+                    <select id="settle-currency" class="w-20 px-2 py-2 border border-gray-200 dark:border-gray-600 dark:bg-dark-input dark:text-white rounded-lg text-sm outline-none">
+                        <option value="SGD">SGD</option><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="AUD">AUD</option><option value="CAD">CAD</option><option value="JPY">JPY</option><option value="CNY">CNY</option><option value="MYR">MYR</option><option value="THB">THB</option>
+                    </select>
+                </div>
+                <div class="flex gap-2 pt-1">
+                    <button type="button" class="modal-cancel flex-1 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-dark-input transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-medium transition-colors">Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white dark:bg-dark z-[200] flex items-center justify-center">
+        <div class="text-center">
+            <div class="inline-block w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">Loading...</p>
+        </div>
+    </div>
+
+    <script type="module" src="src/app.js"></script>
+</body>
+</html>
