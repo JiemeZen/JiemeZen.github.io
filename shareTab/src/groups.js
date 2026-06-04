@@ -25,13 +25,14 @@ let groupsUnsubscribe = null;
 // ============================================
 // Create Group
 // ============================================
-export async function createGroup(name, defaultCurrency = 'SGD') {
+export async function createGroup(name, defaultCurrency = 'SGD', enabledCurrencies = [defaultCurrency]) {
     const user = getCurrentUser();
     if (!user) throw new Error('Must be logged in');
 
     const groupData = {
         name,
         defaultCurrency,
+        enabledCurrencies,
         memberUids: [user.uid],
         members: {
             [user.uid]: {
@@ -50,10 +51,10 @@ export async function createGroup(name, defaultCurrency = 'SGD') {
 // ============================================
 // Update Group Settings
 // ============================================
-export async function updateGroupSettings(groupId, { defaultCurrency }) {
+export async function updateGroupSettings(groupId, { defaultCurrency, enabledCurrencies }) {
     const user = getCurrentUser();
     if (!user) throw new Error('Must be logged in');
-    await updateDoc(doc(db, 'groups', groupId), { defaultCurrency });
+    await updateDoc(doc(db, 'groups', groupId), { defaultCurrency, enabledCurrencies });
 }
 
 // ============================================

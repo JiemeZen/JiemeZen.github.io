@@ -22,6 +22,8 @@ let groupUnsub = null;
 let allGroups = [];
 let userSettings = { defaultCurrency: 'SGD', displayName: '' };
 
+const AVAILABLE_CURRENCIES = ['SGD', 'USD', 'EUR', 'GBP', 'AUD', 'CAD', 'JPY', 'CNY', 'MYR', 'THB'];
+
 // Type emoji map
 const TYPE_EMOJIS = {
     food: '🍔', transport: '🚕', ticket: '🎫', shopping: '🛍️',
@@ -34,6 +36,27 @@ const TYPE_COLORS = {
     stay: '#00BCD4', drinks: '#FF5722', grocery: '#4CAF50', bills: '#607D8B',
     health: '#F44336', entertainment: '#673AB7', gift: '#FFEB3B', other: '#9E9E9E'
 };
+
+function normalizeCurrencyList(currencies, fallback = 'SGD') {
+    const safeFallback = AVAILABLE_CURRENCIES.includes(fallback) ? fallback : 'SGD';
+    const normalized = [...new Set((currencies || []).filter(c => AVAILABLE_CURRENCIES.includes(c)))];
+    if (!normalized.includes(safeFallback)) normalized.unshift(safeFallback);
+    return normalized.length ? normalized : [safeFallback];
+}
+
+function getGroupEnabledCurrencies(extraCurrency = null) {
+    const fallback = currentGroup?.defaultCurrency || userSettings.defaultCurrency || 'SGD';
+    const configured = Array.isArray(currentGroup?.enabledCurrencies) && currentGroup.enabledCurrencies.length
+        ? currentGroup.enabledCurrencies
+        : [fallback];
+    return normalizeCurrencyList(extraCurrency ? [...configured, extraCurrency] : configured, fallback);
+}
+
+function renderCurrencyOptions(selectEl, currencies, selectedCurrency) {
+    const options = normalizeCurrencyList(currencies, selectedCurrency || currencies?.[0] || 'SGD');
+    selectEl.innerHTML = options.map(currency => `<option value="${currency}">${currency}</option>`).join('');
+    selectEl.value = options.includes(selectedCurrency) ? selectedCurrency : options[0];
+}
 
 // ============================================
 // Toast Notification
@@ -194,7 +217,7 @@ function renderGroupList(groups) {
                     <h3 class="font-semibold text-sm text-gray-800 dark:text-gray-100">${escapeHtml(g.name)}</h3>
                     <p class="text-[10px] text-gray-500 dark:text-gray-400">${g.memberUids.length} member${g.memberUids.length > 1 ? 's' : ''} · ${g.defaultCurrency || 'SGD'}</p>
                 </div>
-                <div class="text-right mr-2" id="group-balance-${g.id}">
+                <div class="text-right mr-2 min-w-0 max-w-[52%]" id="group-balance-${g.id}">
                     <p class="text-[10px] text-gray-400">—</p>
                 </div>
                 <svg class="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -241,8 +264,8 @@ async function renderGroupBalances(groups) {
                 const owedText = owedEntries.length > 0 ? owedEntries.map(([c, a]) => formatAmount(a, c)).join(', ') : formatAmount(0, group.defaultCurrency || 'SGD');
                 const oweText = oweEntries.length > 0 ? oweEntries.map(([c, a]) => formatAmount(a, c)).join(', ') : formatAmount(0, group.defaultCurrency || 'SGD');
                 el.innerHTML = `
-                    <p class="text-[14px] font-medium text-green-600">owed ${owedText}</p>
-                    <p class="text-[14px] font-medium text-red-500">owe ${oweText}</p>
+                    <p class="text-[12px] font-medium text-green-600 truncate">owed ${owedText}</p>
+                    <p class="text-[12px] font-medium text-red-500 truncate">owe ${oweText}</p>
                 `;
             }
         } catch (e) {
@@ -360,6 +383,7 @@ function renderExpenses() {
         const typeEmoji = TYPE_EMOJIS[exp.type] || '📌';
         const dateStr = exp.date?.toDate ? exp.date.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
         const currency = exp.currency || currentGroup?.defaultCurrency || 'SGD';
+        const perspective = getExpenseUserPerspective(exp, currency);
         return `
             <div class="expense-card bg-white dark:bg-dark-card rounded-lg border border-gray-100 dark:border-gray-700 p-2.5 cursor-pointer hover:shadow-sm transition-shadow" data-expense-id="${exp.id}">
                 <div class="flex items-center gap-2.5">
@@ -367,6 +391,7 @@ function renderExpenses() {
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">${escapeHtml(exp.description)}</p>
                         <p class="text-[10px] text-gray-500 dark:text-gray-400">${payer} · ${dateStr}</p>
+                        <p class="text-[10px] font-medium ${perspective.className} truncate">${perspective.text}</p>
                     </div>
                     <div class="text-right flex-shrink-0">
                         <p class="text-sm font-semibold text-gray-800 dark:text-gray-100">${formatAmount(exp.amount, currency)}</p>
@@ -384,6 +409,39 @@ function renderExpenses() {
             openEditExpense(expenseId);
         });
     });
+}
+
+function getExpenseUserPerspective(exp, currency) {
+    const user = getCurrentUser();
+    if (!user) return { text: '', className: 'text-gray-400 dark:text-gray-500' };
+
+    const amount = Number(exp.amount) || 0;
+    const userShare = Number(exp.splitAmounts?.[user.uid] || 0);
+    const paid = exp.paidBy === user.uid ? amount : 0;
+
+    if (exp.paidBy === user.uid) {
+        const lent = Math.max(0, amount - userShare);
+        return {
+            text: `Paid ${formatAmount(paid, currency)} · Lent ${formatAmount(lent, currency)}`,
+            className: lent > 0 ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+        };
+    }
+
+    if (userShare > 0) {
+        return {
+            text: `Paid ${formatAmount(0, currency)} · Owe ${formatAmount(userShare, currency)}`,
+            className: 'text-secondary'
+        };
+    }
+
+    return {
+        text: `Paid ${formatAmount(0, currency)} · Not split with you`,
+        className: 'text-gray-400 dark:text-gray-500'
+    };
+}
+
+function formatAmountWithCode(amount, currency) {
+    return `${formatAmount(amount, currency)} ${currency}`;
 }
 
 function sortExpenses(expenses) {
@@ -424,8 +482,6 @@ function renderBalances() {
     if (!currentGroup) return;
 
     const debts = simplifyDebts(currentExpenses, currentSettlements);
-    const currency = currentGroup.defaultCurrency || 'SGD';
-
     if (debts.length === 0) {
         container.innerHTML = '';
         empty.classList.remove('hidden');
@@ -440,16 +496,16 @@ function renderBalances() {
             <div class="bg-white dark:bg-dark-card rounded-lg border border-gray-100 dark:border-gray-700 p-3 flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-800 dark:text-gray-100"><span class="font-medium">${escapeHtml(fromName)}</span> owes <span class="font-medium">${escapeHtml(toName)}</span></p>
-                    <p class="text-xs text-secondary font-semibold">${formatAmount(d.amount, currency)}</p>
+                    <p class="text-xs text-secondary font-semibold">${formatAmountWithCode(d.amount, d.currency || currentGroup.defaultCurrency || 'SGD')}</p>
                 </div>
-                <button class="btn-settle text-xs bg-primary/10 text-primary px-2 py-1 rounded-md font-medium hover:bg-primary/20 transition-colors" data-from="${d.from}" data-to="${d.to}" data-amount="${d.amount}">Settle</button>
+                <button class="btn-settle text-xs bg-primary/10 text-primary px-2 py-1 rounded-md font-medium hover:bg-primary/20 transition-colors" data-from="${d.from}" data-to="${d.to}" data-amount="${d.amount}" data-currency="${d.currency || currentGroup.defaultCurrency || 'SGD'}">Settle</button>
             </div>
         `;
     }).join('');
 
     container.querySelectorAll('.btn-settle').forEach(btn => {
         btn.addEventListener('click', () => {
-            openSettleModal(btn.dataset.from, btn.dataset.to, btn.dataset.amount);
+            openSettleModal(btn.dataset.from, btn.dataset.to, btn.dataset.amount, btn.dataset.currency);
         });
     });
 }
@@ -467,36 +523,57 @@ function renderChart() {
     }
     empty.classList.add('hidden');
 
-    // Aggregate by type
-    const totals = {};
-    let grandTotal = 0;
+    // Aggregate by currency first so large-denomination currencies do not dominate the whole chart.
+    const totalsByCurrency = {};
     currentExpenses.forEach(exp => {
-        const t = exp.type || 'other';
-        totals[t] = (totals[t] || 0) + exp.amount;
-        grandTotal += exp.amount;
+        const type = exp.type || 'other';
+        const currency = exp.currency || currentGroup?.defaultCurrency || 'SGD';
+        const amount = Number(exp.amount) || 0;
+
+        totalsByCurrency[currency] = totalsByCurrency[currency] || { total: 0, types: {} };
+        totalsByCurrency[currency].total += amount;
+        totalsByCurrency[currency].types[type] = (totalsByCurrency[currency].types[type] || 0) + amount;
     });
 
-    // Sort by amount desc
-    const sortedTypes = Object.entries(totals).sort((a, b) => b[1] - a[1]);
-    const currency = currentGroup?.defaultCurrency || 'SGD';
+    const currencyOrder = getGroupEnabledCurrencies();
+    const sortedCurrencies = Object.keys(totalsByCurrency).sort((a, b) => {
+        const aIndex = currencyOrder.indexOf(a);
+        const bIndex = currencyOrder.indexOf(b);
+        if (aIndex !== -1 || bIndex !== -1) return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+        return a.localeCompare(b);
+    });
 
-    container.innerHTML = sortedTypes.map(([type, amount]) => {
-        const pct = grandTotal > 0 ? Math.round((amount / grandTotal) * 100) : 0;
-        const emoji = TYPE_EMOJIS[type] || '📌';
-        const color = TYPE_COLORS[type] || '#9E9E9E';
+    container.innerHTML = sortedCurrencies.map(currency => {
+        const group = totalsByCurrency[currency];
+        const sortedTypes = Object.entries(group.types).sort((a, b) => b[1] - a[1]);
         return `
-            <div class="flex items-center gap-2">
-                <span class="text-sm w-6 text-center">${emoji}</span>
-                <div class="flex-1">
-                    <div class="flex justify-between text-xs mb-0.5">
-                        <span class="text-gray-700 dark:text-gray-300 capitalize">${type}</span>
-                        <span class="text-gray-500 dark:text-gray-400">${formatAmount(amount, currency)} (${pct}%)</span>
-                    </div>
-                    <div class="h-2 bg-gray-100 dark:bg-dark-input rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all" style="width:${pct}%; background:${color}"></div>
-                    </div>
+            <section class="chart-currency-group">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                    <span class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">${currency}</span>
+                    <span class="chart-currency-total">${formatAmountWithCode(group.total, currency)}</span>
                 </div>
-            </div>
+                <div class="space-y-2">
+                    ${sortedTypes.map(([type, amount]) => {
+                        const pct = group.total > 0 ? Math.round((amount / group.total) * 100) : 0;
+                        const emoji = TYPE_EMOJIS[type] || '📌';
+                        const color = TYPE_COLORS[type] || '#9E9E9E';
+                        return `
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm w-6 text-center">${emoji}</span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex justify-between gap-2 text-xs mb-0.5">
+                                        <span class="text-gray-700 dark:text-gray-300 capitalize truncate">${type}</span>
+                                        <span class="text-gray-500 dark:text-gray-400 whitespace-nowrap">${formatAmount(amount, currency)} (${pct}%)</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-100 dark:bg-dark-input rounded-full overflow-hidden">
+                                        <div class="h-full rounded-full transition-all" style="width:${pct}%; background:${color}"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </section>
         `;
     }).join('');
 }
@@ -508,8 +585,6 @@ function renderHistory() {
     const container = document.getElementById('history-list');
     const empty = document.getElementById('empty-history');
     if (!currentGroup) return;
-
-    const currency = currentGroup.defaultCurrency || 'SGD';
 
     if (currentSettlements.length === 0) {
         container.innerHTML = '';
@@ -529,7 +604,7 @@ function renderHistory() {
                         <p class="text-xs text-gray-800 dark:text-gray-100"><span class="font-medium">${escapeHtml(fromName)}</span> paid <span class="font-medium">${escapeHtml(toName)}</span></p>
                         <p class="text-[10px] text-gray-400 dark:text-gray-500">${dateStr}</p>
                     </div>
-                    <p class="text-sm font-semibold text-primary">${formatAmount(s.amount, currency)}</p>
+                    <p class="text-sm font-semibold text-primary">${formatAmount(s.amount, s.currency || currentGroup.defaultCurrency || 'SGD')}</p>
                 </div>
             </div>
         `;
@@ -550,7 +625,7 @@ function openAddExpense() {
 
     // Set currency to group default
     const currency = currentGroup.defaultCurrency || userSettings.defaultCurrency || 'SGD';
-    document.getElementById('expense-currency').value = currency;
+    renderCurrencyOptions(document.getElementById('expense-currency'), getGroupEnabledCurrencies(), currency);
 
     populateExpenseForm();
     clearTypeSelection();
@@ -574,7 +649,8 @@ function openEditExpense(expenseId) {
     document.getElementById('expense-edit-id').value = expenseId;
     document.getElementById('expense-desc').value = expense.description;
     document.getElementById('expense-amount').value = expense.amount;
-    document.getElementById('expense-currency').value = expense.currency || currentGroup.defaultCurrency || 'SGD';
+    const expenseCurrency = expense.currency || currentGroup.defaultCurrency || 'SGD';
+    renderCurrencyOptions(document.getElementById('expense-currency'), getGroupEnabledCurrencies(expenseCurrency), expenseCurrency);
 
     // Date
     if (expense.date?.toDate) {
@@ -618,9 +694,9 @@ function populateExpenseForm() {
     ).join('');
 
     splitContainer.innerHTML = Object.entries(members).map(([uid, m]) =>
-        `<label class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs cursor-pointer transition-all select-none font-medium" style="background:#5BC5A7;color:#fff;">
+        `<label class="inline-flex items-center gap-1 max-w-full px-2.5 py-1 rounded-full text-xs cursor-pointer transition-all select-none font-medium" style="background:#5BC5A7;color:#fff;">
             <input type="checkbox" value="${uid}" checked class="hidden member-check">
-            <span>${escapeHtml(m.displayName || m.email)}</span>
+            <span class="truncate">${escapeHtml(m.displayName || m.email)}</span>
         </label>`
     ).join('');
 
@@ -771,10 +847,10 @@ async function handleExpenseSubmit(e) {
 // ============================================
 // Settle Modal
 // ============================================
-function openSettleModal(from, to, amount) {
+function openSettleModal(from, to, amount, currencyOverride) {
     if (!currentGroup) return;
     const members = currentGroup.members || {};
-    const currency = currentGroup.defaultCurrency || 'SGD';
+    const currency = currencyOverride || currentGroup.defaultCurrency || 'SGD';
 
     const fromSelect = document.getElementById('settle-from');
     const toSelect = document.getElementById('settle-to');
@@ -786,7 +862,7 @@ function openSettleModal(from, to, amount) {
     ).join('');
 
     document.getElementById('settle-amount').value = amount;
-    document.getElementById('settle-currency').value = currency;
+    renderCurrencyOptions(document.getElementById('settle-currency'), getGroupEnabledCurrencies(currency), currency);
     showModal('modal-settle');
 }
 
@@ -817,16 +893,51 @@ async function handleSettleSubmit(e) {
 // ============================================
 function openGroupSettings() {
     if (!currentGroup) return;
-    document.getElementById('group-settings-currency').value = currentGroup.defaultCurrency || 'SGD';
+    const defaultCurrency = currentGroup.defaultCurrency || 'SGD';
+    document.getElementById('group-settings-currency').value = defaultCurrency;
+    renderGroupCurrencyList(getGroupEnabledCurrencies(), defaultCurrency);
     showModal('modal-group-settings');
+}
+
+function renderGroupCurrencyList(selectedCurrencies, defaultCurrency) {
+    const container = document.getElementById('group-currency-list');
+    const selected = normalizeCurrencyList(selectedCurrencies, defaultCurrency);
+    container.innerHTML = AVAILABLE_CURRENCIES.map(currency => {
+        const isChecked = selected.includes(currency);
+        const isDefault = currency === defaultCurrency;
+        return `
+            <label class="group-currency-option flex items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-xs font-medium cursor-pointer select-none ${isChecked ? 'border-primary bg-primary/10 text-primary' : 'border-gray-200 text-gray-500 dark:border-gray-600 dark:text-gray-400'}">
+                <input type="checkbox" value="${currency}" class="hidden" ${isChecked ? 'checked' : ''} ${isDefault ? 'disabled' : ''}>
+                <span>${currency}</span>
+            </label>
+        `;
+    }).join('');
+
+    container.querySelectorAll('label').forEach(label => {
+        const input = label.querySelector('input');
+        label.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (input.disabled) return;
+            input.checked = !input.checked;
+            label.classList.toggle('border-primary', input.checked);
+            label.classList.toggle('bg-primary/10', input.checked);
+            label.classList.toggle('text-primary', input.checked);
+            label.classList.toggle('border-gray-200', !input.checked);
+            label.classList.toggle('text-gray-500', !input.checked);
+            label.classList.toggle('dark:border-gray-600', !input.checked);
+            label.classList.toggle('dark:text-gray-400', !input.checked);
+        });
+    });
 }
 
 async function handleGroupSettingsSubmit(e) {
     e.preventDefault();
     if (!currentGroupId) return;
     const defaultCurrency = document.getElementById('group-settings-currency').value;
+    const checkedCurrencies = [...document.querySelectorAll('#group-currency-list input:checked')].map(input => input.value);
+    const enabledCurrencies = normalizeCurrencyList(checkedCurrencies, defaultCurrency);
     try {
-        await updateGroupSettings(currentGroupId, { defaultCurrency });
+        await updateGroupSettings(currentGroupId, { defaultCurrency, enabledCurrencies });
         showToast('Group settings updated!');
         hideModal('modal-group-settings');
     } catch (err) {
@@ -843,7 +954,7 @@ async function handleCreateGroup(e) {
     const currency = document.getElementById('group-currency-input').value;
     if (!name) return;
     try {
-        const groupId = await createGroup(name, currency);
+        const groupId = await createGroup(name, currency, [currency]);
         showToast('Group created!');
         hideModal('modal-create-group');
         navigate(`group/${groupId}`);
@@ -1019,6 +1130,10 @@ async function init() {
     document.getElementById('form-add-expense').addEventListener('submit', handleExpenseSubmit);
     document.getElementById('form-settle').addEventListener('submit', handleSettleSubmit);
     document.getElementById('form-group-settings').addEventListener('submit', handleGroupSettingsSubmit);
+    document.getElementById('group-settings-currency').addEventListener('change', (e) => {
+        const checkedCurrencies = [...document.querySelectorAll('#group-currency-list input:checked')].map(input => input.value);
+        renderGroupCurrencyList(checkedCurrencies, e.target.value);
+    });
 
     // Wait for Firebase auth
     const user = await waitForAuth();
