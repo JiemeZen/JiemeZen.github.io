@@ -3,7 +3,7 @@
 // ============================================
 
 import { signUp, logIn, logOut, getCurrentUser, waitForAuth } from './auth.js';
-import { createGroup, addMemberByEmail, getGroup, listenToUserGroups, listenToGroup, cleanupGroupListeners, updateGroupSettings } from './groups.js';
+import { createGroup, addMemberByEmail, getGroup, listenToUserGroups, listenToGroup, cleanupGroupListeners, updateGroupSettings, updateGroupName } from './groups.js';
 import { addExpense, updateExpense, deleteExpense, listenToExpenses } from './expenses.js';
 import { simplifyDebts, formatAmount, getCurrencySymbol } from './balances.js';
 import { settleUp, listenToSettlements } from './settle.js';
@@ -210,12 +210,14 @@ function renderGroupList(groups) {
     }
     empty.classList.add('hidden');
     // Render cards with placeholder, then fill in balances async
-    container.innerHTML = groups.map(g => `
+    container.innerHTML = groups.map(g => {
+        const createdDate = g.createdAt?.toDate ? g.createdAt.toDate().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        return `
         <a href="#group/${g.id}" class="block bg-white dark:bg-dark-card rounded-xl border border-gray-100 dark:border-gray-700 p-3 hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div class="flex-1 min-w-0">
                     <h3 class="font-semibold text-sm text-gray-800 dark:text-gray-100">${escapeHtml(g.name)}</h3>
-                    <p class="text-[10px] text-gray-500 dark:text-gray-400">${g.memberUids.length} member${g.memberUids.length > 1 ? 's' : ''} · ${g.defaultCurrency || 'SGD'}</p>
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400">${g.memberUids.length} member${g.memberUids.length > 1 ? 's' : ''} · ${g.defaultCurrency || 'SGD'}${createdDate ? ' · ' + createdDate : ''}</p>
                 </div>
                 <div class="text-right mr-2 min-w-0 max-w-[52%]" id="group-balance-${g.id}">
                     <p class="text-[10px] text-gray-400">—</p>
@@ -223,7 +225,7 @@ function renderGroupList(groups) {
                 <svg class="w-4 h-4 text-gray-300 dark:text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </div>
         </a>
-    `).join('');
+    `}).join('');
 
     // Fill in per-group balances asynchronously
     renderGroupBalances(groups);
@@ -665,13 +667,16 @@ function openEditExpense(expenseId) {
     // Set paid by
     document.getElementById('expense-paid-by').value = expense.paidBy;
 
-    // Set split members
-    const checkboxes = document.querySelectorAll('#expense-split-members input[type="checkbox"]');
-    checkboxes.forEach(cb => {
-        cb.checked = expense.splitBetween?.includes(cb.value);
-        cb.closest('label').classList.toggle('ring-2', cb.checked);
-        cb.closest('label').classList.toggle('ring-primary', cb.checked);
-        cb.closest('label').classList.toggle('bg-primary/10', cb.checked);
+    // Set split members — only select users who were part of the original expense
+    const isDark = document.documentElement.classList.contains('dark');
+    const selectedStyle = 'background:#5BC5A7;color:#fff;';
+    const unselectedStyle = isDark ? 'background:#3A3A3C;color:#9CA3AF;' : 'background:#E5E7EB;color:#6B7280;';
+    const splitContainer = document.getElementById('expense-split-members');
+    splitContainer.querySelectorAll('label').forEach(label => {
+        const cb = label.querySelector('input');
+        const isInSplit = expense.splitBetween?.includes(cb.value);
+        cb.checked = isInSplit;
+        label.style.cssText = isInSplit ? selectedStyle : unselectedStyle;
     });
 
     // Set type
@@ -780,7 +785,45 @@ function renderUnequalSplitInputs() {
             <input type="number" step="0.01" min="0" placeholder="0.00" data-uid="${uid}" class="unequal-amount w-24 px-2 py-1 text-xs border border-gray-200 dark:border-gray-600 dark:bg-dark-card rounded-lg text-right">
         </div>`;
     }).join('');
+
+    // Add remaining display
+    container.innerHTML += `<div class="flex items-center justify-between pt-1 border-t border-gray-100 dark:border-gray-700">
+        <span class="text-[10px] text-gray-500 dark:text-gray-400">Remaining</span>
+        <span id="unequal-remaining" class="text-xs font-medium text-gray-600 dark:text-gray-300">—</span>
+    </div>`;
+
     container.classList.remove('hidden');
+
+    // Auto-calculation logic
+    const inputs = container.querySelectorAll('.unequal-amount');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => autoCalculateUnequalSplit());
+    });
+}
+
+function autoCalculateUnequalSplit() {
+    const totalAmount = parseFloat(document.getElementById('expense-amount').value) || 0;
+    const inputs = [...document.querySelectorAll('.unequal-amount')];
+    const remainingEl = document.getElementById('unequal-remaining');
+
+    // Find inputs that have been manually edited (non-empty)
+    const filledInputs = inputs.filter(inp => inp.value !== '' && inp.value !== undefined);
+    const emptyInputs = inputs.filter(inp => inp.value === '' || inp.value === undefined);
+    const filledTotal = filledInputs.reduce((sum, inp) => sum + (parseFloat(inp.value) || 0), 0);
+    const remaining = Math.round((totalAmount - filledTotal) * 100) / 100;
+
+    // Update remaining display
+    if (remainingEl) {
+        remainingEl.textContent = remaining >= 0 ? formatAmount(remaining, document.getElementById('expense-currency').value) : `Over by ${formatAmount(Math.abs(remaining), document.getElementById('expense-currency').value)}`;
+        remainingEl.classList.toggle('text-red-500', remaining < 0);
+        remainingEl.classList.toggle('text-gray-600', remaining >= 0);
+        remainingEl.classList.toggle('dark:text-gray-300', remaining >= 0);
+    }
+
+    // If exactly one empty input remains, auto-fill it with the remaining amount
+    if (emptyInputs.length === 1 && remaining >= 0) {
+        emptyInputs[0].value = remaining.toFixed(2);
+    }
 }
 
 function selectType(type) {
@@ -863,7 +906,29 @@ function openSettleModal(from, to, amount, currencyOverride) {
 
     document.getElementById('settle-amount').value = amount;
     renderCurrencyOptions(document.getElementById('settle-currency'), getGroupEnabledCurrencies(currency), currency);
+
+    // Reset exchange rate fields
+    document.getElementById('settle-use-exchange').checked = false;
+    document.getElementById('settle-exchange-fields').classList.add('hidden');
+    document.getElementById('settle-exchange-rate').value = '';
+    document.getElementById('settle-converted-amount').textContent = '';
+    renderCurrencyOptions(document.getElementById('settle-pay-currency'), getGroupEnabledCurrencies(currency), currency);
+
     showModal('modal-settle');
+}
+
+function updateSettleConvertedDisplay() {
+    const amount = parseFloat(document.getElementById('settle-amount').value) || 0;
+    const rate = parseFloat(document.getElementById('settle-exchange-rate').value) || 0;
+    const payCurrency = document.getElementById('settle-pay-currency').value;
+    const owedCurrency = document.getElementById('settle-currency').value;
+    const display = document.getElementById('settle-converted-amount');
+    if (rate > 0 && amount > 0) {
+        const converted = (amount * rate).toFixed(2);
+        display.textContent = `${formatAmount(amount, owedCurrency)} × ${rate} = ${formatAmount(parseFloat(converted), payCurrency)}`;
+    } else {
+        display.textContent = '';
+    }
 }
 
 async function handleSettleSubmit(e) {
@@ -879,8 +944,23 @@ async function handleSettleSubmit(e) {
         return;
     }
 
+    // Check if exchange rate is being used
+    const useExchange = document.getElementById('settle-use-exchange').checked;
+    let settleData = { from, to, amount, currency };
+
+    if (useExchange) {
+        const rate = parseFloat(document.getElementById('settle-exchange-rate').value);
+        const payCurrency = document.getElementById('settle-pay-currency').value;
+        if (!rate || rate <= 0) {
+            showToast('Please enter a valid exchange rate', 'error');
+            return;
+        }
+        const convertedAmount = Math.round(amount * rate * 100) / 100;
+        settleData = { from, to, amount: convertedAmount, currency: payCurrency, originalAmount: amount, originalCurrency: currency, exchangeRate: rate };
+    }
+
     try {
-        await settleUp(currentGroupId, { from, to, amount, currency });
+        await settleUp(currentGroupId, settleData);
         showToast('Settlement recorded!');
         hideModal('modal-settle');
     } catch (err) {
@@ -894,6 +974,7 @@ async function handleSettleSubmit(e) {
 function openGroupSettings() {
     if (!currentGroup) return;
     const defaultCurrency = currentGroup.defaultCurrency || 'SGD';
+    document.getElementById('group-settings-name').value = currentGroup.name || '';
     document.getElementById('group-settings-currency').value = defaultCurrency;
     renderGroupCurrencyList(getGroupEnabledCurrencies(), defaultCurrency);
     showModal('modal-group-settings');
@@ -933,11 +1014,19 @@ function renderGroupCurrencyList(selectedCurrencies, defaultCurrency) {
 async function handleGroupSettingsSubmit(e) {
     e.preventDefault();
     if (!currentGroupId) return;
+    const groupName = document.getElementById('group-settings-name').value.trim();
     const defaultCurrency = document.getElementById('group-settings-currency').value;
     const checkedCurrencies = [...document.querySelectorAll('#group-currency-list input:checked')].map(input => input.value);
     const enabledCurrencies = normalizeCurrencyList(checkedCurrencies, defaultCurrency);
+    if (!groupName) {
+        showToast('Group name is required', 'error');
+        return;
+    }
     try {
         await updateGroupSettings(currentGroupId, { defaultCurrency, enabledCurrencies });
+        if (groupName !== currentGroup.name) {
+            await updateGroupName(currentGroupId, groupName);
+        }
         showToast('Group settings updated!');
         hideModal('modal-group-settings');
     } catch (err) {
@@ -1133,6 +1222,23 @@ async function init() {
     document.getElementById('group-settings-currency').addEventListener('change', (e) => {
         const checkedCurrencies = [...document.querySelectorAll('#group-currency-list input:checked')].map(input => input.value);
         renderGroupCurrencyList(checkedCurrencies, e.target.value);
+    });
+
+    // Settle exchange rate toggle
+    document.getElementById('settle-use-exchange').addEventListener('change', (e) => {
+        document.getElementById('settle-exchange-fields').classList.toggle('hidden', !e.target.checked);
+    });
+    document.getElementById('settle-exchange-rate').addEventListener('input', updateSettleConvertedDisplay);
+    document.getElementById('settle-amount').addEventListener('input', () => {
+        if (document.getElementById('settle-use-exchange').checked) updateSettleConvertedDisplay();
+        // Also update unequal split if visible
+        if (!document.getElementById('unequal-split-inputs').classList.contains('hidden')) autoCalculateUnequalSplit();
+    });
+    document.getElementById('settle-pay-currency').addEventListener('change', updateSettleConvertedDisplay);
+
+    // Expense amount change should trigger unequal recalculation
+    document.getElementById('expense-amount').addEventListener('input', () => {
+        if (!document.getElementById('unequal-split-inputs').classList.contains('hidden')) autoCalculateUnequalSplit();
     });
 
     // Wait for Firebase auth

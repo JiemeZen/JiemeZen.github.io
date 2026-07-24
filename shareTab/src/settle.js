@@ -17,7 +17,7 @@ import { getCurrentUser } from './auth.js';
 // ============================================
 // Record Settlement
 // ============================================
-export async function settleUp(groupId, { from, to, amount, currency }) {
+export async function settleUp(groupId, { from, to, amount, currency, originalAmount, originalCurrency, exchangeRate }) {
     const user = getCurrentUser();
     if (!user) throw new Error('Must be logged in');
 
@@ -37,6 +37,13 @@ export async function settleUp(groupId, { from, to, amount, currency }) {
         createdBy: user.uid,
         createdAt: serverTimestamp()
     };
+
+    // Include exchange rate info if settling in a different currency
+    if (originalAmount && originalCurrency && exchangeRate) {
+        settlementData.originalAmount = Number(originalAmount);
+        settlementData.originalCurrency = originalCurrency;
+        settlementData.exchangeRate = Number(exchangeRate);
+    }
 
     const docRef = await addDoc(
         collection(db, 'groups', groupId, 'settlements'),

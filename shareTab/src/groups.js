@@ -58,6 +58,16 @@ export async function updateGroupSettings(groupId, { defaultCurrency, enabledCur
 }
 
 // ============================================
+// Update Group Name
+// ============================================
+export async function updateGroupName(groupId, name) {
+    const user = getCurrentUser();
+    if (!user) throw new Error('Must be logged in');
+    if (!name || !name.trim()) throw new Error('Group name is required');
+    await updateDoc(doc(db, 'groups', groupId), { name: name.trim() });
+}
+
+// ============================================
 // Add Member by Email
 // ============================================
 export async function addMemberByEmail(groupId, email) {
