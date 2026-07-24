@@ -482,30 +482,49 @@ document.addEventListener("DOMContentLoaded", function() {
 	
 
 document.querySelectorAll('.load-iframe').forEach(title => {
-  title.addEventListener('click', () => {
+	const container = title.nextElementSibling;
+	const pageUrl = title.getAttribute('data-src');
+	title.addEventListener('click', () => {
+		if (!container.querySelector('iframe')) {
+			const iframe = document.createElement('iframe');
+			const embedUrl = new URL(pageUrl);
+			// /ebd/ is Notion's embeddable published-page endpoint.
+			embedUrl.pathname = `/ebd${embedUrl.pathname}`;
+			iframe.src = embedUrl.toString();
+			iframe.width = '100%';
+			iframe.height = '800';
+			iframe.frameBorder = '0';
+			iframe.allowFullscreen = true;
+			iframe.loading = 'lazy';
+			iframe.title = title.textContent.trim();
+			container.appendChild(iframe);
 
-    const container = title.nextElementSibling;
+			const fallback = document.createElement('p');
+			fallback.className = 'notion-fallback';
+			fallback.textContent = 'Having trouble viewing this itinerary? ';
+			const link = document.createElement('a');
+			link.href = pageUrl;
+			link.target = '_blank';
+			link.rel = 'noopener noreferrer';
+			link.textContent = 'Open it directly in Notion';
+			fallback.appendChild(link);
+			container.appendChild(fallback);
+		}
 
-    // If iframe hasn't been loaded yet, create and insert it
-    if (!container.querySelector('iframe')) {
-      const iframe = document.createElement('iframe');
-      iframe.src = title.getAttribute('data-src');
-      iframe.width = "100%";
-      iframe.height = "800";
-      iframe.frameBorder = "0";
-      iframe.allowFullscreen = true;
-      container.appendChild(iframe);
-    }
+		if (container.style.display === 'none' || container.style.display === '') {
+			container.style.display = 'block';
+			title.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		} else {
+			container.style.display = 'none';
+		}
+	});
 
-    // Toggle show/hide iframe container
-    if (container.style.display === "none" || container.style.display === "") {
-      container.style.display = "block";
-
-      // Scroll to title only when showing the iframe
-      title.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    } else {
-      container.style.display = "none";
-    }
-  });
+	title.setAttribute('role', 'button');
+	title.setAttribute('tabindex', '0');
+	title.addEventListener('keydown', event => {
+		if (event.key === 'Enter' || event.key === ' ') {
+			event.preventDefault();
+			title.click();
+		}
+	});
 });
