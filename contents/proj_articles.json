@@ -1,5 +1,29 @@
 [
     {
+        "title": "BaZhi Guru",
+        "subtitle": "AI Application",
+        "image": "images/projects/bazhi-guru.png",
+        "video": "",
+        "alt": "ba-zhi-consultation-app",
+        "alt_title": "bazhi-guru",
+        "description": "An AI-powered BaZhi consultation app that combines traditional Chinese fortune telling with a modern conversational experience.",
+        "link": "bazhi-guru/index.html",
+        "buttonText": "Try BaZhi Guru",
+        "buttonLink": "bazhi-guru/index.html"
+    },
+    {
+        "title": "ShareTab",
+        "subtitle": "Web Application",
+        "image": "images/projects/sharetab.png",
+        "video": "",
+        "alt": "sharetab-expense-splitting-app",
+        "alt_title": "sharetab",
+        "description": "A simple expense-sharing app for creating groups, tracking shared expenses and settling balances with friends.",
+        "link": "shareTab/index.html",
+        "buttonText": "Try ShareTab",
+        "buttonLink": "shareTab/index.html"
+    },
+    {
         "title": "Doggo v0",
         "subtitle": "Robotic",
         "image": "images/projects/doggo_v0.png",
