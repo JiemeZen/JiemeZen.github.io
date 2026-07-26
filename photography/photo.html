@@ -2,17 +2,20 @@
 <!--
 	Jimmy Zeng, 10 Feb 2022
 -->
-<html>
+<html lang="en">
 	<head>
 		<title>Jims Stills</title>
 		<link rel = "icon" href = "../images/jz.png" type = "image/x-icon">
 		<meta charset="utf-8" />
 		<meta name="description" content="Stills by Jimmy Zeng, showcasing landscapes and portraits photography of what he see thru his eyes."/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="theme-color" content="#05060a" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="../assets/css/site-2026.css" />
+		<link rel="stylesheet" href="assets/css/site-2026-photo.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload" data-page="photography">
 
 		<!-- Wrapper -->
 			<div id="wrapper">
@@ -21,7 +24,7 @@
 					<header id="header">
 						<h1><a href="#"><strong>Stills</strong> by Jimmy Zeng</a></h1>
 						<p class="copyright">
-							&copy; Jimmy Zeng 2025
+							&copy; Jimmy Zeng 2026
 						</p>
 						<nav>
 							<ul>
@@ -34,12 +37,12 @@
 				<!-- Main -->
 					<div id="main">
 						<article class="thumb">
-							<a href="images/bagan.jpg" class="image"><img src="thumbs/bagan.jpg" alt="bagan-hot-air-balloon" title="take-flight" /></a>
+							<a href="images/bagan.jpg" class="image"><img src="thumbs/bagan.jpg" alt="Hot-air balloons above Bagan at sunrise" title="take-flight" decoding="async" /></a>
 							<h2>Take Flight</h2>
 							<p>Bagan, Mandalay, Myanmar</p>
 						</article>
 						<article class="thumb">
-							<a href="images/bagan_balloon.jpg" class="image"><img src="thumbs/bagan_balloon.jpg" alt="bagan-sunrise" title="golden-dawn" /></a>
+							<a href="images/bagan_balloon.jpg" class="image"><img src="thumbs/bagan_balloon.jpg" alt="Golden sunrise over the Bagan plain" title="golden-dawn" decoding="async" /></a>
 							<h2>Golden Dawn</h2>
 							<p>Bagan, Mandalay, Myanmar</p>
 						</article>
@@ -224,48 +227,21 @@
 					</div>
 
 				<!-- Footer -->
-					<footer id="footer" class="panel">
-						<div class="inner split">
-							<div>
-								<section>
-									<h2>Follow me on ...</h2>
-									<ul class="icons">
-										<li><a href="https://www.instagram.com/j.zeng_/"  target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
-										<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">Twitter</span></a></li>
-										<li><a href="https://twitter.com/Jimmy_Zeng13"  target="_blank" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
-										<li><a href="https://www.linkedin.com/in/j-zeng/" target="_blank" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
-										<!-- <li><a href="#" class="icon brands fa-github"><span class="label">GitHub</span></a></li> -->
-									</ul>
-								</section>
-								
-							</div>
-							<div>
-								<section>
-									<h2>Get in touch</h2>
-									<p><a href="mailto:hello@jimmyzeng.tech">hello@jimmyzeng.tech</a></p>
-									<!-- <form method="post" action="#">
-										<div class="fields">
-											<div class="field half">
-												<input type="text" name="name" id="name" placeholder="Name" />
-											</div>
-											<div class="field half">
-												<input type="text" name="email" id="email" placeholder="Email" />
-											</div>
-											<div class="field">
-												<textarea name="message" id="message" rows="4" placeholder="Message"></textarea>
-											</div>
-										</div> -->
-										
-										<!-- <ul class="actions"> -->
-											<!-- <li><input href="../portfolio/index.html" type="submit" value="Home" /></li> -->
-											<!-- <ul class="actions special"><li><a href="../photography/photo.html" class="button">See More</a></li></ul> -->
-											<!-- <li><input type="submit" value="Send" class="primary" /></li>
-											<button type="button">Home<a href="../portfolio/index.html" style="text-decoration:none;"></a></button>
-											<li><input type="submit" value="Reset" /><a href="../portfolio/index.html" class="primary"></a></li> -->
-										<!-- </ul>
-									</form> -->
-								</section>
-							</div>
+					<footer id="footer" class="panel" aria-label="Site footer">
+						<div class="footer-grid">
+							<section class="footer-column footer-contact">
+								<p class="footer-kicker">Stills · Singapore</p>
+								<h2>See. Frame. Remember.</h2>
+								<p><a href="mailto:hello@jimmyzeng.tech">hello@jimmyzeng.tech</a></p>
+								<ul class="icons" aria-label="Social profiles">
+									<li><a href="https://www.instagram.com/j.zeng_/" target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+									<li><a href="https://www.youtube.com/c/JimmyZengSX" target="_blank" class="icon brands fa-youtube"><span class="label">YouTube</span></a></li>
+									<li><a href="https://www.linkedin.com/in/j-zeng/" target="_blank" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+								</ul>
+							</section>
+							<section class="footer-column"><h3>Explore</h3><ul class="sites"><li><a href="../index.html">Home</a></li><li><a href="../about.html">About</a></li><li><a href="../blog.html">Blog</a></li></ul></section>
+							<section class="footer-column"><h3>Create</h3><ul class="sites"><li><a href="../projects.html">Projects</a></li><li><a href="../hyundai_challenge.html">GRID concept</a></li></ul></section>
+							<section class="footer-column"><h3>Observe</h3><ul class="sites"><li><a href="photo.html">Stills</a></li><li><a href="../travel.html#motions">Motions</a></li><li><a href="../blog.html#itinerary-header">Itineraries</a></li></ul></section>
 						</div>
 					</footer>
 
@@ -278,6 +254,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script type="module" src="../assets/js/site-2026.js"></script>
 
 	</body>
 </html>

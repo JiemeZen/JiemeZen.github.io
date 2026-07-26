@@ -5,17 +5,19 @@
 	Jimmy Zeng, 22 Feb 2022 - DarkMode
 	Jimmy Zeng, 02 Mar 2022 - Timeline Achievement Components
 -->
-<html>
+<html lang="en">
 	<head>
 		<title>About Jim</title>
 		<link rel = "icon" href = "images/jz.png" type = "image/x-icon">
 		<meta charset="utf-8" />
 		<meta name="description" content="Jimmy is a highly passionate and innovative Development Engineer and Technology enthusiast from Singapore."/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="theme-color" content="#05060a" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/site-2026.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload" data-page="about">
 
 		<!-- Wrapper -->
 			<div id="wrapper">
@@ -29,9 +31,9 @@
 				<nav id="nav">
 					<ul class="links">
 						<li><a href="index.html">Main</a></li>
-						<li class="active"><a href="about.html">About</a></li>
+						<li class="active"><a href="about.html" aria-current="page">About</a></li>
 						<li><a href="projects.html">Projects</a></li>
-						<li><a href="travel.html">Travel</a>
+						<li><a href="travel.html">Travel</a></li>
 						<!-- <li><a href="blog/blog.html">Blog</a></li> -->
 						<li><a href="blog.html">Blog</a>
 							<!-- <ul>
@@ -45,9 +47,9 @@
 					<ul class="icons">
 						<li><a href="https://www.instagram.com/j.zeng_/"  target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
 						<li><a href="https://www.linkedin.com/in/j-zeng/" target="_blank" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
-						<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">Twitter</span></a></li>
+						<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">YouTube</span></a></li>
 						<li><a href="https://twitter.com/Jimmy_Zeng13"  target="_blank" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-						<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon"></a></li>
+						<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon" aria-label="Toggle color theme"></a></li>
 						<!-- <li><a href="#"  target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li> -->
 					</ul>
 				</nav>
@@ -121,7 +123,7 @@
 						<!-- Timeline -->
 						<header class="major">
 							<h1>Timeline</h1>
-							<ul class="actions special"><li><a class="button primary" id="showTimeline" onclick="toggleTimeline()">Show</a></li></ul>
+							<ul class="actions special"><li><button class="button primary" id="showTimeline" type="button" onclick="toggleTimeline()" aria-controls="timeline" aria-expanded="false">Show</button></li></ul>
 							<p> </p>
 						</header>
 
@@ -307,8 +309,8 @@
 						</div>
 						<!-- Portfolio Publications -->
 						<section class="post featured" id="publications" style="margin: 0">
-							<h2><a href="#">Publications<br />
-							<h4>Technical Papers, Journals</h4></a></h2>
+							<p class="project-kicker">Technical papers and journals</p>
+							<h2>Publications</h2>
 							<div class="row" style="justify-content: center">
 								<div class="col-12-small col-12-small">
 									<ul class="actions stacked">
@@ -347,6 +349,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script type="module" src="assets/js/site-2026.js"></script>
 
 	</body>
 </html>

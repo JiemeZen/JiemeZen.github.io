@@ -2,17 +2,19 @@
 <!--
 	Jimmy Zeng, 31 March 2022
 -->
-<html>
+<html lang="en">
 	<head>
 		<title>Jims Projects</title>
 		<link rel = "icon" href = "images/jz.png" type = "image/x-icon">
 		<meta charset="utf-8" />
 		<meta name="description" content="Projects done by Jimmy Zeng over the years, showcasing Robotics, Technology and Innovation."/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="theme-color" content="#05060a" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/site-2026.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload" data-page="hyundai">
 
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
@@ -27,17 +29,16 @@
 						<ul class="links">
 							<li><a href="index.html">Main</a></li>
 							<li><a href="about.html">About</a></li>
-							<li class="active"><a href="projects.html">Projects</a></li>
-							<li><a href="travel.html">Travel</a>
-							<li><a href="blog.html">Blog</a>
-							</li>
+							<li class="active"><a href="projects.html" aria-current="page">Projects</a></li>
+							<li><a href="travel.html">Travel</a></li>
+							<li><a href="blog.html">Blog</a></li>
 						</ul>
 						<ul class="icons">
 							<li><a href="https://www.instagram.com/j.zeng_/"  target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
 							<li><a href="https://www.linkedin.com/in/j-zeng/" target="_blank" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
-							<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">Twitter</span></a></li>
+							<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">YouTube</span></a></li>
 							<li><a href="https://twitter.com/Jimmy_Zeng13"  target="_blank" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-							<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon"></a></li>
+							<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon" aria-label="Toggle color theme"></a></li>
 						</ul>
 					</nav>
 
@@ -45,10 +46,9 @@
 					<div id="main">
 						<!-- Title Post -->
 							<article class="post featured" id="grid">
-								<h2><a href="#">Hyundai-NTU 3DP Challenge 2022<br />
-								<h4>By: Aung Pyei Phyo (Jimmy)</h4></a></h2>
-								<br/>
+								<p class="project-kicker">Hyundai-NTU 3DP Challenge 2022 · By Aung Pyei Phyo (Jimmy)</p>
 								<h2>GRID</h2>
+								<br/>
 								<a href="#article_4" class="image fit" ><img src="images/hyundai_challenge/grid.jpg"  alt="3d-printed-car-accessory" title="grid-overview"/></a>
 								
 								<p style="text-align: center;">GRID is a highly modular foldable work desk, which also act as an electronic organizer for cars. 
@@ -92,7 +92,7 @@
 								<h2>GRID Showreel</h2>
 								<div class="container">
 									<iframe width="100%" height="100%" class="embedVideo"
-									src="https://www.youtube.com/embed/PG13ZJZFgkM" allowfullscreen>
+									src="https://www.youtube.com/embed/PG13ZJZFgkM" title="GRID product showreel" loading="lazy" allowfullscreen>
 									</iframe>
 								</div>
 								<p style="text-align:center; font-size:120%">
@@ -152,6 +152,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script type="module" src="assets/js/site-2026.js"></script>
 
 	</body>
 </html>

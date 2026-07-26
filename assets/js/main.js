@@ -262,13 +262,15 @@ function toggleTimeline() {
 	var btn = document.getElementById("showTimeline");
 
   	if (x.style.display === "none") {
-		x.style.display = "flex"
+		x.style.display = "block"
 		x.style.transition = "3s";
-		btn.innerText="hide";
+		btn.innerText="Hide";
+		btn.setAttribute('aria-expanded', 'true');
   	}
 	else {
     	x.style.display = "none";
-		btn.innerText="show";
+		btn.innerText="Show";
+		btn.setAttribute('aria-expanded', 'false');
   	}
 }
 
@@ -294,13 +296,13 @@ const disableDarkMode = () => {
  
 // If the user already visited and enabled darkMode
 // start things off with it on
-if (darkMode === 'enabled') {
+if (darkMode === 'enabled' && darkModeToggle) {
   	enableDarkMode();
 	darkModeToggle.classList.toggle("fa-sun");
 }
 
 // When someone clicks the button
-darkModeToggle.addEventListener('click', () => {
+if (darkModeToggle) darkModeToggle.addEventListener('click', () => {
   // get their darkMode setting
   darkMode = localStorage.getItem('darkMode'); 
   
@@ -319,12 +321,22 @@ function myFunction(x) {
 }
 
 function loadHTML(url, elementId) {
+	const element = document.getElementById(elementId);
+	if (!element) return Promise.resolve();
+
 	fetch(url)
-		.then(response => response.text())
-		.then(data => {
-			document.getElementById(elementId).innerHTML = data;
+		.then(response => {
+			if (!response.ok) throw new Error(`Unable to load ${url}: ${response.status}`);
+			return response.text();
 		})
-		.catch(error => console.error('Error loading HTML:', error));
+		.then(data => {
+			element.innerHTML = data;
+			document.dispatchEvent(new CustomEvent('site:footer-loaded', { detail: { element } }));
+		})
+		.catch(error => {
+			console.error('Error loading HTML:', error);
+			element.innerHTML = '<p class="load-error">Footer unavailable. Email <a href="mailto:hello@jimmyzeng.tech">hello@jimmyzeng.tech</a>.</p>';
+		});
 }
 
 // DOM Content Functions
@@ -333,10 +345,15 @@ document.addEventListener("DOMContentLoaded", function() {
 	// loadHTML('sitemap.html', 'sitemap-section');
 	loadHTML('footer.html', 'footer-container');
 
+	const articlesContainer = document.getElementById('articles');
+	if (!articlesContainer) return;
+
 	fetch('contents/proj_articles.json')
-		.then(response => response.json())
+		.then(response => {
+			if (!response.ok) throw new Error(`Unable to load projects: ${response.status}`);
+			return response.json();
+		})
 		.then(data => {
-			const articlesContainer = document.getElementById('articles');
 			const portfolioWebsite = document.getElementById("website");
 			const portfolioPublications = document.getElementById("publications");
 			let articlesPerPage = 4;
@@ -350,7 +367,7 @@ document.addEventListener("DOMContentLoaded", function() {
 				return urlParams.get(param);
 			}
 
-			function showPage(page) {
+			function showPage(page, callback) {
 				if (page === 1) {
 					articlesPerPage = 4;
 				} else {
@@ -370,22 +387,22 @@ document.addEventListener("DOMContentLoaded", function() {
 					if (article.video) {
 						mediaContent = `
 							<div class="container">
-								<iframe width="100%" height="100%" class="embedVideo" src="${article.video}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>
+								<iframe width="100%" height="100%" class="embedVideo" src="${article.video}" title="${article.alt_title}" loading="lazy" allowfullscreen></iframe>
 							</div>`;
 					} else if (article.image) {
-						mediaContent = `<img src="${article.image}" alt="${article.alt}" title="${article.alt_title}" class="image fit" />`;
+						mediaContent = `<span class="image fit project-media"><img src="${article.image}" alt="${article.alt}" title="${article.alt_title}" loading="lazy" decoding="async" /></span>`;
 					} else if (article.figma) {
 						mediaContent = `<iframe width="100%" height="800px" src="${article.figma}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>`;
 					}
 
 					articleElement.innerHTML = `
 						<header>
-							<h2 style="text-transform: none"><a href="${article.link}">${article.title}<br />
-								<h4>${article.subtitle}</h4></a></h2>
+							<p class="project-kicker">${article.subtitle}</p>
+							<h2><a href="${article.link}">${article.title}</a></h2>
 						</header>
 						${mediaContent}
 						<p>${article.description}</p>
-						<ul class="actions special"><li><a href="${article.buttonLink}" class="button" ${article.download ? 'download' : ''}>${article.buttonText}</a></li></ul>
+						<ul class="actions special"><li><a href="${article.buttonLink}" class="button" ${article.download ? 'download' : ''} ${article.buttonLink.startsWith('http') ? 'target="_blank" rel="noopener noreferrer"' : ''}>${article.buttonText}</a></li></ul>
 					`;
 					articlesContainer.appendChild(articleElement);
 					}
@@ -400,6 +417,7 @@ document.addEventListener("DOMContentLoaded", function() {
 				}
 
 				createPagination();
+				document.dispatchEvent(new CustomEvent('site:content-updated', { detail: { element: articlesContainer } }));
 
 				// Invoke callback if provided
 				if (callback) callback();
@@ -476,7 +494,10 @@ document.addEventListener("DOMContentLoaded", function() {
 				showPage(currentPage);
 			}
 		})
-		.catch(error => console.error('Error loading articles:', error));
+		.catch(error => {
+			console.error('Error loading articles:', error);
+			articlesContainer.innerHTML = '<p class="load-error">Projects could not be loaded. Please refresh the page or try again later.</p>';
+		});
 });	
 
 	

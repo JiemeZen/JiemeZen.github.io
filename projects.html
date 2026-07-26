@@ -2,17 +2,19 @@
 <!--
 	Jimmy Zeng, 31 Jan 2022
 -->
-<html>
+<html lang="en">
 	<head>
 		<title>Jims Projects</title>
 		<link rel = "icon" href = "images/jz.png" type = "image/x-icon">
 		<meta charset="utf-8" />
 		<meta name="description" content="Projects done by Jimmy Zeng over the years, showcasing Robotics, Technology and Innovation."/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="theme-color" content="#05060a" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/site-2026.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload" data-page="projects">
 
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
@@ -27,8 +29,8 @@
 						<ul class="links">
 							<li><a href="index.html">Main</a></li>
 							<li><a href="about.html">About</a></li>
-							<li class="active"><a href="projects.html">Projects</a></li>
-							<li><a href="travel.html">Travel</a>
+							<li class="active"><a href="projects.html" aria-current="page">Projects</a></li>
+							<li><a href="travel.html">Travel</a></li>
 							<!-- <li><a href="blog/blog.html">Blog</a></li> -->
 							<li><a href="blog.html">Blog</a>
 								<!-- <ul>
@@ -41,9 +43,9 @@
 						<ul class="icons">
 							<li><a href="https://www.instagram.com/j.zeng_/"  target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
 							<li><a href="https://www.linkedin.com/in/j-zeng/" target="_blank" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
-							<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">Twitter</span></a></li>
+							<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">YouTube</span></a></li>
 							<li><a href="https://twitter.com/Jimmy_Zeng13"  target="_blank" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-							<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon"></a></li>
+							<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon" aria-label="Toggle color theme"></a></li>
 							<!-- <li><a href="#"  target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li> -->
 						</ul>
 					</nav>
@@ -75,8 +77,8 @@
 						
 						<!-- Portfolio Website -->
 							<article class="post featured" id="website" style="margin: 0">
-								<h2><a href="#">jimmyzeng.tech<br />
-								<h4>personal website</h4></a></h2>
+								<p class="project-kicker">Personal website</p>
+								<h2>jimmyzeng.tech</h2>
 								<p style="text-align:center">This very website is coded in HTML, CSS and JS, forked from 'Massively' by html5up.net.
 									<br/>I chose to code it instead of using a website builder, was to experience the full web development process of 
 									coding, hosting, domain setup and search engine optimization, while enjoying full flexibility and customisability.
@@ -86,8 +88,8 @@
 						<footer>
 						<!-- Portfolio Publications -->
 							<section class="post featured" id="publications" style="margin: 0">
-								<h2><a href="#">Publications<br />
-								<h4>Technical Papers, Journals</h4></a></h2>
+								<p class="project-kicker">Technical papers and journals</p>
+								<h2>Publications</h2>
 								<div class="row" style="justify-content: center">
 									<div class="col-12-small col-12-small">
 										<ul class="actions stacked">
@@ -129,6 +131,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script type="module" src="assets/js/site-2026.js"></script>
 
 	</body>
 </html>

@@ -2,17 +2,19 @@
 <!--
 	Jimmy Zeng, 31 Jan 2022
 -->
-<html>
+<html lang="en">
 	<head>
 		<title>Jims Travel</title>
 		<link rel = "icon" href = "images/jz.png" type = "image/x-icon">
 		<meta charset="utf-8" />
 		<meta name="description" content="Jimmy loves travelling and he likes to reproduce what he see thru his eyes via photography and video."/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<meta name="theme-color" content="#05060a" />
 		<link rel="stylesheet" href="assets/css/main.css" />
+		<link rel="stylesheet" href="assets/css/site-2026.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body class="is-preload" data-page="travel">
 
 		<!-- Wrapper -->
 			<div id="wrapper" class="fade-in">
@@ -37,7 +39,7 @@
 							<li><a href="index.html">Main</a></li>
 							<li><a href="about.html">About</a></li>
 							<li><a href="projects.html">Projects</a></li>
-							<li class="active"><a href="travel.html">Travel</a>
+							<li class="active"><a href="travel.html" aria-current="page">Travel</a></li>
 							<!-- <li><a href="blog/blog.html">Blog</a></li> -->
 							<li><a href="blog.html">Blog</a>
 								<!-- <ul>
@@ -50,9 +52,9 @@
 						<ul class="icons">
 							<li><a href="https://www.instagram.com/j.zeng_/"  target="_blank" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
 							<li><a href="https://www.linkedin.com/in/j-zeng/" target="_blank" class="icon brands fa-linkedin"><span class="label">Linkedin</span></a></li>
-							<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">Twitter</span></a></li>
+							<li><a href="https://www.youtube.com/c/JimmyZengSX"  target="_blank" class="icon brands fa-youtube"><span class="label">YouTube</span></a></li>
 							<li><a href="https://twitter.com/Jimmy_Zeng13"  target="_blank" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
-							<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon"></a></li>
+							<li><a id="dark-mode-toggle" onclick="myFunction(this)" class="icon fa-regular fa-moon" aria-label="Toggle color theme"></a></li>
 							<!-- <li><a href="#"  target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li> -->
 						</ul>
 					</nav>
@@ -97,13 +99,13 @@
 
 						<article class="post featured" id="motions">
 							<header class="major">
-								<h1>Motions</h2>
+								<h1>Motions</h1>
 							</header>
-							<h2><a href="#">Bagan<br />
-							<h4>Myanmar</h4></a></h2>
+							<p class="project-kicker">Myanmar</p>
+							<h2>Bagan</h2>
 							<div class="container">
 								<iframe width="100%" height="100%" class="embedVideo"
-								src="https://www.youtube.com/embed/SS-MBWYTT4E" allowfullscreen>
+								src="https://www.youtube.com/embed/SS-MBWYTT4E" title="Bagan, Myanmar travel film" loading="lazy" allowfullscreen>
 								</iframe>
 							</div>
 							<p>An ancient capital city of Myanmar, dating back to 9th-13th 
@@ -118,11 +120,11 @@
 							<section class="posts">
 								<!-- Article 1 -->
 								<article id="article_1">
-									<h2><a href="#">Bangkok<br />
-									<h4>Thailand</h4></a></h2>
+									<p class="project-kicker">Thailand</p>
+									<h2>Bangkok</h2>
 									<div class="container">
 										<iframe width="100%" height="100%" class="embedVideo"
-										src="https://www.youtube.com/embed/Qu5z1NTaE60" allowfullscreen>
+										src="https://www.youtube.com/embed/Qu5z1NTaE60" title="Bangkok, Thailand travel film" loading="lazy" allowfullscreen>
 										</iframe>
 									</div>
 									<p>4 days trip to Bangkok, Thailand. Featuring various temples and shopping 
@@ -131,11 +133,11 @@
 								</article>
 								<!-- Article 2 -->
 								<article id="article_2">
-									<h2><a href="#">Beijing<br />
-									<h4>China</h4></a></h2>
+									<p class="project-kicker">China</p>
+									<h2>Beijing</h2>
 									<div class="container">
 										<iframe  width="100%" height="100%" class="embedVideo"
-										src="https://www.youtube.com/embed/JT-UPRVfCrE" allowfullscreen>
+										src="https://www.youtube.com/embed/JT-UPRVfCrE" title="Beijing, China travel film" loading="lazy" allowfullscreen>
 										</iframe>
 									</div>
 									<p>3 days trip to Beijing, capital city of China. Featuring Forbidden Kingdom, 
@@ -144,11 +146,11 @@
 								</article>
 								<!-- Article 3 -->
 								<article id="article_3">
-									<h2><a href="#">Mon State<br />
-									<h4>Myanmar</h4></a></h2>
+									<p class="project-kicker">Myanmar</p>
+									<h2>Mon State</h2>
 									<div class="container">
 										<iframe  width="100%" height="100%" class="embedVideo"
-										src="https://www.youtube.com/embed/iZwL8NV85Pw" allowfullscreen>
+										src="https://www.youtube.com/embed/iZwL8NV85Pw" title="Mon State, Myanmar travel film" loading="lazy" allowfullscreen>
 										</iframe>
 									</div>
 									<p>5 days trip to Mon State, Myanmar. It is a serene place with many beautiful 
@@ -157,11 +159,11 @@
 								</article>
 								<!-- Article 4 -->
 								<article id="article_4">
-									<h2><a href="#">Kuala Lumpur<br />
-									<h4>Malaysia</h4></a></h2>
+									<p class="project-kicker">Malaysia</p>
+									<h2>Kuala Lumpur</h2>
 									<div class="container">
 										<iframe  width="100%" height="100%" class="embedVideo"
-										src="https://www.youtube.com/embed/K2T31zXzYNQ" allowfullscreen>
+										src="https://www.youtube.com/embed/K2T31zXzYNQ" title="Kuala Lumpur, Malaysia travel film" loading="lazy" allowfullscreen>
 										</iframe>
 									</div>
 									<p>3 days road trip from Singapore to Kuala Lumpur, Malaysia. 
@@ -200,6 +202,7 @@
 			<script src="assets/js/breakpoints.min.js"></script>
 			<script src="assets/js/util.js"></script>
 			<script src="assets/js/main.js"></script>
+			<script type="module" src="assets/js/site-2026.js"></script>
 
 	</body>
 </html>
