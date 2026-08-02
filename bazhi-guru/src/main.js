@@ -220,14 +220,13 @@ const AppState = {
   birthInfo: null,
   currentChatId: null, // Track which chat session is active
   chineseConversationHistory: [],
-  isNavigatingFromHash: false, // Prevent hash update loops
   currentLanguage: 'EN', // 'EN' or 'ZN'
   messageData: [], // Store messages with both EN and ZN versions
   elementalData: null, // Store elemental chart data for language switching
   fullBaZhiAnalysis_zn: null, // Store Chinese version of full BaZhi analysis
   fullBaZhiAnalysis_en: null, // Store English version of full BaZhi analysis
   showingFullAnalysis: false, // Track if showing full analysis
-  userSessions: [], // Track user's chat sessions [{ chatId: 'chat1', hasMessages: false, createdAt: timestamp }]
+  userSessions: [], // Track user's chat sessions [{ chatId: 'chat_<timestamp>', hasMessages: false, createdAt: timestamp }]
   chartLoadingInterval: null // Track chart loading message interval
 };
 
@@ -316,14 +315,17 @@ function showView(viewName, fromHash = false) {
   // Update home button visibility (hide on landing, show on chat)
   updateHomeButtonVisibility(viewName);
   
-  // Update URL hash (but not if we're already navigating from a hash change)
+  // Update URL hash to reflect the current view. We use history.replaceState
+  // instead of assigning window.location.hash so that:
+  //  1. Internal SPA navigation (login -> birthInfo -> landing -> chat ->
+  //     session switches) does not stack a new browser history entry per
+  //     view - otherwise the back button would unwind through every
+  //     intermediate view, eventually landing on the pre-auth hash state.
+  //  2. No synthetic 'hashchange' event is fired for programmatic
+  //     navigation, so handleHashChange only ever reacts to genuine
+  //     user-initiated back/forward navigation.
   if (!fromHash && HashMapping[viewName]) {
-    AppState.isNavigatingFromHash = true;
-    window.location.hash = HashMapping[viewName];
-    // Reset flag after a short delay
-    setTimeout(() => {
-      AppState.isNavigatingFromHash = false;
-    }, 100);
+    history.replaceState(null, '', HashMapping[viewName]);
   }
   
   console.log('Switched to view:', viewName);
@@ -344,15 +346,28 @@ function updateHomeButtonVisibility(viewName) {
 }
 
 function handleHashChange() {
-  // Prevent infinite loops
-  if (AppState.isNavigatingFromHash) {
-    return;
-  }
-  
   const hash = window.location.hash || '#login';
   const viewName = ViewMapping[hash];
   
-  if (viewName && viewName !== AppState.currentView) {
+  if (!viewName) {
+    return;
+  }
+  
+  // Guard: never force a still-authenticated user back to the auth/login
+  // view just because of a stray hash change (e.g. the browser back/
+  // forward buttons landing on the pre-login history entry). Without this
+  // guard, navigating in the app could make it look like the user was
+  // logged out even though the Firebase session is still valid.
+  if (viewName === 'auth' && AppState.currentUser) {
+    console.log('[handleHashChange] Ignoring hash->auth transition; user is still authenticated. Re-syncing hash to current view:', AppState.currentView);
+    const correctHash = HashMapping[AppState.currentView];
+    if (correctHash) {
+      history.replaceState(null, '', correctHash);
+    }
+    return;
+  }
+  
+  if (viewName !== AppState.currentView) {
     console.log('Hash changed to:', hash, '-> View:', viewName);
     showView(viewName, true);
   }
@@ -912,8 +927,17 @@ function renderPlaceholderSession(desktopContainer, mobileContainer) {
 }
 
 async function createNewSession() {
-  // Generate new chat ID
-  const newChatId = 'chat' + (AppState.userSessions.length + 1);
+  // Generate a stable, collision-proof chat ID. We intentionally avoid
+  // deriving this from AppState.userSessions.length (positional numbering)
+  // because that value gets silently rebuilt from Firestore any time
+  // loadUserSessions() runs (e.g. on returning home). A session that was
+  // created but never sent a message is not yet persisted, so it gets
+  // dropped from the array - and the next "+ New Session" click would
+  // then recompute the exact same length+1 value, reusing (and clobbering
+  // the identity of) the same chatId instead of creating a new one. Using
+  // a timestamp keeps every session's ID unique regardless of how many
+  // times the session list has been reloaded.
+  const newChatId = 'chat_' + Date.now();
   
   // Add to user sessions
   AppState.userSessions.push({
