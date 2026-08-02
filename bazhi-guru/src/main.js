@@ -227,6 +227,10 @@ const AppState = {
   fullBaZhiAnalysis_en: null, // Store English version of full BaZhi analysis
   showingFullAnalysis: false, // Track if showing full analysis
   userSessions: [], // Track user's chat sessions [{ chatId: 'chat_<timestamp>', hasMessages: false, createdAt: timestamp }]
+  archivedSessionsMap: {}, // { [chatId]: { archivedAt, label } } - sessions tagged read-only after a birth info edit
+  currentSessionArchived: false, // Whether the currently open chat session is archived/read-only
+  editingBirthInfo: false, // True while the birthInfo form is being used to *edit* (not first-time setup)
+  birthInfoEditChoice: null, // 'wipe' | 'archive' - chosen in the edit confirmation modal
   chartLoadingInterval: null, // Track chart loading message interval
   authLoadingInterval: null // Track login/register loading message interval
 };
@@ -612,6 +616,38 @@ function setupEventListeners() {
       }
     });
   }
+  
+  // Edit Birth Info - Button + Confirmation Modal
+  const editBirthInfoBtn = document.getElementById('editBirthInfoBtn');
+  const editBirthInfoModal = document.getElementById('editBirthInfoConfirmModal');
+  const cancelEditBirthInfoBtn = document.getElementById('cancelEditBirthInfoBtn');
+  const continueEditBirthInfoBtn = document.getElementById('continueEditBirthInfoBtn');
+  const cancelBirthInfoEditBtn = document.getElementById('cancelBirthInfoEditBtn');
+  
+  if (editBirthInfoBtn) {
+    editBirthInfoBtn.addEventListener('click', openEditBirthInfoModal);
+  }
+  
+  if (cancelEditBirthInfoBtn) {
+    cancelEditBirthInfoBtn.addEventListener('click', closeEditBirthInfoModal);
+  }
+  
+  if (continueEditBirthInfoBtn) {
+    continueEditBirthInfoBtn.addEventListener('click', startBirthInfoEdit);
+  }
+  
+  if (cancelBirthInfoEditBtn) {
+    cancelBirthInfoEditBtn.addEventListener('click', cancelBirthInfoEdit);
+  }
+  
+  // Close edit-birth-info modal when clicking outside
+  if (editBirthInfoModal) {
+    editBirthInfoModal.addEventListener('click', (e) => {
+      if (e.target === editBirthInfoModal) {
+        closeEditBirthInfoModal();
+      }
+    });
+  }
 }
 
 // ============================================
@@ -887,6 +923,42 @@ async function handleBirthInfoSubmit(event) {
   if (result.success) {
     AppState.birthInfo = birthData;
     
+    if (AppState.editingBirthInfo) {
+      // Apply the user's chosen handling for their previous sessions, and
+      // clear the cached BaZhi profile either way so the existing
+      // loadAndDisplayBaZhiProfile() auto-regeneration path (triggered
+      // below by showView('landing')) recalculates the elemental chart
+      // and full analysis using the newly-saved birth info.
+      if (AppState.birthInfoEditChoice === 'wipe') {
+        await wipeAllSessions(currentUser.uid);
+        AppState.userSessions = [];
+        AppState.archivedSessionsMap = {};
+        AppState.currentChatId = null;
+      } else {
+        // Build the same archivedSessionsMap locally that
+        // archiveAllSessions() persists, so the sidebar reflects the
+        // "Session N - Archive" tags immediately without waiting for a
+        // fresh Firestore round-trip.
+        AppState.userSessions.forEach((session, index) => {
+          AppState.archivedSessionsMap[session.chatId] = {
+            archivedAt: new Date().toISOString(),
+            label: `Session ${index + 1} - Archive`
+          };
+        });
+        await archiveAllSessions(currentUser.uid, AppState.userSessions);
+      }
+      renderSessionList();
+      
+      // Reset edit-mode state and restore the form's first-time-setup copy
+      AppState.editingBirthInfo = false;
+      AppState.birthInfoEditChoice = null;
+      setBirthInfoFormMode(false);
+      
+      // Force the elemental profile to regenerate on the landing page
+      AppState.fullBaZhiAnalysis_zn = null;
+      AppState.fullBaZhiAnalysis_en = null;
+    }
+    
     // Navigate to landing page immediately
     // The loading animation will happen on the landing page
     showView('landing');
@@ -896,6 +968,85 @@ async function handleBirthInfoSubmit(event) {
     submitBtn.disabled = false;
     submitBtn.textContent = originalText;
   }
+}
+
+// ============================================
+// Birth Info Editing (post-first-login)
+// ============================================
+// Toggles the shared birthInfo form's copy/buttons between first-time
+// setup and edit mode.
+function setBirthInfoFormMode(isEdit) {
+  const heading = document.getElementById('birthInfoHeading');
+  const subheading = document.getElementById('birthInfoSubheading');
+  const submitBtn = document.getElementById('birthInfoSubmitBtn');
+  const cancelBtn = document.getElementById('cancelBirthInfoEditBtn');
+  
+  if (heading) heading.textContent = isEdit ? 'Edit Your Birth Information' : "Let's explore BaZhi";
+  if (subheading) {
+    subheading.textContent = isEdit
+      ? 'Update your details below. Your BaZhi analysis will be recalculated.'
+      : 'Please provide your birth information for accurate readings';
+  }
+  if (submitBtn) submitBtn.textContent = isEdit ? 'Save Changes' : 'Save & Start';
+  if (cancelBtn) cancelBtn.classList.toggle('hidden', !isEdit);
+}
+
+// Pre-fills the shared birthInfo form with the user's currently-saved
+// birth info, used when opening the form in edit mode.
+function prefillBirthInfoForm() {
+  const info = AppState.birthInfo;
+  if (!info) return;
+  
+  const dayEl = document.getElementById('birthDay');
+  const monthEl = document.getElementById('birthMonth');
+  const yearEl = document.getElementById('birthYear');
+  const hourEl = document.getElementById('birthHour');
+  const placeEl = document.getElementById('birthPlace');
+  const genderEl = document.getElementById('gender');
+  
+  if (dayEl) dayEl.value = info.day;
+  if (monthEl) monthEl.value = info.month;
+  if (yearEl) yearEl.value = info.year;
+  if (hourEl) hourEl.value = info.hour;
+  if (placeEl) placeEl.value = info.birthplace;
+  if (genderEl) genderEl.value = info.gender;
+  
+  const genderButtonsContainer = document.querySelector('.gender-buttons');
+  document.querySelectorAll('.gender-btn').forEach(btn => {
+    const isActive = btn.getAttribute('data-value') === info.gender;
+    btn.classList.toggle('active', isActive);
+  });
+  if (genderButtonsContainer) {
+    genderButtonsContainer.classList.toggle('female-active', info.gender === 'Female');
+  }
+}
+
+function openEditBirthInfoModal() {
+  const modal = document.getElementById('editBirthInfoConfirmModal');
+  if (modal) modal.classList.add('active');
+}
+
+function closeEditBirthInfoModal() {
+  const modal = document.getElementById('editBirthInfoConfirmModal');
+  if (modal) modal.classList.remove('active');
+}
+
+function startBirthInfoEdit() {
+  const choiceInput = document.querySelector('input[name="birthInfoEditChoice"]:checked');
+  AppState.editingBirthInfo = true;
+  AppState.birthInfoEditChoice = choiceInput ? choiceInput.value : 'archive';
+  
+  closeEditBirthInfoModal();
+  setBirthInfoFormMode(true);
+  prefillBirthInfoForm();
+  showView('birthInfo');
+}
+
+function cancelBirthInfoEdit() {
+  AppState.editingBirthInfo = false;
+  AppState.birthInfoEditChoice = null;
+  setBirthInfoFormMode(false);
+  showView('landing');
 }
 
 async function loadUserBirthInfo(userId) {
@@ -939,6 +1090,9 @@ async function loadUserSessions() {
       // Sort sessions by creation time
       AppState.userSessions.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
       
+      // Load archive tags (added when a birth info edit archives old sessions)
+      AppState.archivedSessionsMap = data.archivedSessions || {};
+      
       console.log('Loaded user sessions:', AppState.userSessions);
     }
     
@@ -974,13 +1128,16 @@ function renderSessionList() {
 }
 
 function renderSession(session, sessionNumber, desktopContainer, mobileContainer) {
+  const archiveTag = AppState.archivedSessionsMap[session.chatId];
+  const label = archiveTag ? archiveTag.label : `Session ${sessionNumber}`;
+  
   // Desktop version
   const desktopCard = document.createElement('div');
-  desktopCard.className = 'session-card-mini';
+  desktopCard.className = archiveTag ? 'session-card-mini archived' : 'session-card-mini';
   desktopCard.setAttribute('data-chat-id', session.chatId);
   
   const sessionName = document.createElement('span');
-  sessionName.textContent = `Session ${sessionNumber}`;
+  sessionName.textContent = label;
   
   const sessionDate = document.createElement('small');
   const date = new Date(session.createdAt);
@@ -999,9 +1156,9 @@ function renderSession(session, sessionNumber, desktopContainer, mobileContainer
   
   // Mobile version
   const mobileBtn = document.createElement('button');
-  mobileBtn.className = 'btn-session-mobile';
+  mobileBtn.className = archiveTag ? 'btn-session-mobile archived' : 'btn-session-mobile';
   mobileBtn.setAttribute('data-chat-id', session.chatId);
-  mobileBtn.textContent = `Session ${sessionNumber}`;
+  mobileBtn.textContent = label;
   
   mobileBtn.addEventListener('click', () => {
     handleChatSessionClick(session.chatId);
@@ -1091,6 +1248,11 @@ async function handleChatSessionClick(chatId) {
   AppState.currentChatId = chatId;
   AppState.chineseConversationHistory = [];
   
+  // Determine if this session was archived (read-only) by a past birth
+  // info edit, and lock/unlock the message input accordingly.
+  AppState.currentSessionArchived = !!AppState.archivedSessionsMap[chatId];
+  applyArchivedSessionLock(AppState.currentSessionArchived);
+  
   // Clear chat messages
   const chatMsgContainer = document.getElementById('chatMessages');
   if(chatMsgContainer) chatMsgContainer.innerHTML = '';
@@ -1100,6 +1262,33 @@ async function handleChatSessionClick(chatId) {
   
   // Show chat view
   showView('chat');
+}
+
+// Locks/unlocks the message input area for read-only (archived) sessions.
+function applyArchivedSessionLock(isArchived) {
+  const input = document.getElementById('messageInput');
+  const sendBtn = document.getElementById('sendMessageBtn');
+  const inputArea = document.querySelector('.input-area');
+  
+  if (input) input.disabled = isArchived;
+  if (sendBtn) sendBtn.disabled = isArchived;
+  
+  if (inputArea) {
+    let note = document.getElementById('archivedSessionNote');
+    if (isArchived) {
+      input.placeholder = 'This session is archived and read-only';
+      if (!note) {
+        note = document.createElement('p');
+        note.id = 'archivedSessionNote';
+        note.className = 'archived-session-note';
+        note.textContent = '📁 This session is archived (read-only) because your birth info was updated.';
+        inputArea.parentElement.insertBefore(note, inputArea);
+      }
+    } else {
+      input.placeholder = 'Ask the BaZhi Guru anything...';
+      if (note) note.remove();
+    }
+  }
 }
 
 function handleHomeClick() {
@@ -1242,6 +1431,13 @@ async function handleSendMessage() {
   // Check if a chat session is selected
   if (!AppState.currentChatId) {
     alert('Please select a chat session from the home page first.');
+    return;
+  }
+  
+  // Archived sessions are read-only - block sending even if the input
+  // somehow submitted (e.g. programmatic Enter on a disabled field).
+  if (AppState.currentSessionArchived) {
+    alert('This session is archived and read-only. Please start a new session to continue chatting.');
     return;
   }
   

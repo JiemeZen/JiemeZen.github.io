@@ -64,6 +64,52 @@ async function saveBirthInfo(userId, data) {
 }
 
 // ============================================
+// Birth Info Edit - Session Handling
+// ============================================
+// Wipes every previous chat session, its archive tags, and the cached
+// BaZhi profile so the elemental chart/analysis regenerates from scratch
+// using the newly-saved birth info.
+async function wipeAllSessions(userId) {
+  try {
+    await db.collection('users').doc(userId).update({
+      chatSessions: firebase.firestore.FieldValue.delete(),
+      archivedSessions: firebase.firestore.FieldValue.delete(),
+      bazhiProfile: firebase.firestore.FieldValue.delete()
+    });
+    console.log('[wipeAllSessions] Chat sessions wiped for user:', userId);
+    return { success: true };
+  } catch (error) {
+    console.error('[wipeAllSessions] Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Tags every currently-existing session with an individually-numbered
+// "Session N - Archive" label (matching its current positional number) and
+// clears the cached BaZhi profile so it regenerates using the new birth
+// info. Chat message data itself is left untouched - only the archive tag
+// is added.
+async function archiveAllSessions(userId, sessions) {
+  try {
+    const updates = {};
+    (sessions || []).forEach((session, index) => {
+      updates[`archivedSessions.${session.chatId}`] = {
+        archivedAt: new Date().toISOString(),
+        label: `Session ${index + 1} - Archive`
+      };
+    });
+    updates.bazhiProfile = firebase.firestore.FieldValue.delete();
+
+    await db.collection('users').doc(userId).update(updates);
+    console.log('[archiveAllSessions] Sessions archived for user:', userId);
+    return { success: true };
+  } catch (error) {
+    console.error('[archiveAllSessions] Error:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ============================================
 // Chat History Management
 // ============================================
 async function loadChatHistory(userId, chatId) {

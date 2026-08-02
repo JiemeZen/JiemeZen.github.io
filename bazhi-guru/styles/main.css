@@ -2082,6 +2082,118 @@ body.view-chat .seal {
   font-style: italic;
 }
 
+/* ===================================== */
+/*     EDIT BIRTH INFO STYLES            */
+/* ===================================== */
+
+.edit-birthinfo-wrapper {
+  text-align: center;
+  margin: 20px auto 0;
+  max-width: 900px;
+}
+
+.btn-edit-birthinfo {
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--ink-black);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 10px;
+  padding: 10px 22px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-edit-birthinfo:hover {
+  background: var(--cherry-blossom);
+  color: white;
+  border-color: var(--cherry-blossom);
+  transform: translateY(-2px);
+}
+
+.edit-birthinfo-modal .warning-text {
+  color: var(--charcoal);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.session-choice-group {
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 16px 0;
+}
+
+.session-choice-label {
+  font-weight: 600;
+  color: var(--ink-black);
+  margin-bottom: 10px;
+}
+
+.session-choice-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--charcoal);
+}
+
+.session-choice-option input[type="radio"] {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.modal-actions .btn-close-popup {
+  flex: 1;
+}
+
+.btn-modal-secondary {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: var(--ink-black) !important;
+}
+
+.btn-modal-secondary:hover {
+  background: rgba(0, 0, 0, 0.15) !important;
+  box-shadow: none !important;
+}
+
+.btn-cancel-edit {
+  display: block;
+  margin: 10px auto 0;
+  background: none;
+  border: none;
+  color: var(--stone-gray);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+/* Archived session tags */
+.session-card-mini.archived,
+.btn-session-mobile.archived {
+  opacity: 0.65;
+  font-style: italic;
+}
+
+.archived-session-note {
+  text-align: center;
+  color: var(--stone-gray);
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+  margin: 0 0 10px;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .elemental-chart-container {

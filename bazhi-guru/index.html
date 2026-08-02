@@ -151,6 +151,50 @@
                             </div>
                         </div>
 
+                        <!-- Edit Birth Info -->
+                        <div class="edit-birthinfo-wrapper">
+                            <button class="btn-edit-birthinfo" id="editBirthInfoBtn">
+                                ✏️ Edit Birth Info
+                            </button>
+                        </div>
+
+                        <!-- Edit Birth Info Confirmation Modal -->
+                        <div class="element-info-popup" id="editBirthInfoConfirmModal">
+                            <div class="popup-content edit-birthinfo-modal">
+                                <h3>Edit Birth Information?</h3>
+                                <div class="popup-body">
+                                    <p class="warning-text">
+                                        ⚠️ Changing your birth information will make your
+                                        <strong>previous BaZhi readings inaccurate</strong>.
+                                        Editing is <strong>not recommended</strong> unless you
+                                        entered your details incorrectly.
+                                    </p>
+
+                                    <div class="session-choice-group">
+                                        <p class="session-choice-label">What should happen to your existing chat sessions?</p>
+                                        <label class="session-choice-option">
+                                            <input type="radio" name="birthInfoEditChoice" value="archive" checked>
+                                            <span>Keep previous sessions <em>(they will be archived and become read-only)</em></span>
+                                        </label>
+                                        <label class="session-choice-option">
+                                            <input type="radio" name="birthInfoEditChoice" value="wipe">
+                                            <span>Wipe all previous sessions permanently</span>
+                                        </label>
+                                    </div>
+
+                                    <p class="warning-text">
+                                        ℹ️ If you continue, your <strong>Elemental Profile and BaZhi
+                                        Analysis will be recalculated</strong> using your new birth
+                                        information.
+                                    </p>
+                                </div>
+                                <div class="modal-actions">
+                                    <button class="btn-close-popup btn-modal-secondary" id="cancelEditBirthInfoBtn">Cancel</button>
+                                    <button class="btn-close-popup" id="continueEditBirthInfoBtn">Continue</button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Support Card -->
                         <div class="support-card">
                             <h3 class="support-title">Enjoying the Guru? <br> Buy me a coffee! ☕️</h3>
@@ -354,8 +398,8 @@
   <div id="birthInfoView" class="view hidden">
     <div class="container">
       <div class="card">
-        <h2 class="text-center mb-1">Let's explore BaZhi</h2>
-        <p class="text-center mb-3" style="color: var(--stone-gray);">
+        <h2 class="text-center mb-1" id="birthInfoHeading">Let's explore BaZhi</h2>
+        <p class="text-center mb-3" style="color: var(--stone-gray);" id="birthInfoSubheading">
           Please provide your birth information for accurate readings
         </p>
 
@@ -433,8 +477,11 @@
           </div>
 
           <div class="text-center">
-            <button type="submit" class="btn-primary">
+            <button type="submit" class="btn-primary" id="birthInfoSubmitBtn">
               Save & Start
+            </button>
+            <button type="button" class="btn-cancel-edit hidden" id="cancelBirthInfoEditBtn">
+              Cancel
             </button>
           </div>
         </form>
