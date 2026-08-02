@@ -1042,10 +1042,19 @@ function startBirthInfoEdit() {
   showView('birthInfo');
 }
 
-function cancelBirthInfoEdit() {
+// Clears edit-mode state/copy without navigating. Safe to call whenever
+// the user leaves the birthInfo form without submitting it - whether via
+// the explicit Cancel button or an indirect route like the browser
+// back/forward buttons - so no wipe/archive/recalculation is ever applied
+// unless the form is actually submitted.
+function resetBirthInfoEditState() {
   AppState.editingBirthInfo = false;
   AppState.birthInfoEditChoice = null;
   setBirthInfoFormMode(false);
+}
+
+function cancelBirthInfoEdit() {
+  resetBirthInfoEditState();
   showView('landing');
 }
 
@@ -1738,6 +1747,16 @@ function setupRotatingText() {
 // Start rotating text when landing view is shown
 const originalShowView = showView;
 showView = function(viewName) {
+  // Guard against indirect exits from the birth-info edit form (e.g. the
+  // browser back/forward buttons triggering a hash-driven navigation)
+  // that bypass the explicit Cancel button - make sure no stale
+  // "editing" flag survives, so a later submission can never be
+  // mistaken for a continuation of an abandoned edit.
+  if (AppState.currentView === 'birthInfo' && viewName !== 'birthInfo' && AppState.editingBirthInfo) {
+    console.log('[showView] Leaving birthInfo edit mode without explicit Cancel - resetting edit state');
+    resetBirthInfoEditState();
+  }
+  
   originalShowView(viewName);
   if (viewName === 'landing') {
     setTimeout(() => {
