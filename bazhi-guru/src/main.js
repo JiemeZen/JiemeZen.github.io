@@ -227,7 +227,8 @@ const AppState = {
   fullBaZhiAnalysis_en: null, // Store English version of full BaZhi analysis
   showingFullAnalysis: false, // Track if showing full analysis
   userSessions: [], // Track user's chat sessions [{ chatId: 'chat_<timestamp>', hasMessages: false, createdAt: timestamp }]
-  chartLoadingInterval: null // Track chart loading message interval
+  chartLoadingInterval: null, // Track chart loading message interval
+  authLoadingInterval: null // Track login/register loading message interval
 };
 
 // ============================================
@@ -253,6 +254,14 @@ const ViewMapping = {
 // ============================================
 function showView(viewName, fromHash = false) {
   console.log('[showView] Switching to:', viewName, 'fromHash:', fromHash);
+  
+  // Clear the login/register loading animation whenever we're navigating
+  // away from the auth screen - the auth-state listener has finished
+  // resolving the user's profile/sessions by this point. No-op if it
+  // wasn't showing.
+  if (viewName !== 'auth') {
+    hideAuthLoadingAnimation();
+  }
   
   // 1. Hide Top-Level Overlay Views (Auth, BirthInfo)
   document.querySelectorAll('.view').forEach(view => {
@@ -646,6 +655,101 @@ function hideAuthStatusMessage() {
 }
 
 // ============================================
+// Auth Loading Animation (Login/Register)
+// ============================================
+// Mirrors the compass-spinner + cycling-message pattern used for BaZhi
+// chart generation (see displayLoadingChart / AppState.chartLoadingInterval
+// around line ~1690), shown while Firebase authenticates the user and the
+// auth-state listener finishes loading their profile/sessions.
+function showAuthLoadingAnimation(messages) {
+  const activeFormId = document.getElementById('registerForm').classList.contains('active')
+    ? 'registerFormElement'
+    : 'loginFormElement';
+  const activeForm = document.getElementById(activeFormId);
+  if (!activeForm) return;
+
+  // Hide the form while authenticating
+  activeForm.style.display = 'none';
+
+  // Reuse an existing container if one is already showing (e.g. a fast
+  // double-submit), otherwise create it right after the form.
+  let loadingContainer = document.getElementById('authLoadingContainer');
+  if (!loadingContainer) {
+    loadingContainer = document.createElement('div');
+    loadingContainer.id = 'authLoadingContainer';
+    loadingContainer.style.cssText = 'text-align: center; padding: 20px 0;';
+    activeForm.insertAdjacentElement('afterend', loadingContainer);
+  }
+
+  const compassContainer = document.createElement('div');
+  compassContainer.style.cssText = 'display: flex; align-items: center; justify-content: center; margin-bottom: 16px;';
+
+  const compass = document.createElement('div');
+  compass.style.cssText = `
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--cherry-blossom);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: compassCalibrate 2s ease-in-out infinite;
+    position: relative;
+  `;
+
+  const needle = document.createElement('div');
+  needle.style.cssText = `
+    position: absolute;
+    width: 3px;
+    height: 16px;
+    background: var(--gold);
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: center 18px;
+  `;
+
+  compass.appendChild(needle);
+  compassContainer.appendChild(compass);
+
+  const messageText = document.createElement('p');
+  messageText.id = 'authLoadingMessage';
+  messageText.style.cssText = 'font-size: 1em; margin: 8px 0; min-height: 24px; color: var(--stone-gray);';
+
+  loadingContainer.innerHTML = '';
+  loadingContainer.appendChild(compassContainer);
+  loadingContainer.appendChild(messageText);
+
+  let messageIndex = 0;
+  messageText.textContent = messages[0];
+
+  // Clear any pre-existing interval before starting a new one
+  if (AppState.authLoadingInterval) {
+    clearInterval(AppState.authLoadingInterval);
+  }
+  AppState.authLoadingInterval = setInterval(() => {
+    messageIndex = (messageIndex + 1) % messages.length;
+    messageText.textContent = messages[messageIndex];
+  }, 1200);
+}
+
+function hideAuthLoadingAnimation() {
+  if (AppState.authLoadingInterval) {
+    clearInterval(AppState.authLoadingInterval);
+    AppState.authLoadingInterval = null;
+  }
+
+  const loadingContainer = document.getElementById('authLoadingContainer');
+  if (loadingContainer) {
+    loadingContainer.remove();
+  }
+
+  const loginForm = document.getElementById('loginFormElement');
+  if (loginForm) loginForm.style.display = '';
+
+  const registerForm = document.getElementById('registerFormElement');
+  if (registerForm) registerForm.style.display = '';
+}
+
+// ============================================
 // Auth Handlers
 // ============================================
 async function handleLoginSubmit(event) {
@@ -655,12 +759,20 @@ async function handleLoginSubmit(event) {
   const password = document.getElementById('loginPassword').value;
   
   showAuthStatusMessage('Logging in...', 'info');
+  showAuthLoadingAnimation([
+    'Verifying your credentials...',
+    'Consulting the heavens...',
+    'Preparing your BaZhi Guru...'
+  ]);
   
   const result = await loginUser(email, password);
   
   if (result.success) {
     console.log('[Login] Success - Auth state listener will handle navigation');
-    // Show brief success message, then clear it
+    // Show brief success message, then clear it. The loading animation
+    // keeps running until showView() actually leaves the auth screen
+    // (see showView), since the auth-state listener still needs to load
+    // the user's birth info / sessions before navigating.
     showAuthStatusMessage('Login successful!', 'success');
     // Clear message after 500ms to ensure clean transition
     setTimeout(() => {
@@ -668,6 +780,7 @@ async function handleLoginSubmit(event) {
     }, 500);
     // Auth state listener will handle view switching
   } else {
+    hideAuthLoadingAnimation();
     showAuthStatusMessage(`Login failed: ${result.error}`, 'error');
   }
 }
@@ -691,6 +804,11 @@ async function handleRegisterSubmit(event) {
   }
   
   showAuthStatusMessage('Creating account...', 'info');
+  showAuthLoadingAnimation([
+    'Creating your account...',
+    'Consulting the heavens...',
+    'Preparing your BaZhi Guru...'
+  ]);
   
   const result = await registerUser(email, password);
   
@@ -703,6 +821,7 @@ async function handleRegisterSubmit(event) {
     }, 500);
     // Auth state listener will handle view switching
   } else {
+    hideAuthLoadingAnimation();
     showAuthStatusMessage(`Registration failed: ${result.error}`, 'error');
   }
 }
@@ -984,20 +1103,22 @@ async function handleChatSessionClick(chatId) {
 }
 
 function handleHomeClick() {
-  if (confirm('Return to home? Current chat session will remain saved.')) {
-    // Clear active state from all sidebar sessions
-    document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
-    
-    // Reset current chat ID and message data
-    AppState.currentChatId = null;
-    AppState.messageData = [];
-    
-    // Reload sessions to reflect any changes
-    loadUserSessions();
-    
-    // Show landing view
-    showView('landing');
-  }
+  // Navigate straight back to the landing page - the chat session is
+  // always auto-saved as messages are sent (see handleSendMessage), so no
+  // confirmation is needed before leaving it.
+  
+  // Clear active state from all sidebar sessions
+  document.querySelectorAll('.session-card-mini').forEach(c => c.classList.remove('active'));
+  
+  // Reset current chat ID and message data
+  AppState.currentChatId = null;
+  AppState.messageData = [];
+  
+  // Reload sessions to reflect any changes
+  loadUserSessions();
+  
+  // Show landing view
+  showView('landing');
 }
 
 // ============================================
