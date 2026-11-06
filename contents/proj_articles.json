@@ -1,5 +1,83 @@
 [
     {
+        "title": "WealthDex",
+        "subtitle": "Personal AI Finance App",
+        "image": "images/projects/wealthdex.png",
+        "video": "",
+        "alt": "personal-finance-fi-tracker",
+        "alt_title": "wealthdex",
+        "description": "Your money, counting down to freedom. A net-worth and financial independence (FI) tracker that turns every transaction into progress: live FI % and projected date, savings rate, a recurring-cost radar, CPF and SRS-aware balances, stock and options tracking, a what-if retirement simulator and an AI advisor. Private by design, as each sign-in gets its own locked-down ledger.",
+        "link": "#article_1",
+        "buttonText": "Work in progress",
+        "buttonLink": "#article_1",
+        "images": [
+            {
+                "src": "images/projects/wealthdex.png",
+                "caption": "FI dashboard: progress to financial independence, savings rate and cash flow"
+            },
+            {
+                "src": "images/projects/wealthdex-coach.png",
+                "caption": "AI finance coach: personalised insights and follow-up questions on your own figures"
+            },
+            {
+                "src": "images/projects/wealthdex-whatif.png",
+                "caption": "What-If Sim: FI, Coast FI and Barista FI dates under different assumptions"
+            }
+        ]
+    },
+    {
+        "title": "Mountains & Me",
+        "subtitle": "Mountaineering Logbook",
+        "image": "images/projects/mountains-n-me.png",
+        "video": "",
+        "alt": "mountaineering-logbook-app",
+        "alt_title": "mountains-n-me",
+        "description": "A personal logbook for every summit you have stood on. Climbs are logged against real OpenStreetMap trails with DEM-sampled elevation, so distance and gain come from the route itself, not guesswork. Relive each climb with trail maps, elevation profiles and 3D flyovers, track stats across countries, plan the next peak, and share story-ready summit stickers.",
+        "link": "#article_2",
+        "buttonText": "Work in progress",
+        "buttonLink": "#article_2",
+        "images": [
+            {
+                "src": "images/projects/mountains-n-me.png",
+                "caption": "Logbook home: every climb with its trail, gain and time"
+            },
+            {
+                "src": "images/projects/mountains-n-me-sticker.png",
+                "caption": "Story sticker: a see-through summit card ready for Instagram stories"
+            },
+            {
+                "src": "images/projects/mountains-n-me-climb.png",
+                "caption": "Climb detail: elevation profile, achievements and route map"
+            },
+            {
+                "src": "images/projects/mountains-n-me-atlas.png",
+                "caption": "Atlas: every summit and planned peak on one map"
+            }
+        ]
+    },
+    {
+        "title": "sgCyclist",
+        "subtitle": "Cycling PWA",
+        "image": "images/projects/sgcyclist.png",
+        "video": "",
+        "alt": "singapore-cycling-rain-window-app",
+        "alt_title": "sgcyclist",
+        "description": "Can I ride now and finish dry? sgCyclist gives a GO, WAIT or NO-GO call for your route. It checks every 500 m stretch against the rain expected at the minute you get there, using live NEA radar, forecasts and lightning. It also plans park connector routes with tunable preferences for PCN, shade, scenery and fewer crossings.",
+        "link": "#article_3",
+        "buttonText": "Work in progress",
+        "buttonLink": "#article_3",
+        "images": [
+            {
+                "src": "images/projects/sgcyclist.png",
+                "caption": "Rain Window: GO / WAIT / NO-GO for your route, with a rain-risk map"
+            },
+            {
+                "src": "images/projects/sgcyclist-planner.png",
+                "caption": "Route planner: park connector loops ranked by PCN, shade, scenery and crossings"
+            }
+        ]
+    },
+    {
         "title": "BaZhi Guru",
         "subtitle": "AI Application",
         "image": "images/projects/bazhi-guru.png",
@@ -9,7 +87,17 @@
         "description": "An AI-powered BaZhi consultation app that combines traditional Chinese fortune telling with a modern conversational experience.",
         "link": "bazhi-guru/index.html",
         "buttonText": "Try BaZhi Guru",
-        "buttonLink": "bazhi-guru/index.html"
+        "buttonLink": "bazhi-guru/index.html",
+        "images": [
+            {
+                "src": "images/projects/bazhi-guru.png",
+                "caption": "Elemental profile: your Five Elements chart"
+            },
+            {
+                "src": "images/projects/bazhi-guru-chat.png",
+                "caption": "Consultation: ask the Guru about career, balance and more"
+            }
+        ]
     },
     {
         "title": "ShareTab",
@@ -71,8 +159,7 @@
         "link": "#article_4",
         "buttonText": "See on Github",
         "buttonLink": "https://github.com/JiemeZen/me5406_rl"
-    }
-    ,
+    },
     {
         "title": "Bumblebee AUV 4.0",
         "subtitle": "NUS Team Bumblebee",
@@ -86,7 +173,7 @@
         "buttonLink": "#https://bumblebee.sg/auv/bbauv4/mechanical/"
     },
     {
-        "title": "Hornet AUV 4.0", 
+        "title": "Hornet AUV 4.0",
         "subtitle": "NUS Team Bumblebee - Trainee",
         "image": "",
         "video": "https://www.youtube.com/embed/cZJQVpu99U0",

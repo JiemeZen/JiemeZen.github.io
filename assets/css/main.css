@@ -5578,3 +5578,103 @@ input, select, textarea {
 			}
 
 	}
+/* Project screenshot carousel (assets/js/main.js: buildCarousel) */
+	.proj-carousel {
+		margin: 2rem 0;
+	}
+
+	.proj-carousel-frame {
+		position: relative;
+	}
+
+	.proj-carousel .proj-slide {
+		margin: 0;
+	}
+
+	.proj-carousel .proj-slide[hidden] {
+		display: none;
+	}
+
+	.proj-carousel .image.fit {
+		margin: 0;
+	}
+
+	#main .proj-carousel button.proj-nav {
+		position: absolute;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 2.5rem;
+		height: 2.5rem;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: rgba(255, 255, 255, 0.92);
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+		color: #212931;
+		font-size: 1.75rem;
+		line-height: 2.4rem;
+		letter-spacing: 0;
+		text-align: center;
+		cursor: pointer;
+		opacity: 0.85;
+		transition: opacity 0.2s ease, background-color 0.2s ease;
+	}
+
+	#main .proj-carousel button.proj-nav.prev { left: 0.75rem; }
+	#main .proj-carousel button.proj-nav.next { right: 0.75rem; }
+
+	#main .proj-carousel button.proj-nav:hover,
+	#main .proj-carousel button.proj-nav:focus-visible {
+		opacity: 1;
+		background: #fff;
+	}
+
+	.proj-carousel-meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-top: 0.75rem;
+		min-height: 1.5rem;
+	}
+
+	.proj-caption {
+		font-size: 0.8rem;
+		font-style: italic;
+		line-height: 1.4;
+		text-align: left;
+		opacity: 0.8;
+	}
+
+	.proj-dots {
+		display: flex;
+		flex-shrink: 0;
+		gap: 0.45rem;
+	}
+
+	#main .proj-carousel button.proj-dot {
+		width: 0.6rem;
+		height: 0.6rem;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: rgba(33, 39, 44, 0.25);
+		box-shadow: none;
+		cursor: pointer;
+		transition: background-color 0.2s ease, transform 0.2s ease;
+	}
+
+	#main .proj-carousel button.proj-dot.active {
+		background: #18bfef;
+		transform: scale(1.25);
+	}
+
+	.dark-mode #main .proj-carousel button.proj-dot {
+		background: rgba(255, 255, 255, 0.3);
+	}
+
+	.dark-mode #main .proj-carousel button.proj-dot.active {
+		background: #18bfef;
+	}

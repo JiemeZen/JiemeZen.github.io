@@ -337,6 +337,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		.then(response => response.json())
 		.then(data => {
 			const articlesContainer = document.getElementById('articles');
+			articlesContainer.addEventListener('click', handleCarouselClick);
 			const portfolioWebsite = document.getElementById("website");
 			const portfolioPublications = document.getElementById("publications");
 			let articlesPerPage = 4;
@@ -372,8 +373,11 @@ document.addEventListener("DOMContentLoaded", function() {
 							<div class="container">
 								<iframe width="100%" height="100%" class="embedVideo" src="${article.video}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>
 							</div>`;
-					} else if (article.image) {
-						mediaContent = `<img src="${article.image}" alt="${article.alt}" title="${article.alt_title}" class="image fit" />`;
+					} else if (Array.isArray(article.images) && article.images.length > 1) {
+						mediaContent = buildCarousel(article);
+					} else if (article.image || (Array.isArray(article.images) && article.images.length === 1)) {
+						const src = article.image || article.images[0].src;
+						mediaContent = `<img src="${src}" alt="${article.alt}" title="${article.alt_title}" class="image fit" />`;
 					} else if (article.figma) {
 						mediaContent = `<iframe width="100%" height="800px" src="${article.figma}" alt="${article.alt}" title="${article.alt_title}" allowfullscreen></iframe>`;
 					}
@@ -528,3 +532,57 @@ document.querySelectorAll('.load-iframe').forEach(title => {
 		}
 	});
 });
+// ============================================
+// Project screenshot carousel
+// ============================================
+// A project entry can carry `images: [{ src, caption }]` instead of a single `image`.
+// With more than one, the card shows them one at a time with Prev/Next and dots,
+// in the same slot and at the same size as a single image.
+function buildCarousel(article) {
+	const slides = article.images.map((img, i) => `
+		<figure class="proj-slide${i === 0 ? ' active' : ''}" ${i === 0 ? '' : 'hidden'}>
+			<img src="${img.src}" alt="${img.caption || article.alt}" title="${article.alt_title}" class="image fit" ${i === 0 ? '' : 'loading="lazy"'} />
+		</figure>`).join('');
+	const dots = article.images.map((img, i) => `
+		<button type="button" class="proj-dot${i === 0 ? ' active' : ''}" data-carousel-go="${i}" aria-label="Show screenshot ${i + 1}${img.caption ? ': ' + img.caption : ''}"></button>`).join('');
+	const first = article.images[0];
+	return `
+		<div class="proj-carousel" data-index="0" data-count="${article.images.length}" role="group" aria-roledescription="carousel" aria-label="${article.title} screenshots">
+			<div class="proj-carousel-frame">
+				${slides}
+				<button type="button" class="proj-nav prev" data-carousel-step="-1" aria-label="Previous screenshot">&#8249;</button>
+				<button type="button" class="proj-nav next" data-carousel-step="1" aria-label="Next screenshot">&#8250;</button>
+			</div>
+			<div class="proj-carousel-meta">
+				<span class="proj-caption" aria-live="polite">${first.caption || ''}</span>
+				<span class="proj-dots">${dots}</span>
+			</div>
+		</div>`;
+}
+
+function handleCarouselClick(event) {
+	const control = event.target.closest('[data-carousel-step], [data-carousel-go]');
+	if (!control) return;
+	const carousel = control.closest('.proj-carousel');
+	if (!carousel) return;
+	event.preventDefault();
+
+	const count = Number(carousel.dataset.count);
+	const current = Number(carousel.dataset.index);
+	const next = control.dataset.carouselGo !== undefined
+		? Number(control.dataset.carouselGo)
+		: (current + Number(control.dataset.carouselStep) + count) % count;
+
+	carousel.dataset.index = next;
+	carousel.querySelectorAll('.proj-slide').forEach((slide, i) => {
+		slide.classList.toggle('active', i === next);
+		slide.hidden = i !== next;
+	});
+	carousel.querySelectorAll('.proj-dot').forEach((dot, i) => {
+		dot.classList.toggle('active', i === next);
+		dot.setAttribute('aria-current', i === next ? 'true' : 'false');
+	});
+	const caption = carousel.querySelector('.proj-caption');
+	const img = carousel.querySelectorAll('.proj-slide img')[next];
+	if (caption && img) caption.textContent = img.alt;
+}
